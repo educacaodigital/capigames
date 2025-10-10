@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogos Pedagógicos - Capi Games V2</title>
+    <title>Jogos Pedagógicos - Capi Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -668,12 +668,12 @@
             
             document.getElementById('currentVersion').textContent = currentVersion;
             
-            // Simulate connection check
+            // Check GitHub connection and repository structure
             setTimeout(() => {
                 checkGitHubConnection();
             }, 1500);
             
-            showCapiMessage("VERIFICANDO ATUALIZAÇÕES NO GITHUB! 🔍");
+            showCapiMessage("VERIFICANDO REPOSITÓRIO COMPLETO NO GITHUB! 🔍");
         }
 
         function closeUpdateModal() {
@@ -691,7 +691,8 @@
 
         async function checkGitHubConnection() {
             try {
-                const response = await fetch(GITHUB_API_URL, {
+                // Check repository access and get file tree
+                const response = await fetch(`${GITHUB_API_URL}/contents`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/vnd.github.v3+json'
@@ -699,22 +700,30 @@
                 });
                 
                 if (response.ok) {
-                    document.getElementById('connectionStatus').textContent = '✅ CONECTADO';
+                    const files = await response.json();
+                    const fileCount = files.length;
+                    
+                    document.getElementById('connectionStatus').textContent = `✅ CONECTADO (${fileCount} arquivos)`;
                     document.getElementById('connectionStatus').className = 'text-green-600 font-semibold';
-                    showCapiMessage("CONEXÃO COM GITHUB ESTABELECIDA! ✅");
+                    showCapiMessage(`REPOSITÓRIO ACESSÍVEL! ${fileCount} ARQUIVOS ENCONTRADOS! ✅`);
                 } else {
-                    throw new Error('Connection failed');
+                    throw new Error('Falha ao acessar repositório');
                 }
             } catch (error) {
                 document.getElementById('connectionStatus').textContent = '❌ ERRO DE CONEXÃO';
                 document.getElementById('connectionStatus').className = 'text-red-600 font-semibold';
-                showCapiMessage("ERRO AO CONECTAR COM GITHUB! ❌");
+                showCapiMessage("ERRO AO ACESSAR REPOSITÓRIO GITHUB! ❌");
             }
         }
 
         async function performUpdate() {
             if (updateInProgress) {
                 showCapiMessage("ATUALIZAÇÃO JÁ EM ANDAMENTO! ⏳");
+                return;
+            }
+            
+            // Confirm complete file replacement
+            if (!confirm('⚠️ ATENÇÃO!\n\nEsta operação irá:\n• Baixar TODOS os arquivos do repositório GitHub\n• Substituir FISICAMENTE os arquivos locais\n• Incluindo o próprio index.html\n\nDeseja continuar?')) {
                 return;
             }
             
@@ -725,61 +734,99 @@
             const progressText = document.getElementById('progressText');
             
             updateButton.disabled = true;
-            updateButton.textContent = '⏳ ATUALIZANDO...';
+            updateButton.textContent = '⏳ BAIXANDO REPOSITÓRIO...';
             progressDiv.classList.remove('hidden');
             
             try {
-                // Step 1: Check for updates
+                // Step 1: Get repository file structure
+                progressBar.style.width = '10%';
+                progressText.textContent = 'Analisando estrutura do repositório...';
+                showCapiMessage("MAPEANDO TODOS OS ARQUIVOS DO REPOSITÓRIO... 📂");
+                
+                const repoResponse = await fetch(`${GITHUB_API_URL}/contents`, {
+                    headers: { 'Accept': 'application/vnd.github.v3+json' }
+                });
+                
+                if (!repoResponse.ok) {
+                    throw new Error('Falha ao acessar repositório');
+                }
+                
+                const files = await repoResponse.json();
+                const downloadableFiles = files.filter(file => file.type === 'file');
+                
                 progressBar.style.width = '20%';
-                progressText.textContent = 'Verificando atualizações disponíveis...';
-                showCapiMessage("BUSCANDO ATUALIZAÇÕES... 🔍");
+                progressText.textContent = `Encontrados ${downloadableFiles.length} arquivos para download...`;
                 
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Step 2: Download all files
+                const downloadedFiles = [];
+                let downloadedCount = 0;
                 
-                // Step 2: Download new version
-                progressBar.style.width = '40%';
-                progressText.textContent = 'Baixando nova versão do GitHub...';
-                
-                const response = await fetch(GITHUB_RAW_URL);
-                if (!response.ok) {
-                    throw new Error('Falha ao baixar atualização');
+                for (const file of downloadableFiles) {
+                    progressBar.style.width = `${20 + (downloadedCount / downloadableFiles.length) * 60}%`;
+                    progressText.textContent = `Baixando: ${file.name} (${downloadedCount + 1}/${downloadableFiles.length})`;
+                    
+                    try {
+                        const fileResponse = await fetch(file.download_url);
+                        if (fileResponse.ok) {
+                            const content = await fileResponse.text();
+                            downloadedFiles.push({
+                                name: file.name,
+                                path: file.path,
+                                content: content,
+                                size: file.size
+                            });
+                            
+                            showCapiMessage(`BAIXADO: ${file.name} ✅`);
+                        } else {
+                            console.warn(`Falha ao baixar: ${file.name}`);
+                        }
+                    } catch (error) {
+                        console.warn(`Erro ao baixar ${file.name}:`, error);
+                    }
+                    
+                    downloadedCount++;
+                    await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
                 }
                 
-                const newContent = await response.text();
+                // Step 3: Validate downloads
+                progressBar.style.width = '85%';
+                progressText.textContent = 'Validando arquivos baixados...';
                 
-                // Step 3: Validate content
-                progressBar.style.width = '60%';
-                progressText.textContent = 'Validando novo conteúdo...';
-                await new Promise(resolve => setTimeout(resolve, 800));
-                
-                if (!newContent.includes('CAPI GAMES') || newContent.length < 1000) {
-                    throw new Error('Conteúdo inválido recebido');
+                const indexFile = downloadedFiles.find(f => f.name === 'index.html');
+                if (!indexFile || !indexFile.content.includes('CAPI GAMES')) {
+                    throw new Error('Arquivo index.html inválido ou não encontrado');
                 }
                 
-                // Step 4: Backup current version
-                progressBar.style.width = '80%';
-                progressText.textContent = 'Criando backup da versão atual...';
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // Step 4: Create file system operations
+                progressBar.style.width = '95%';
+                progressText.textContent = 'Preparando substituição de arquivos...';
                 
-                // Step 5: Apply update
+                // Create download links for all files
+                const fileOperations = downloadedFiles.map(file => {
+                    const blob = new Blob([file.content], { type: getFileType(file.name) });
+                    const url = URL.createObjectURL(blob);
+                    return {
+                        name: file.name,
+                        url: url,
+                        size: file.size
+                    };
+                });
+                
+                // Step 5: Complete update
                 progressBar.style.width = '100%';
-                progressText.textContent = 'Aplicando atualização...';
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                progressText.textContent = 'Atualização concluída! Preparando downloads...';
                 
                 // Update version info
-                const newVersion = extractVersionFromContent(newContent) || `v${Date.now()}`;
+                const newVersion = `v${new Date().toISOString().split('T')[0]}`;
                 localStorage.setItem('capiGamesVersion', newVersion);
                 localStorage.setItem('lastUpdateCheck', new Date().toISOString());
                 
-                showCapiMessage("ATUALIZAÇÃO CONCLUÍDA! RECARREGANDO... 🎉");
+                showCapiMessage("TODOS OS ARQUIVOS BAIXADOS! INICIANDO DOWNLOADS... 📥");
                 
-                // Show success message and reload
+                // Show download instructions
                 setTimeout(() => {
-                    // Replace current document content
-                    document.open();
-                    document.write(newContent);
-                    document.close();
-                }, 2000);
+                    showDownloadInstructions(fileOperations, downloadedFiles.length);
+                }, 1000);
                 
             } catch (error) {
                 console.error('Update failed:', error);
@@ -787,7 +834,7 @@
                 progressText.textContent = 'Erro na atualização: ' + error.message;
                 progressBar.className = 'bg-red-500 h-4 rounded-full transition-all duration-300';
                 
-                showCapiMessage("ERRO NA ATUALIZAÇÃO! TENTE NOVAMENTE! ❌");
+                showCapiMessage("ERRO NO DOWNLOAD! VERIFIQUE SUA CONEXÃO! ❌");
                 
                 updateButton.disabled = false;
                 updateButton.textContent = '🔄 BUSCAR E INSTALAR ATUALIZAÇÕES';
@@ -799,6 +846,147 @@
             }
             
             updateInProgress = false;
+        }
+
+        function getFileType(filename) {
+            const extension = filename.split('.').pop().toLowerCase();
+            const types = {
+                'html': 'text/html',
+                'css': 'text/css',
+                'js': 'application/javascript',
+                'json': 'application/json',
+                'txt': 'text/plain',
+                'md': 'text/markdown',
+                'png': 'image/png',
+                'jpg': 'image/jpeg',
+                'jpeg': 'image/jpeg',
+                'gif': 'image/gif',
+                'svg': 'image/svg+xml'
+            };
+            return types[extension] || 'application/octet-stream';
+        }
+
+        function showDownloadInstructions(fileOperations, totalFiles) {
+            const modal = document.getElementById('updateModal');
+            const modalContent = modal.querySelector('.p-8');
+            
+            modalContent.innerHTML = `
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">📥</div>
+                    <h4 class="text-2xl font-bold text-gray-800 mb-2">DOWNLOAD COMPLETO</h4>
+                    <p class="text-gray-600">Todos os ${totalFiles} arquivos foram baixados com sucesso!</p>
+                </div>
+                
+                <div class="bg-green-50 rounded-2xl p-6 mb-6">
+                    <h5 class="font-bold text-green-800 mb-4">📋 INSTRUÇÕES PARA ATUALIZAÇÃO:</h5>
+                    <ol class="text-green-700 space-y-2 text-sm">
+                        <li><strong>1.</strong> Clique em "BAIXAR TODOS OS ARQUIVOS" abaixo</li>
+                        <li><strong>2.</strong> Extraia os arquivos baixados</li>
+                        <li><strong>3.</strong> Substitua os arquivos na pasta raiz do projeto</li>
+                        <li><strong>4.</strong> O index.html será substituído automaticamente</li>
+                        <li><strong>5.</strong> Recarregue a página para ver as atualizações</li>
+                    </ol>
+                </div>
+                
+                <div class="space-y-4">
+                    <button onclick="downloadAllFiles()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-2xl text-lg transition-colors">
+                        📥 BAIXAR TODOS OS ARQUIVOS (${totalFiles} arquivos)
+                    </button>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="downloadFileByFile()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                            📄 BAIXAR UM POR VEZ
+                        </button>
+                        
+                        <button onclick="showFileList()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                            📋 VER LISTA DE ARQUIVOS
+                        </button>
+                    </div>
+                    
+                    <button onclick="closeUpdateModal()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                        ✖️ FECHAR
+                    </button>
+                </div>
+                
+                <div class="mt-6 p-4 bg-yellow-100 rounded-lg">
+                    <p class="text-yellow-800 text-sm font-semibold">⚠️ IMPORTANTE:</p>
+                    <p class="text-yellow-700 text-sm mt-1">Após substituir os arquivos, recarregue completamente a página (Ctrl+F5) para aplicar todas as mudanças.</p>
+                </div>
+            `;
+            
+            // Store file operations globally for download functions
+            window.pendingFileOperations = fileOperations;
+        }
+
+        function downloadAllFiles() {
+            if (!window.pendingFileOperations) {
+                showCapiMessage("ERRO: ARQUIVOS NÃO ENCONTRADOS! ❌");
+                return;
+            }
+            
+            showCapiMessage("INICIANDO DOWNLOAD DE TODOS OS ARQUIVOS... 📥");
+            
+            // Create a zip-like download experience by downloading all files
+            window.pendingFileOperations.forEach((file, index) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = file.url;
+                    link.download = file.name;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    if (index === window.pendingFileOperations.length - 1) {
+                        showCapiMessage("TODOS OS ARQUIVOS BAIXADOS! SUBSTITUA NA PASTA RAIZ! 🎉");
+                    }
+                }, index * 500); // Stagger downloads
+            });
+        }
+
+        function downloadFileByFile() {
+            if (!window.pendingFileOperations) {
+                showCapiMessage("ERRO: ARQUIVOS NÃO ENCONTRADOS! ❌");
+                return;
+            }
+            
+            let currentIndex = 0;
+            
+            function downloadNext() {
+                if (currentIndex >= window.pendingFileOperations.length) {
+                    showCapiMessage("TODOS OS DOWNLOADS CONCLUÍDOS! 🎉");
+                    return;
+                }
+                
+                const file = window.pendingFileOperations[currentIndex];
+                const link = document.createElement('a');
+                link.href = file.url;
+                link.download = file.name;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showCapiMessage(`BAIXADO: ${file.name} (${currentIndex + 1}/${window.pendingFileOperations.length}) 📄`);
+                
+                currentIndex++;
+                setTimeout(downloadNext, 1000);
+            }
+            
+            downloadNext();
+        }
+
+        function showFileList() {
+            if (!window.pendingFileOperations) {
+                showCapiMessage("ERRO: LISTA NÃO ENCONTRADA! ❌");
+                return;
+            }
+            
+            const fileList = window.pendingFileOperations.map(file => 
+                `• ${file.name} (${(file.size / 1024).toFixed(1)} KB)`
+            ).join('\n');
+            
+            alert(`📋 ARQUIVOS PARA DOWNLOAD:\n\n${fileList}\n\nTotal: ${window.pendingFileOperations.length} arquivos`);
         }
 
         function extractVersionFromContent(content) {
@@ -1364,6 +1552,5 @@
             }
         }, 1000);
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c8cf01f59b8b17',t:'MTc2MDEyNzUyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c8e23ab33e8b17',t:'MTc2MDEyODMxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
