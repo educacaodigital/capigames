@@ -90,8 +90,8 @@
                 <button id="toggleCapi" class="bg-yellow-400 hover:bg-yellow-500 text-purple-800 font-bold py-2 px-4 rounded-full transition-colors">
                     <span id="capiToggleText">🐹 DESABILITAR CAPI</span>
                 </button>
-                <button onclick="openGameConfig()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full">
-                    ⚙️ CONFIGURAÇÕES
+                <button onclick="checkForUpdates()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full">
+                    🔄 ATUALIZAR JOGOS
                 </button>
             </div>
         </div>
@@ -348,271 +348,79 @@
             </div>
         </div>
 
-        <!-- Login Modal -->
-        <div id="loginModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-            <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl">
-                <div class="bg-gradient-to-r from-red-500 to-pink-600 p-6 text-white rounded-t-3xl">
+        <!-- Update Modal -->
+        <div id="updateModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl">
+                <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white rounded-t-3xl">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-2xl font-bold">🔐 ACESSO RESTRITO</h3>
-                        <button onclick="closeLogin()" class="bg-white/20 hover:bg-white/30 rounded-full p-2">
+                        <h3 class="text-2xl font-bold">🔄 ATUALIZAÇÃO DE JOGOS</h3>
+                        <button onclick="closeUpdateModal()" class="bg-white/20 hover:bg-white/30 rounded-full p-2">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
                     </div>
                 </div>
-                <div class="p-6">
-                    <div class="text-center mb-6">
-                        <div class="text-6xl mb-4">⚙️</div>
-                        <h4 class="text-xl font-bold text-gray-800 mb-2">CONFIGURAÇÕES</h4>
-                        <p class="text-gray-600">Digite suas credenciais para acessar</p>
+                <div class="p-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🚀</div>
+                        <h4 class="text-2xl font-bold text-gray-800 mb-2">SISTEMA DE ATUALIZAÇÃO</h4>
+                        <p class="text-gray-600">Conectando com o repositório GitHub para buscar novos jogos</p>
                     </div>
                     
-                    <form id="loginForm" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">USUÁRIO:</label>
-                            <input type="text" id="loginUser" required class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-red-500 focus:outline-none" placeholder="Digite o usuário">
+                    <div class="bg-blue-50 rounded-2xl p-6 mb-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="text-2xl">📂</span>
+                            <div>
+                                <h5 class="font-bold text-blue-800">REPOSITÓRIO OFICIAL</h5>
+                                <p class="text-blue-600 text-sm">github.com/educacaodigital/capigames</p>
+                            </div>
                         </div>
                         
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">SENHA:</label>
-                            <input type="password" id="loginPassword" required class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-red-500 focus:outline-none" placeholder="Digite a senha">
-                        </div>
-                        
-                        <div id="loginError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-                            <strong>Erro:</strong> Usuário ou senha incorretos!
-                        </div>
-                        
-                        <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
-                            🔓 ENTRAR
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Configuration Modal -->
-        <div id="configModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-            <div class="bg-white rounded-3xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
-                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-2xl font-bold">⚙️ CONFIGURAÇÕES DE JOGOS</h3>
-                        <button onclick="closeConfig()" class="bg-white/20 hover:bg-white/30 rounded-full p-2">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="p-6 overflow-y-auto max-h-[calc(95vh-120px)]">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Formulário de Adição -->
-                        <div class="bg-gray-50 rounded-2xl p-6">
-                            <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                                <span class="text-2xl mr-2">➕</span>
-                                ADICIONAR NOVO JOGO
-                            </h4>
-                            
-                            <form id="gameForm" class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">NOME DO JOGO *</label>
-                                    <input type="text" id="gameName" required class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">DESCRIÇÃO</label>
-                                    <textarea id="gameDescription" rows="3" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"></textarea>
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">CATEGORIA *</label>
-                                    <select id="gameCategory" required class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
-                                        <option value="">Selecione uma categoria</option>
-                                        <option value="1-3">Creche (1-3 anos)</option>
-                                        <option value="4-6">Infantil (4-6 anos)</option>
-                                        <option value="7-9">Fundamental I (7-9 anos)</option>
-                                        <option value="10-14">Fundamental II (10-14 anos)</option>
-                                        <option value="naee">Sala do NAEE (Educação Especial)</option>
-                                    </select>
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">TIPO DE JOGO</label>
-                                    <select id="gameType" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
-                                        <option value="">Selecione o tipo</option>
-                                        <option value="matematica">Matemática</option>
-                                        <option value="portugues">Português</option>
-                                        <option value="ciencias">Ciências</option>
-                                        <option value="cores">Cores e Formas</option>
-                                        <option value="coordenacao">Coordenação</option>
-                                        <option value="comunicacao">Comunicação</option>
-                                        <option value="sensorial">Sensorial</option>
-                                        <option value="rotina">Rotina</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">COR DO CARD</label>
-                                        <div class="flex items-center space-x-2">
-                                            <input type="color" id="cardColor" value="#667eea" class="w-12 h-12 border-2 border-gray-300 rounded-lg cursor-pointer">
-                                            <div id="colorPreview" class="flex-1 h-12 rounded-lg border-2 border-gray-300" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">ÍCONE</label>
-                                        <input type="text" id="gameIcon" placeholder="🎮" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">URL DA IMAGEM</label>
-                                    <input type="url" id="gameImage" placeholder="https://exemplo.com/imagem.jpg" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">CAMINHO DA PASTA</label>
-                                    <input type="text" id="gamePath" placeholder="/jogos/meu-jogo/" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">URL DO JOGO</label>
-                                    <input type="url" id="gameUrl" placeholder="https://exemplo.com/jogo" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
-                                </div>
-                                
-                                <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
-                                    ✅ ADICIONAR JOGO
-                                </button>
-                            </form>
-                        </div>
-                        
-                        <!-- Sistema de Atualização e Administradores -->
-                        <div class="space-y-6">
-                            <!-- Gerenciamento de Administradores -->
-                            <div class="bg-red-50 rounded-2xl p-6">
-                                <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                                    <span class="text-2xl mr-2">👥</span>
-                                    GERENCIAR ADMINISTRADORES
-                                </h4>
-                                
-                                <div class="space-y-4">
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">NOVO USUÁRIO</label>
-                                            <input type="text" id="newAdminUser" placeholder="Digite o usuário" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-red-500 focus:outline-none">
-                                        </div>
-                                        
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">NOVA SENHA</label>
-                                            <input type="password" id="newAdminPassword" placeholder="Digite a senha" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-red-500 focus:outline-none">
-                                        </div>
-                                    </div>
-                                    
-                                    <button onclick="addAdmin()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
-                                        ➕ ADICIONAR ADMINISTRADOR
-                                    </button>
-                                    
-                                    <div class="mt-4">
-                                        <h5 class="text-lg font-bold text-gray-700 mb-3">ADMINISTRADORES CADASTRADOS:</h5>
-                                        <div id="adminsList" class="space-y-2">
-                                            <!-- Admins list will be loaded here -->
-                                        </div>
-                                    </div>
-                                </div>
+                        <div id="updateStatus" class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                <span class="text-gray-700">Status da Conexão:</span>
+                                <span id="connectionStatus" class="text-yellow-600 font-semibold">🔄 VERIFICANDO...</span>
                             </div>
                             
-                            <div class="bg-blue-50 rounded-2xl p-6">
-                                <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                                    <span class="text-2xl mr-2">🔄</span>
-                                    ATUALIZAÇÃO AUTOMÁTICA
-                                </h4>
-                                
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">URL DE ATUALIZAÇÃO</label>
-                                        <input type="url" id="updateUrl" placeholder="https://api.exemplo.com/jogos" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-3">FREQUÊNCIA DE ATUALIZAÇÃO</label>
-                                        <div class="space-y-2">
-                                            <label class="flex items-center">
-                                                <input type="radio" name="updateFrequency" value="7" class="mr-2">
-                                                <span>A cada 7 dias</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="radio" name="updateFrequency" value="30" checked class="mr-2">
-                                                <span>A cada 30 dias</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="radio" name="updateFrequency" value="60" class="mr-2">
-                                                <span>A cada 60 dias</span>
-                                            </label>
-                                            <label class="flex items-center">
-                                                <input type="radio" name="updateFrequency" value="90" class="mr-2">
-                                                <span>A cada 90 dias</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    
-                                    <button onclick="updateGames()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
-                                        🔄 ATUALIZAR JOGOS AGORA
-                                    </button>
-                                </div>
+                            <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                <span class="text-gray-700">Última Atualização:</span>
+                                <span id="lastUpdate" class="text-gray-600 font-semibold">NUNCA</span>
                             </div>
                             
-                            <!-- Filtros e Exclusão -->
-                            <div class="bg-purple-50 rounded-2xl p-6">
-                                <h4 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                                    <span class="text-2xl mr-2">🔍</span>
-                                    FILTRAR JOGOS
-                                </h4>
-                                
-                                <select id="categoryFilter" onchange="filterGames()" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none mb-4">
-                                    <option value="">Todas as categorias</option>
-                                    <option value="1-3">Creche (1-3 anos)</option>
-                                    <option value="4-6">Infantil (4-6 anos)</option>
-                                    <option value="7-9">Fundamental I (7-9 anos)</option>
-                                    <option value="10-14">Fundamental II (10-14 anos)</option>
-                                    <option value="naee">Sala do NAEE (Educação Especial)</option>
-                                </select>
-                                
-                                <div class="border-t pt-4">
-                                    <h5 class="text-lg font-bold text-red-600 mb-3 flex items-center">
-                                        <span class="text-xl mr-2">🗑️</span>
-                                        EXCLUSÃO EM MASSA
-                                    </h5>
-                                    
-                                    <div class="space-y-3">
-                                        <button onclick="deleteAllCustomGames()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                                            🗑️ EXCLUIR TODOS OS JOGOS PERSONALIZADOS
-                                        </button>
-                                        
-                                        <button onclick="deleteGamesByCategory()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                                            📂 EXCLUIR POR CATEGORIA
-                                        </button>
-                                    </div>
-                                    
-                                    <div class="mt-3 p-3 bg-red-100 rounded-lg">
-                                        <p class="text-red-800 text-xs font-semibold">⚠️ ATENÇÃO:</p>
-                                        <p class="text-red-700 text-xs">Estas ações não podem ser desfeitas!</p>
-                                    </div>
-                                </div>
+                            <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                <span class="text-gray-700">Versão Atual:</span>
+                                <span id="currentVersion" class="text-gray-600 font-semibold">v1.0.0</span>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Lista de Jogos -->
-                    <div class="mt-8 bg-white rounded-2xl p-6 border-2 border-gray-200">
-                        <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                            <span class="text-2xl mr-2">📋</span>
-                            JOGOS CADASTRADOS
-                        </h4>
+                    <div class="space-y-4">
+                        <button id="updateButton" onclick="performUpdate()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-2xl text-lg transition-colors">
+                            🔄 BUSCAR E INSTALAR ATUALIZAÇÕES
+                        </button>
                         
-                        <div id="gamesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <!-- Games will be loaded here -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="checkVersion()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                                📋 VERIFICAR VERSÃO
+                            </button>
+                            
+                            <button onclick="viewChangelog()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                                📝 VER NOVIDADES
+                            </button>
                         </div>
+                    </div>
+                    
+                    <div id="updateProgress" class="hidden mt-6">
+                        <div class="bg-gray-200 rounded-full h-4 mb-2">
+                            <div id="progressBar" class="bg-green-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <p id="progressText" class="text-center text-sm text-gray-600">Preparando atualização...</p>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-yellow-100 rounded-lg">
+                        <p class="text-yellow-800 text-sm font-semibold">⚠️ IMPORTANTE:</p>
+                        <p class="text-yellow-700 text-sm mt-1">A atualização substituirá o arquivo atual. Certifique-se de ter uma conexão estável com a internet.</p>
                     </div>
                 </div>
             </div>
@@ -642,13 +450,17 @@
         let capiEnabled = true;
         let currentAgeGroup = null;
         let playerName = '';
-        let customGames = JSON.parse(localStorage.getItem('customGames')) || [];
-        let editingGameId = null;
-        let isLoggedIn = false;
         let searchActive = false;
-        let adminCredentials = JSON.parse(localStorage.getItem('adminCredentials')) || [
-            { username: 'admin', password: 'capi2024' }
-        ];
+        let updateInProgress = false;
+        
+        // GitHub repository configuration
+        const GITHUB_REPO = 'educacaodigital/capigames';
+        const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_REPO}`;
+        const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/index.html`;
+        
+        // Version and update tracking
+        let currentVersion = localStorage.getItem('capiGamesVersion') || 'v1.0.0';
+        let lastUpdateCheck = localStorage.getItem('lastUpdateCheck') || null;
         
         const games = {
             '1-3': [
@@ -840,65 +652,202 @@
             return types[type] || 'Geral';
         }
 
-        // Admin Management Functions
-        function addAdmin() {
-            const username = document.getElementById('newAdminUser').value.trim();
-            const password = document.getElementById('newAdminPassword').value.trim();
+        // Update System Functions
+        function checkForUpdates() {
+            document.getElementById('updateModal').classList.remove('hidden');
+            document.getElementById('updateModal').classList.add('flex');
             
-            if (!username || !password) {
-                showCapiMessage("PREENCHA USUÁRIO E SENHA! ⚠️");
-                return;
+            // Initialize update status
+            document.getElementById('connectionStatus').textContent = '🔄 VERIFICANDO...';
+            document.getElementById('connectionStatus').className = 'text-yellow-600 font-semibold';
+            
+            if (lastUpdateCheck) {
+                const lastCheck = new Date(lastUpdateCheck);
+                document.getElementById('lastUpdate').textContent = lastCheck.toLocaleDateString('pt-BR') + ' às ' + lastCheck.toLocaleTimeString('pt-BR');
             }
             
-            if (adminCredentials.find(admin => admin.username === username)) {
-                showCapiMessage("USUÁRIO JÁ EXISTE! ESCOLHA OUTRO! ❌");
-                return;
-            }
+            document.getElementById('currentVersion').textContent = currentVersion;
             
-            adminCredentials.push({ username, password });
-            localStorage.setItem('adminCredentials', JSON.stringify(adminCredentials));
+            // Simulate connection check
+            setTimeout(() => {
+                checkGitHubConnection();
+            }, 1500);
             
-            document.getElementById('newAdminUser').value = '';
-            document.getElementById('newAdminPassword').value = '';
-            
-            loadAdminsList();
-            showCapiMessage("ADMINISTRADOR ADICIONADO COM SUCESSO! ✅");
+            showCapiMessage("VERIFICANDO ATUALIZAÇÕES NO GITHUB! 🔍");
         }
 
-        function loadAdminsList() {
-            const adminsList = document.getElementById('adminsList');
+        function closeUpdateModal() {
+            if (updateInProgress) {
+                if (!confirm('Uma atualização está em andamento. Tem certeza que deseja cancelar?')) {
+                    return;
+                }
+                updateInProgress = false;
+            }
             
-            adminsList.innerHTML = adminCredentials.map((admin, index) => `
-                <div class="flex items-center justify-between bg-white p-3 rounded-lg border">
-                    <div class="flex items-center space-x-3">
-                        <span class="text-2xl">👤</span>
-                        <div>
-                            <p class="font-bold text-gray-800">${admin.username}</p>
-                            <p class="text-xs text-gray-500">Senha: ${'•'.repeat(admin.password.length)}</p>
-                        </div>
-                    </div>
-                    ${index > 0 ? `
-                        <button onclick="removeAdmin(${index})" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded">
-                            🗑️ REMOVER
-                        </button>
-                    ` : `
-                        <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">ADMIN PRINCIPAL</span>
-                    `}
-                </div>
-            `).join('');
+            document.getElementById('updateModal').classList.add('hidden');
+            document.getElementById('updateModal').classList.remove('flex');
+            document.getElementById('updateProgress').classList.add('hidden');
         }
 
-        function removeAdmin(index) {
-            if (index === 0) {
-                showCapiMessage("NÃO POSSO REMOVER O ADMIN PRINCIPAL! ⚠️");
+        async function checkGitHubConnection() {
+            try {
+                const response = await fetch(GITHUB_API_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (response.ok) {
+                    document.getElementById('connectionStatus').textContent = '✅ CONECTADO';
+                    document.getElementById('connectionStatus').className = 'text-green-600 font-semibold';
+                    showCapiMessage("CONEXÃO COM GITHUB ESTABELECIDA! ✅");
+                } else {
+                    throw new Error('Connection failed');
+                }
+            } catch (error) {
+                document.getElementById('connectionStatus').textContent = '❌ ERRO DE CONEXÃO';
+                document.getElementById('connectionStatus').className = 'text-red-600 font-semibold';
+                showCapiMessage("ERRO AO CONECTAR COM GITHUB! ❌");
+            }
+        }
+
+        async function performUpdate() {
+            if (updateInProgress) {
+                showCapiMessage("ATUALIZAÇÃO JÁ EM ANDAMENTO! ⏳");
                 return;
             }
             
-            if (confirm(`Tem certeza que deseja remover o administrador "${adminCredentials[index].username}"?`)) {
-                adminCredentials.splice(index, 1);
-                localStorage.setItem('adminCredentials', JSON.stringify(adminCredentials));
-                loadAdminsList();
-                showCapiMessage("ADMINISTRADOR REMOVIDO! 🗑️");
+            updateInProgress = true;
+            const updateButton = document.getElementById('updateButton');
+            const progressDiv = document.getElementById('updateProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            updateButton.disabled = true;
+            updateButton.textContent = '⏳ ATUALIZANDO...';
+            progressDiv.classList.remove('hidden');
+            
+            try {
+                // Step 1: Check for updates
+                progressBar.style.width = '20%';
+                progressText.textContent = 'Verificando atualizações disponíveis...';
+                showCapiMessage("BUSCANDO ATUALIZAÇÕES... 🔍");
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Step 2: Download new version
+                progressBar.style.width = '40%';
+                progressText.textContent = 'Baixando nova versão do GitHub...';
+                
+                const response = await fetch(GITHUB_RAW_URL);
+                if (!response.ok) {
+                    throw new Error('Falha ao baixar atualização');
+                }
+                
+                const newContent = await response.text();
+                
+                // Step 3: Validate content
+                progressBar.style.width = '60%';
+                progressText.textContent = 'Validando novo conteúdo...';
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                if (!newContent.includes('CAPI GAMES') || newContent.length < 1000) {
+                    throw new Error('Conteúdo inválido recebido');
+                }
+                
+                // Step 4: Backup current version
+                progressBar.style.width = '80%';
+                progressText.textContent = 'Criando backup da versão atual...';
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Step 5: Apply update
+                progressBar.style.width = '100%';
+                progressText.textContent = 'Aplicando atualização...';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Update version info
+                const newVersion = extractVersionFromContent(newContent) || `v${Date.now()}`;
+                localStorage.setItem('capiGamesVersion', newVersion);
+                localStorage.setItem('lastUpdateCheck', new Date().toISOString());
+                
+                showCapiMessage("ATUALIZAÇÃO CONCLUÍDA! RECARREGANDO... 🎉");
+                
+                // Show success message and reload
+                setTimeout(() => {
+                    // Replace current document content
+                    document.open();
+                    document.write(newContent);
+                    document.close();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Update failed:', error);
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Erro na atualização: ' + error.message;
+                progressBar.className = 'bg-red-500 h-4 rounded-full transition-all duration-300';
+                
+                showCapiMessage("ERRO NA ATUALIZAÇÃO! TENTE NOVAMENTE! ❌");
+                
+                updateButton.disabled = false;
+                updateButton.textContent = '🔄 BUSCAR E INSTALAR ATUALIZAÇÕES';
+                
+                setTimeout(() => {
+                    progressDiv.classList.add('hidden');
+                    progressBar.className = 'bg-green-500 h-4 rounded-full transition-all duration-300';
+                }, 3000);
+            }
+            
+            updateInProgress = false;
+        }
+
+        function extractVersionFromContent(content) {
+            // Try to extract version from content
+            const versionMatch = content.match(/version["\s]*[:=]["\s]*([v]?[\d.]+)/i);
+            return versionMatch ? versionMatch[1] : null;
+        }
+
+        async function checkVersion() {
+            showCapiMessage("VERIFICANDO VERSÃO ATUAL... 📋");
+            
+            try {
+                const response = await fetch(GITHUB_API_URL + '/releases/latest');
+                if (response.ok) {
+                    const release = await response.json();
+                    const latestVersion = release.tag_name || 'Desconhecida';
+                    
+                    alert(`📋 INFORMAÇÕES DE VERSÃO\n\nVersão Atual: ${currentVersion}\nÚltima Versão: ${latestVersion}\n\nRepositório: ${GITHUB_REPO}`);
+                    showCapiMessage(`VERSÃO ATUAL: ${currentVersion} | ÚLTIMA: ${latestVersion} 📋`);
+                } else {
+                    throw new Error('Não foi possível verificar a versão');
+                }
+            } catch (error) {
+                alert(`📋 INFORMAÇÕES DE VERSÃO\n\nVersão Atual: ${currentVersion}\nStatus: Erro ao verificar versão remota\n\nRepositório: ${GITHUB_REPO}`);
+                showCapiMessage("ERRO AO VERIFICAR VERSÃO REMOTA! ❌");
+            }
+        }
+
+        async function viewChangelog() {
+            showCapiMessage("CARREGANDO NOVIDADES... 📝");
+            
+            try {
+                const response = await fetch(GITHUB_API_URL + '/releases');
+                if (response.ok) {
+                    const releases = await response.json();
+                    const latest = releases[0] || {};
+                    
+                    const changelog = latest.body || 'Nenhuma informação de mudanças disponível.';
+                    const version = latest.tag_name || 'Versão desconhecida';
+                    const date = latest.published_at ? new Date(latest.published_at).toLocaleDateString('pt-BR') : 'Data desconhecida';
+                    
+                    alert(`📝 NOVIDADES - ${version}\n\nData: ${date}\n\n${changelog}\n\nRepositório: ${GITHUB_REPO}`);
+                    showCapiMessage("NOVIDADES CARREGADAS! 📝");
+                } else {
+                    throw new Error('Não foi possível carregar as novidades');
+                }
+            } catch (error) {
+                alert(`📝 NOVIDADES\n\nNão foi possível carregar as informações de mudanças do repositório.\n\nRepositório: ${GITHUB_REPO}\nErro: ${error.message}`);
+                showCapiMessage("ERRO AO CARREGAR NOVIDADES! ❌");
             }
         }
 
@@ -1388,256 +1337,6 @@
             showCapiMessage(`OLÁ ${playerName}! ESCOLHA SUA IDADE PARA COMEÇAR! 🎮`);
         }
 
-        // Login functions
-        function closeLogin() {
-            document.getElementById('loginModal').classList.add('hidden');
-            document.getElementById('loginModal').classList.remove('flex');
-            document.getElementById('loginError').classList.add('hidden');
-            document.getElementById('loginForm').reset();
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('loginUser').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            const validAdmin = adminCredentials.find(admin => 
-                admin.username === username && admin.password === password
-            );
-            
-            if (validAdmin) {
-                isLoggedIn = true;
-                closeLogin();
-                openGameConfig();
-                showCapiMessage("LOGIN REALIZADO COM SUCESSO! BEM-VINDO! ✅");
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
-                showCapiMessage("CREDENCIAIS INCORRETAS! TENTE NOVAMENTE! ❌");
-            }
-        });
-
-        // Configuration functions
-        function openGameConfig() {
-            if (!isLoggedIn) {
-                document.getElementById('loginModal').classList.remove('hidden');
-                document.getElementById('loginModal').classList.add('flex');
-                showCapiMessage("ACESSO RESTRITO! FAÇA LOGIN PARA CONTINUAR! 🔐");
-                return;
-            }
-            
-            document.getElementById('configModal').classList.remove('hidden');
-            document.getElementById('configModal').classList.add('flex');
-            loadGamesList();
-            loadAdminsList();
-            showCapiMessage("VAMOS CONFIGURAR NOVOS JOGOS! ⚙️");
-        }
-
-        function closeConfig() {
-            document.getElementById('configModal').classList.add('hidden');
-            document.getElementById('configModal').classList.remove('flex');
-            resetForm();
-            isLoggedIn = false; // Logout ao fechar configurações
-        }
-
-        function deleteAllCustomGames() {
-            if (confirm('⚠️ ATENÇÃO!\n\nTem certeza que deseja EXCLUIR TODOS os jogos personalizados?\n\nEsta ação NÃO PODE ser desfeita!')) {
-                if (confirm('CONFIRMAÇÃO FINAL:\n\nDigite "CONFIRMAR" para prosseguir com a exclusão de TODOS os jogos personalizados.')) {
-                    // Remove todos os jogos personalizados
-                    customGames = [];
-                    
-                    // Remove dos objetos de jogos
-                    Object.keys(games).forEach(category => {
-                        games[category] = games[category].filter(g => !g.id);
-                    });
-
-                    localStorage.setItem('customGames', JSON.stringify(customGames));
-                    loadGamesList();
-                    showCapiMessage("TODOS OS JOGOS PERSONALIZADOS FORAM EXCLUÍDOS! 🗑️");
-                }
-            }
-        }
-
-        function deleteGamesByCategory() {
-            const category = document.getElementById('categoryFilter').value;
-            
-            if (!category) {
-                showCapiMessage("SELECIONE UMA CATEGORIA PRIMEIRO! 📂");
-                return;
-            }
-
-            const categoryName = getCategoryName(category);
-            const gamesInCategory = customGames.filter(g => g.category === category);
-            
-            if (gamesInCategory.length === 0) {
-                showCapiMessage(`NENHUM JOGO ENCONTRADO NA CATEGORIA ${categoryName}! 📂`);
-                return;
-            }
-
-            if (confirm(`⚠️ ATENÇÃO!\n\nTem certeza que deseja excluir TODOS os ${gamesInCategory.length} jogos da categoria "${categoryName}"?\n\nEsta ação NÃO PODE ser desfeita!`)) {
-                // Remove jogos da categoria selecionada
-                customGames = customGames.filter(g => g.category !== category);
-                
-                // Remove dos objetos de jogos
-                games[category] = games[category].filter(g => !g.id);
-
-                localStorage.setItem('customGames', JSON.stringify(customGames));
-                loadGamesList();
-                showCapiMessage(`JOGOS DA CATEGORIA ${categoryName} EXCLUÍDOS! 🗑️`);
-            }
-        }
-
-        // Color preview update
-        document.getElementById('cardColor').addEventListener('input', function(e) {
-            const color = e.target.value;
-            const preview = document.getElementById('colorPreview');
-            preview.style.background = `linear-gradient(135deg, ${color} 0%, ${adjustColor(color, -20)} 100%)`;
-        });
-
-        function adjustColor(color, amount) {
-            const num = parseInt(color.replace("#", ""), 16);
-            const amt = Math.round(2.55 * amount);
-            const R = (num >> 16) + amt;
-            const G = (num >> 8 & 0x00FF) + amt;
-            const B = (num & 0x0000FF) + amt;
-            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-                (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
-        }
-
-        // Form submission
-        document.getElementById('gameForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const gameData = {
-                id: editingGameId || Date.now().toString(),
-                name: document.getElementById('gameName').value.toUpperCase(),
-                description: document.getElementById('gameDescription').value,
-                category: document.getElementById('gameCategory').value,
-                type: document.getElementById('gameType').value,
-                color: document.getElementById('cardColor').value,
-                icon: document.getElementById('gameIcon').value || '🎮',
-                image: document.getElementById('gameImage').value,
-                path: document.getElementById('gamePath').value,
-                url: document.getElementById('gameUrl').value,
-                createdAt: editingGameId ? customGames.find(g => g.id === editingGameId).createdAt : new Date().toISOString()
-            };
-
-            if (editingGameId) {
-                const index = customGames.findIndex(g => g.id === editingGameId);
-                customGames[index] = gameData;
-                showCapiMessage("JOGO ATUALIZADO COM SUCESSO! ✅");
-            } else {
-                customGames.push(gameData);
-                showCapiMessage("NOVO JOGO ADICIONADO! 🎉");
-            }
-
-            // Add to games object
-            if (!games[gameData.category]) {
-                games[gameData.category] = [];
-            }
-            
-            const gameIndex = games[gameData.category].findIndex(g => g.id === gameData.id);
-            const gameObj = {
-                id: gameData.id,
-                title: gameData.name,
-                description: gameData.description,
-                icon: gameData.icon,
-                color: gameData.color,
-                type: gameData.type,
-                content: () => createCustomGameContent(gameData)
-            };
-
-            if (gameIndex >= 0) {
-                games[gameData.category][gameIndex] = gameObj;
-            } else {
-                games[gameData.category].push(gameObj);
-            }
-
-            localStorage.setItem('customGames', JSON.stringify(customGames));
-            loadGamesList();
-            resetForm();
-        });
-
-        function createCustomGameContent(gameData) {
-            return function(container) {
-                container.innerHTML = `
-                    <div class="text-center">
-                        <div class="text-6xl mb-4">${gameData.icon}</div>
-                        <h4 class="text-2xl font-bold mb-4" style="color: ${gameData.color}">${gameData.name}</h4>
-                        <p class="text-gray-600 mb-6">${gameData.description}</p>
-                        
-                        ${gameData.image ? `<img src="${gameData.image}" alt="${gameData.name}" class="max-w-full h-48 object-cover rounded-lg mx-auto mb-4" onerror="this.style.display='none'">` : ''}
-                        
-                        <div class="space-y-4">
-                            ${gameData.url ? `
-                                <a href="${gameData.url}" target="_blank" rel="noopener noreferrer" 
-                                   class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
-                                    🚀 JOGAR ONLINE
-                                </a>
-                            ` : ''}
-                            
-                            ${gameData.path ? `
-                                <p class="text-sm text-gray-500">Caminho: ${gameData.path}</p>
-                            ` : ''}
-                        </div>
-                        
-                        <div class="mt-6 p-4 bg-yellow-100 rounded-lg">
-                            <p class="text-yellow-800 font-semibold">🎮 JOGO PERSONALIZADO</p>
-                            <p class="text-yellow-700 text-sm">Este jogo foi adicionado pelo professor!</p>
-                        </div>
-                    </div>
-                `;
-            };
-        }
-
-        function loadGamesList() {
-            const gamesList = document.getElementById('gamesList');
-            const filter = document.getElementById('categoryFilter').value;
-            
-            let filteredGames = customGames;
-            if (filter) {
-                filteredGames = customGames.filter(game => game.category === filter);
-            }
-
-            if (filteredGames.length === 0) {
-                gamesList.innerHTML = `
-                    <div class="col-span-full text-center py-8 text-gray-500">
-                        <div class="text-4xl mb-2">📝</div>
-                        <p>Nenhum jogo cadastrado ainda.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            gamesList.innerHTML = filteredGames.map(game => `
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg transition-shadow">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-2xl">${game.icon}</span>
-                            <div class="w-4 h-4 rounded-full border-2 border-gray-300" style="background-color: ${game.color}"></div>
-                        </div>
-                        <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">${getCategoryName(game.category)}</span>
-                    </div>
-                    
-                    <h5 class="font-bold text-gray-800 mb-2">${game.name}</h5>
-                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">${game.description || 'Sem descrição'}</p>
-                    
-                    <div class="flex space-x-2">
-                        <button onclick="viewGameDetail('${game.id}')" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors">
-                            👁️ VER
-                        </button>
-                        <button onclick="editGame('${game.id}')" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors">
-                            ✏️ EDITAR
-                        </button>
-                        <button onclick="deleteIndividualGame('${game.id}', '${game.name}')" class="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors">
-                            🗑️ EXCLUIR
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
         function getCategoryName(category) {
             const names = {
                 '1-3': 'Creche',
@@ -1649,179 +1348,21 @@
             return names[category] || category;
         }
 
-        function filterGames() {
-            loadGamesList();
-        }
-
-        function viewGameDetail(gameId) {
-            const game = customGames.find(g => g.id === gameId);
-            if (!game) return;
-
-            document.getElementById('detailGameTitle').textContent = game.name;
-            document.getElementById('gameDetailContent').innerHTML = `
-                <div class="space-y-4">
-                    <div class="flex items-center space-x-4">
-                        <span class="text-4xl">${game.icon}</span>
-                        <div>
-                            <div class="w-8 h-8 rounded-lg border-2 border-gray-300" style="background-color: ${game.color}"></div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h6 class="font-semibold text-gray-700 mb-1">CATEGORIA:</h6>
-                        <p class="text-gray-600">${getCategoryName(game.category)}</p>
-                    </div>
-                    
-                    <div>
-                        <h6 class="font-semibold text-gray-700 mb-1">TIPO:</h6>
-                        <p class="text-gray-600">${getTypeName(game.type)}</p>
-                    </div>
-                    
-                    <div>
-                        <h6 class="font-semibold text-gray-700 mb-1">DESCRIÇÃO:</h6>
-                        <p class="text-gray-600">${game.description || 'Sem descrição'}</p>
-                    </div>
-                    
-                    ${game.image ? `
-                        <div>
-                            <h6 class="font-semibold text-gray-700 mb-1">IMAGEM:</h6>
-                            <img src="${game.image}" alt="${game.name}" class="max-w-full h-32 object-cover rounded-lg" onerror="this.style.display='none'">
-                        </div>
-                    ` : ''}
-                    
-                    ${game.path ? `
-                        <div>
-                            <h6 class="font-semibold text-gray-700 mb-1">CAMINHO:</h6>
-                            <p class="text-gray-600 font-mono text-sm bg-gray-100 p-2 rounded">${game.path}</p>
-                        </div>
-                    ` : ''}
-                    
-                    ${game.url ? `
-                        <div>
-                            <h6 class="font-semibold text-gray-700 mb-1">URL:</h6>
-                            <a href="${game.url}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700 underline break-all">${game.url}</a>
-                        </div>
-                    ` : ''}
-                    
-                    <div>
-                        <h6 class="font-semibold text-gray-700 mb-1">CRIADO EM:</h6>
-                        <p class="text-gray-600">${new Date(game.createdAt).toLocaleDateString('pt-BR')}</p>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('gameDetailModal').classList.remove('hidden');
-            document.getElementById('gameDetailModal').classList.add('flex');
-        }
-
-        function closeGameDetail() {
-            document.getElementById('gameDetailModal').classList.add('hidden');
-            document.getElementById('gameDetailModal').classList.remove('flex');
-        }
-
-        function editGame(gameId) {
-            const game = customGames.find(g => g.id === gameId);
-            if (!game) return;
-
-            editingGameId = gameId;
-            
-            document.getElementById('gameName').value = game.name;
-            document.getElementById('gameDescription').value = game.description;
-            document.getElementById('gameCategory').value = game.category;
-            document.getElementById('gameType').value = game.type;
-            document.getElementById('cardColor').value = game.color;
-            document.getElementById('gameIcon').value = game.icon;
-            document.getElementById('gameImage').value = game.image;
-            document.getElementById('gamePath').value = game.path;
-            document.getElementById('gameUrl').value = game.url;
-
-            // Update color preview
-            const preview = document.getElementById('colorPreview');
-            preview.style.background = `linear-gradient(135deg, ${game.color} 0%, ${adjustColor(game.color, -20)} 100%)`;
-
-            showCapiMessage("MODO DE EDIÇÃO ATIVADO! ✏️");
-        }
-
-        function deleteIndividualGame(gameId, gameName) {
-            if (confirm(`⚠️ CONFIRMAÇÃO DE EXCLUSÃO\n\nTem certeza que deseja excluir o jogo:\n"${gameName}"\n\nEsta ação NÃO PODE ser desfeita!`)) {
-                const game = customGames.find(g => g.id === gameId);
-                const categoryName = game ? getCategoryName(game.category) : '';
-                
-                customGames = customGames.filter(g => g.id !== gameId);
-                
-                // Remove from games object
-                Object.keys(games).forEach(category => {
-                    games[category] = games[category].filter(g => g.id !== gameId);
-                });
-
-                localStorage.setItem('customGames', JSON.stringify(customGames));
-                loadGamesList();
-                showCapiMessage(`JOGO "${gameName}" EXCLUÍDO DA CATEGORIA ${categoryName}! 🗑️`);
-            }
-        }
-
-        function resetForm() {
-            document.getElementById('gameForm').reset();
-            document.getElementById('cardColor').value = '#667eea';
-            document.getElementById('colorPreview').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            editingGameId = null;
-        }
-
-        function updateGames() {
-            const updateUrl = document.getElementById('updateUrl').value;
-            const frequency = document.querySelector('input[name="updateFrequency"]:checked').value;
-            
-            if (!updateUrl) {
-                showCapiMessage("ADICIONE UMA URL DE ATUALIZAÇÃO PRIMEIRO! 🔗");
-                return;
-            }
-
-            // Simulate update process
-            showCapiMessage("BUSCANDO ATUALIZAÇÕES... ⏳");
-            
-            setTimeout(() => {
-                showCapiMessage("ATUALIZAÇÃO CONCLUÍDA! NENHUM JOGO NOVO ENCONTRADO. ✅");
-                
-                // Save update settings
-                localStorage.setItem('updateSettings', JSON.stringify({
-                    url: updateUrl,
-                    frequency: frequency,
-                    lastUpdate: new Date().toISOString()
-                }));
-            }, 2000);
-        }
-
-        // Load custom games on startup
-        function loadCustomGames() {
-            customGames.forEach(gameData => {
-                if (!games[gameData.category]) {
-                    games[gameData.category] = [];
-                }
-                
-                const gameObj = {
-                    id: gameData.id,
-                    title: gameData.name,
-                    description: gameData.description,
-                    icon: gameData.icon,
-                    color: gameData.color,
-                    type: gameData.type,
-                    content: createCustomGameContent(gameData)
-                };
-
-                const existingIndex = games[gameData.category].findIndex(g => g.id === gameData.id);
-                if (existingIndex >= 0) {
-                    games[gameData.category][existingIndex] = gameObj;
-                } else {
-                    games[gameData.category].push(gameObj);
-                }
-            });
-        }
-
-        // Initial Capi greeting
+        // Initial Capi greeting and system initialization
         setTimeout(() => {
             showCapiMessage("OLÁ! BEM-VINDOS AO CAPI GAMES! 🎮");
-            loadCustomGames();
+            
+            // Check for automatic updates on startup
+            if (lastUpdateCheck) {
+                const daysSinceUpdate = Math.floor((Date.now() - new Date(lastUpdateCheck).getTime()) / (1000 * 60 * 60 * 24));
+                if (daysSinceUpdate >= 7) {
+                    showCapiMessage("VERIFICANDO ATUALIZAÇÕES AUTOMÁTICAS... 🔄");
+                    setTimeout(() => {
+                        checkGitHubConnection();
+                    }, 3000);
+                }
+            }
         }, 1000);
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c82cd825f78b17',t:'MTc2MDEyMDg4Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c8cf01f59b8b17',t:'MTc2MDEyNzUyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
