@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧼 Cuidados Pessoais - Capi Games</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { box-sizing: border-box; }
+        @keyframes bounce { 0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); } 40%, 43% { transform: translate3d(0,-30px,0); } 70% { transform: translate3d(0,-15px,0); } 90% { transform: translate3d(0,-4px,0); } }
+        @keyframes wiggle { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(3deg); } 75% { transform: rotate(-3deg); } }
+        @keyframes shine { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.1); filter: brightness(1.3); } }
+        @keyframes celebration { 0% { transform: scale(1) rotate(0deg); } 25% { transform: scale(1.3) rotate(10deg); } 50% { transform: scale(1.4) rotate(-10deg); } 75% { transform: scale(1.3) rotate(10deg); } 100% { transform: scale(1) rotate(0deg); } }
+        @keyframes bubbles { 0% { transform: translateY(0) scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100px) scale(1); opacity: 0; } }
+        .bounce { animation: bounce 1s infinite; } .wiggle { animation: wiggle 0.8s ease-in-out infinite; } .shine { animation: shine 2s infinite; } .celebration { animation: celebration 0.8s ease-in-out; }
+        .care-button { transition: all 0.3s ease; transform: scale(1); } .care-button:hover { transform: scale(1.1); } .care-button:active { transform: scale(0.9); }
+        .correct-care { animation: celebration 0.8s ease-in-out; box-shadow: 0 0 40px rgba(0, 255, 0, 0.8); }
+        .bubbles-container { position: absolute; width: 100%; height: 100%; pointer-events: none; }
+        .bubble { position: absolute; width: 20px; height: 20px; background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(173,216,230,0.6) 100%); border-radius: 50%; animation: bubbles 3s ease-out; }
+    </style>
+</head>
+<body class="min-h-full bg-gradient-to-br from-cyan-300 via-blue-300 to-indigo-400 font-bold">
+    <header class="bg-white/90 backdrop-blur-sm shadow-lg p-4 text-center">
+        <h1 class="text-4xl font-black text-blue-600 mb-2">🧼 CUIDADOS PESSOAIS 🧼</h1>
+        <div class="flex justify-between items-center max-w-4xl mx-auto">
+            <button onclick="parent.postMessage('closeGame', '*')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full text-xl font-bold shadow-lg transition-all duration-300 hover:scale-105">← VOLTAR AO CAPI GAMES</button>
+            <div class="bg-yellow-400 px-6 py-3 rounded-full shadow-lg"><span class="text-2xl">✨ <span id="score">0</span> pontos</span></div>
+        </div>
+    </header>
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 mb-8 text-center shadow-xl">
+            <h2 class="text-3xl font-black text-blue-600 mb-4">🎯 HORA DOS CUIDADOS!</h2>
+            <div class="text-8xl mb-4 shine" id="targetCareDisplay">🦷</div>
+            <p class="text-2xl font-bold text-gray-700" id="instruction">Escove os dentes!</p>
+            <div class="text-lg text-gray-600 mt-2" id="careDescription">Para manter os dentes limpos e saudáveis! 😁</div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8" id="careGrid"></div>
+        <div class="text-center">
+            <div id="feedback" class="text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center"></div>
+            <div id="encouragement" class="text-2xl font-bold text-white bg-blue-500/80 rounded-full px-8 py-4 inline-block shadow-lg">Cuide bem de você! 💙</div>
+        </div>
+        <div id="bubblesContainer" class="bubbles-container"></div>
+    </main>
+    <script>
+        class CareGame {
+            constructor() {
+                this.score = 0; this.currentLevel = 1;
+                this.careActivities = [
+                    { name: 'ESCOVAR DENTES', emoji: '🦷', action: '🪥', description: 'Para manter os dentes limpos e saudáveis!', category: 'higiene' },
+                    { name: 'LAVAR MÃOS', emoji: '🤲', action: '🧼', description: 'Para tirar os germes e ficar protegido!', category: 'higiene' },
+                    { name: 'TOMAR BANHO', emoji: '🛁', action: '🚿', description: 'Para ficar limpinho e cheiroso!', category: 'higiene' },
+                    { name: 'PENTEAR CABELO', emoji: '💇', action: '🪮', description: 'Para deixar o cabelo bonito e arrumado!', category: 'cuidado' },
+                    { name: 'CORTAR UNHAS', emoji: '💅', action: '✂️', description: 'Para manter as unhas limpas e curtas!', category: 'cuidado' },
+                    { name: 'USAR PROTETOR SOLAR', emoji: '☀️', action: '🧴', description: 'Para proteger a pele do sol!', category: 'proteção' },
+                    { name: 'BEBER ÁGUA', emoji: '💧', action: '🥤', description: 'Para manter o corpo hidratado!', category: 'saúde' },
+                    { name: 'COMER FRUTAS', emoji: '🍎', action: '🍌', description: 'Para crescer forte e saudável!', category: 'alimentação' },
+                    { name: 'DORMIR BEM', emoji: '😴', action: '🛏️', description: 'Para descansar e ter energia!', category: 'descanso' },
+                    { name: 'FAZER EXERCÍCIO', emoji: '🏃', action: '⚽', description: 'Para manter o corpo forte!', category: 'atividade' }
+                ];
+                this.currentTarget = null; this.gameCares = []; this.init();
+            }
+            init() { this.generateLevel(); this.updateScore(); }
+            generateLevel() {
+                this.currentTarget = this.careActivities[Math.floor(Math.random() * this.careActivities.length)];
+                this.gameCares = [this.currentTarget];
+                const availableCares = this.careActivities.filter(c => c !== this.currentTarget);
+                const numCares = Math.min(3 + Math.floor(this.currentLevel / 3), 6);
+                for (let i = 1; i < numCares; i++) {
+                    const randomCare = availableCares[Math.floor(Math.random() * availableCares.length)];
+                    if (!this.gameCares.find(c => c.name === randomCare.name)) { this.gameCares.push(randomCare); }
+                }
+                this.gameCares.sort(() => Math.random() - 0.5); this.updateDisplay();
+            }
+            updateDisplay() {
+                document.getElementById('targetCareDisplay').textContent = this.currentTarget.emoji;
+                document.getElementById('instruction').textContent = this.currentTarget.name;
+                document.getElementById('careDescription').textContent = this.currentTarget.description;
+                const grid = document.getElementById('careGrid'); grid.innerHTML = '';
+                this.gameCares.forEach((care, index) => {
+                    const button = document.createElement('button');
+                    button.className = `care-button bg-white rounded-3xl h-32 md:h-40 shadow-xl border-4 border-gray-200 hover:border-blue-400 transition-all duration-300 flex flex-col items-center justify-center wiggle`;
+                    button.innerHTML = `<div class="text-5xl mb-2">${care.emoji}</div><div class="text-3xl mb-1">${care.action}</div><div class="text-xs font-bold text-gray-600 text-center px-2">${care.name}</div>`;
+                    button.onclick = () => this.checkAnswer(care); grid.appendChild(button);
+                });
+            }
+            checkAnswer(selectedCare) {
+                const feedback = document.getElementById('feedback');
+                const encouragement = document.getElementById('encouragement');
+                if (selectedCare.name === this.currentTarget.name) {
+                    this.score += 15; this.updateScore();
+                    feedback.innerHTML = `🎉 MUITO BEM! ${selectedCare.name}! 🎉`;
+                    feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center text-green-600 celebration';
+                    encouragement.textContent = this.getPositiveMessage();
+                    encouragement.className = 'text-2xl font-bold text-white bg-green-500/80 rounded-full px-8 py-4 inline-block shadow-lg celebration';
+                    this.createBubbles(); event.target.classList.add('correct-care');
+                    setTimeout(() => {
+                        this.currentLevel++; this.generateLevel();
+                        feedback.innerHTML = ''; feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center';
+                        encouragement.textContent = 'Cuide bem de você! 💙';
+                        encouragement.className = 'text-2xl font-bold text-white bg-blue-500/80 rounded-full px-8 py-4 inline-block shadow-lg';
+                    }, 2500);
+                } else {
+                    feedback.innerHTML = `😊 Não é esse! Procure: ${this.currentTarget.name}!`;
+                    feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center text-orange-600 bounce';
+                    encouragement.textContent = `${this.currentTarget.description} 🌟`;
+                    encouragement.className = 'text-2xl font-bold text-white bg-orange-500/80 rounded-full px-8 py-4 inline-block shadow-lg wiggle';
+                    setTimeout(() => {
+                        feedback.innerHTML = ''; feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center';
+                        encouragement.textContent = 'Cuide bem de você! 💙';
+                        encouragement.className = 'text-2xl font-bold text-white bg-blue-500/80 rounded-full px-8 py-4 inline-block shadow-lg';
+                    }, 2000);
+                }
+            }
+            createBubbles() {
+                const container = document.getElementById('bubblesContainer'); container.innerHTML = '';
+                for (let i = 0; i < 15; i++) {
+                    const bubble = document.createElement('div'); bubble.className = 'bubble';
+                    bubble.style.left = Math.random() * 100 + '%'; bubble.style.top = '100%';
+                    bubble.style.animationDelay = Math.random() * 1 + 's'; container.appendChild(bubble);
+                }
+                setTimeout(() => { container.innerHTML = ''; }, 3500);
+            }
+            getPositiveMessage() {
+                const messages = ['Que cuidadoso! 🌟', 'Muito bem! ⭐', 'Perfeito! 💫', 'Excelente cuidado! 🏆', 'Parabéns! 🎈', 'Fantástico! 🌈', 'Você cuida muito bem! 💙', 'Que responsável! ✨'];
+                return messages[Math.floor(Math.random() * messages.length)];
+            }
+            updateScore() { document.getElementById('score').textContent = this.score; }
+        }
+        window.addEventListener('load', () => { new CareGame(); });
+    </script>
+</body>
+</html>
