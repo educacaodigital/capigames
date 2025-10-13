@@ -1,42 +1,101 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Capi Games — Catálogo de Jogos</title>
+  <title>CAPI GAMES</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Manifesto local OBRIGATÓRIO (gerado pelo generate-manifest.vbs) -->
+  <script src="games-manifest.js" defer></script>
+
   <style>
+    :root{
+      --grad: linear-gradient(135deg,#7c4dff 0%, #8e2de2 40%, #ff5fa3 100%);
+      --card-shadow: 0 15px 30px rgba(0,0,0,.15);
+    }
     body{box-sizing:border-box}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-    .float{animation:float 3s ease-in-out infinite}
-    .bubble{position:relative;background:#fff;border-radius:16px;padding:12px;margin:8px;box-shadow:0 4px 15px rgba(0,0,0,.1)}
-    .bubble:after{content:'';position:absolute;bottom:-10px;left:24px;border:10px solid transparent;border-top-color:#fff}
-    .card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:14px;padding:18px;color:#fff;text-align:center;transition:transform .2s ease}
-    .card:hover{transform:scale(1.03)}
+    .hero{
+      background: radial-gradient(1200px 400px at 50% -50%, rgba(255,255,255,.35), transparent 60%), var(--grad);
+    }
+    .age-card{
+      background:#fff;
+      border-radius:24px;
+      box-shadow: var(--card-shadow);
+      transition: transform .2s ease, box-shadow .2s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .age-card:hover{ transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.18); }
+    .age-chip{ font-size:.7rem; letter-spacing:.06em }
+    .glow{
+      position:absolute; inset:-2px;
+      background: conic-gradient(from 0deg,#ffd166,#fca5f1,#a78bfa,#60a5fa,#34d399,#ffd166);
+      filter: blur(30px); opacity:.25;
+      animation: spin 8s linear infinite;
+    }
+    @keyframes spin{ to{ transform:rotate(1turn)} }
+
+    /* CAPI (mascote) */
+    .capi-bubble{
+      position:relative; background:#fff; border-radius:16px; padding:12px; margin:8px; box-shadow:var(--card-shadow)
+    }
+    .capi-bubble:after{
+      content:''; position:absolute; bottom:-10px; left:24px; border:10px solid transparent; border-top-color:#fff
+    }
+    .float{ animation:float 3s ease-in-out infinite }
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+    /* cards dos jogos */
+    .game-card{
+      background:linear-gradient(135deg,#667eea 0%, #764ba2 100%);
+      border-radius:18px; padding:18px; color:#fff; text-align:center;
+      transition:transform .18s ease;
+    }
+    .game-card:hover{ transform:scale(1.03) }
+
+    .hidden{display:none}
   </style>
 </head>
-<body class="min-h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-400">
+<body class="min-h-screen hero text-gray-900">
 
   <!-- Header -->
-  <header class="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
+  <header class="bg-white/90 backdrop-blur-sm sticky top-0 z-40 shadow">
     <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-      <h1 class="text-2xl md:text-3xl font-extrabold text-purple-700 uppercase tracking-wide">Capi Games</h1>
-      <div class="flex items-center gap-2">
-        <button id="reindexBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full">
-          🔄 Atualizar Jogos
+      <h1 class="text-2xl font-extrabold text-purple-700 uppercase tracking-wide">CAPI GAMES</h1>
+
+      <div class="flex items-center gap-3">
+        <button id="toggleCapi" class="bg-yellow-400 hover:bg-yellow-500 text-purple-900 font-bold py-2 px-4 rounded-full">
+          <span id="capiToggleText">🐹 DESABILITAR CAPI</span>
+        </button>
+        <button id="refreshBtn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-full"
+                title="Recarregar página / manifesto">
+          🔄 ATUALIZAR JOGOS
         </button>
       </div>
     </div>
   </header>
 
-  <main class="container mx-auto px-4 py-8">
+  <!-- Hero -->
+  <section class="text-center py-10 md:py-14">
+    <h2 class="text-4xl md:text-6xl font-extrabold text-white drop-shadow-lg mb-3">BEM-VINDOS AO MUNDO DOS JOGOS!</h2>
+    <p class="text-white/90 uppercase max-w-3xl mx-auto">explore, aprenda e divirta-se com jogos educativos criados especialmente para cada idade!</p>
 
-    <!-- Busca / Filtros -->
-    <section class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl max-w-4xl mx-auto">
+    <div class="mt-6">
+      <button id="toggleSearchBtn" class="mx-auto bg-white text-purple-700 hover:bg-purple-50 font-bold py-3 px-6 rounded-full shadow">
+        🔎 BUSCAR JOGOS
+      </button>
+    </div>
+  </section>
+
+  <main class="container mx-auto px-4 pb-16">
+
+    <!-- CONTROLES DE BUSCA (apenas na página inicial) -->
+    <section id="searchBar" class="max-w-4xl mx-auto mb-8 bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl hidden">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
+        <div class="md:col-span-2">
           <label class="block text-sm font-semibold text-gray-700 mb-2">Palavra-chave</label>
-          <input id="q" type="text" placeholder="Digite aqui..." class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none uppercase">
+          <input id="q" type="text" placeholder="Digite aqui…" class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none uppercase">
         </div>
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-2">Categoria</label>
@@ -44,330 +103,316 @@
             <option value="">Todas</option>
           </select>
         </div>
-        <div class="flex items-end">
-          <button id="clearBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-full">🗑️ Limpar</button>
+      </div>
+      <div class="mt-3 flex gap-2">
+        <button id="clearBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-full">🗑️ Limpar</button>
+        <div id="manifestInfo" class="text-sm text-gray-600 self-center"></div>
+      </div>
+    </section>
+
+    <!-- CARDS DAS CATEGORIAS -->
+    <section id="ageGroupsSection" class="grid grid-cols-1 md:grid-cols-5 gap-6" style="text-align: center;">
+      <!-- 1 a 3 -->
+      <div class="age-card p-6 cursor-pointer" onclick="openCategory('1-3')">
+        <div class="glow"></div>
+        <div class="relative">
+          <div class="text-5xl mb-3">🧸</div>
+          <h3 class="text-xl font-extrabold text-purple-600">1 A 3 ANOS</h3>
+          <p class="text-purple-400 text-sm -mt-1">CORES E FORMAS</p>
+          <div class="mt-4">
+            <span class="inline-block bg-rose-100 text-rose-600 px-3 py-1 rounded-full age-chip">EXPLORAÇÃO SENSORIAL</span>
+            <div class="text-[11px] text-rose-500 mt-1">RECONHECIMENTO BÁSICO</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 a 5 -->
+      <div class="age-card p-6 cursor-pointer" onclick="openCategory('4-5')">
+        <div class="glow"></div>
+        <div class="relative">
+          <div class="text-5xl mb-3">🧩</div>
+          <h3 class="text-xl font-extrabold text-emerald-600">4 E 5 ANOS</h3>
+          <p class="text-emerald-400 text-sm -mt-1">LETRAS E NÚMEROS</p>
+          <div class="mt-4">
+            <span class="inline-block bg-blue-100 text-blue-600 px-3 py-1 rounded-full age-chip">ALFABETIZAÇÃO</span>
+            <div class="text-[11px] text-blue-500 mt-1">PRIMEIRAS PALAVRAS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 a 10 -->
+      <div class="age-card p-6 cursor-pointer" onclick="openCategory('6-10')">
+        <div class="glow"></div>
+        <div class="relative">
+          <div class="text-5xl mb-3">🚲</div>
+          <h3 class="text-xl font-extrabold text-green-600">6 A 10 ANOS</h3>
+          <p class="text-green-400 text-sm -mt-1">LEITURA E MATEMÁTICA</p>
+          <div class="mt-4">
+            <span class="inline-block bg-green-100 text-green-600 px-3 py-1 rounded-full age-chip">RACIOCÍNIO LÓGICO</span>
+            <div class="text-[11px] text-green-500 mt-1">RESOLUÇÃO DE PROBLEMAS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 11 a 14 -->
+      <div class="age-card p-6 cursor-pointer" onclick="openCategory('11-14')">
+        <div class="glow"></div>
+        <div class="relative">
+          <div class="text-5xl mb-3">🎮</div>
+          <h3 class="text-xl font-extrabold text-indigo-600">11 A 14 ANOS</h3>
+          <p class="text-indigo-400 text-sm -mt-1">CIÊNCIAS E CULTURA</p>
+          <div class="mt-4">
+            <span class="inline-block bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full age-chip">PENSAMENTO CRÍTICO</span>
+            <div class="text-[11px] text-indigo-500 mt-1">PROJETOS AVANÇADOS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAEe -->
+      <div class="age-card p-6 cursor-pointer" onclick="openCategory('naee')">
+        <div class="glow"></div>
+        <div class="relative">
+          <div class="text-5xl mb-3">✨</div>
+          <h3 class="text-xl font-extrabold text-orange-600">SALA DO NAEE</h3>
+          <p class="text-orange-400 text-sm -mt-1">EDUCAÇÃO ESPECIAL</p>
+          <div class="mt-4">
+            <span class="inline-block bg-orange-100 text-orange-600 px-3 py-1 rounded-full age-chip">JOGOS ADAPTADOS</span>
+            <div class="text-[11px] text-orange-500 mt-1">INCLUSÃO E ACESSIBILIDADE</div>
+          </div>
+          <div class="mt-3 text-[15px]">🧑‍🦽 ♿ 👂</div>
         </div>
       </div>
     </section>
 
-    <!-- Catálogo -->
-    <section id="catalog" class="space-y-8 mt-8"></section>
+    <!-- RESULTADOS DE BUSCA (aparecem ABAIXO dos cards) -->
+    <section id="searchResults" class="hidden mt-8">
+      <h4 class="text-white text-xl font-bold mb-3 drop-shadow">Resultados</h4>
+      <div id="resultsList" class="bg-white/95 backdrop-blur-sm rounded-3xl p-4 shadow-2xl"></div>
+    </section>
 
-    <!-- Mascote -->
-    <div id="capiContainer" class="fixed bottom-6 right-6">
-      <div id="capiSpeech" class="bubble hidden max-w-xs">
-        <p id="capiMessage" class="text-purple-800 font-semibold"></p>
+    <!-- LISTA DE JOGOS POR CATEGORIA -->
+    <section id="gamesSection" class="hidden mt-10">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="gamesSectionTitle" class="text-2xl font-bold text-white drop-shadow">Jogos</h3>
+        <button onclick="backHome()" class="bg-white/90 hover:bg-white text-purple-700 font-bold py-2 px-4 rounded-full shadow">⬅️ Voltar</button>
       </div>
-      <div id="capi" class="float cursor-pointer bg-orange-400 rounded-full p-3 shadow-2xl hover:bg-orange-500">
-        <svg width="72" height="72" viewBox="0 0 100 100">
-          <ellipse cx="50" cy="60" rx="35" ry="25" fill="#8B4513"/>
-          <ellipse cx="50" cy="35" rx="25" ry="20" fill="#A0522D"/>
-          <ellipse cx="35" cy="25" rx="8" ry="12" fill="#8B4513"/>
-          <ellipse cx="65" cy="25" rx="8" ry="12" fill="#8B4513"/>
-          <circle cx="42" cy="32" r="4" fill="white"/><circle cx="58" cy="32" r="4" fill="white"/>
-          <circle cx="42" cy="32" r="2" fill="black"/><circle cx="58" cy="32" r="2" fill="black"/>
-          <ellipse cx="50" cy="40" rx="3" ry="2" fill="black"/>
-          <path d="M45 45 Q50 48 55 45" stroke="black" stroke-width="2" fill="none"/>
-          <ellipse cx="35" cy="80" rx="6" ry="8" fill="#8B4513"/>
-          <ellipse cx="50" cy="80" rx="6" ry="8" fill="#8B4513"/>
-          <ellipse cx="65" cy="80" rx="6" ry="8" fill="#8B4513"/>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Modal de Progresso -->
-    <div id="progressModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-      <div class="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl">
-        <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white">
-          <div class="flex items-center justify-between">
-            <h3 class="text-2xl font-bold">🔄 Indexando Jogos</h3>
-            <button id="closeProgress" class="bg-white/20 hover:bg-white/30 rounded-full p-2">&times;</button>
-          </div>
-        </div>
-        <div class="p-6">
-          <div class="bg-gray-200 rounded-full h-3 mb-2">
-            <div id="progressBar" class="bg-green-500 h-3 rounded-full transition-all duration-300" style="width:0%"></div>
-          </div>
-          <p id="progressText" class="text-center text-sm text-gray-600">Preparando...</p>
-        </div>
-      </div>
-    </div>
-
+      <div id="gamesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </section>
   </main>
 
+  <!-- Mascote CAPI -->
+  <div id="capiContainer" class="fixed bottom-6 right-6">
+    <div id="capiSpeech" class="capi-bubble hidden max-w-xs">
+      <p id="capiMessage" class="text-purple-800 font-semibold"></p>
+    </div>
+    <div id="capi" class="float cursor-pointer bg-orange-400 rounded-full p-3 shadow-2xl hover:bg-orange-500" title="CAPI — seu ajudante!">
+      <svg width="76" height="76" viewBox="0 0 100 100">
+        <ellipse cx="50" cy="60" rx="35" ry="25" fill="#8B4513"/>
+        <ellipse cx="50" cy="35" rx="25" ry="20" fill="#A0522D"/>
+        <ellipse cx="35" cy="25" rx="8" ry="12" fill="#8B4513"/>
+        <ellipse cx="65" cy="25" rx="8" ry="12" fill="#8B4513"/>
+        <circle cx="42" cy="32" r="4" fill="white"/><circle cx="58" cy="32" r="4" fill="white"/>
+        <circle cx="42" cy="32" r="2" fill="black"/><circle cx="58" cy="32" r="2" fill="black"/>
+        <ellipse cx="50" cy="40" rx="3" ry="2" fill="black"/>
+        <path d="M45 45 Q50 48 55 45" stroke="black" stroke-width="2" fill="none"/>
+        <ellipse cx="35" cy="80" rx="6" ry="8" fill="#8B4513"/>
+        <ellipse cx="50" cy="80" rx="6" ry="8" fill="#8B4513"/>
+        <ellipse cx="65" cy="80" rx="6" ry="8" fill="#8B4513"/>
+      </svg>
+    </div>
+  </div>
+
   <script>
-    /* =======================
-       CONFIGURAÇÃO DO INDEXADOR
-       ======================= */
-
-    // true -> Indexa direto do GitHub (estrutura oficial)
-    // false -> Usa games-manifest.json local (raiz do site)
-    const USE_GITHUB_INDEX = true;
-
-    const GITHUB = {
-      owner:  "educacaodigital",
-      repo:   "capigames",
-      branch: "main",
-      api:    "https://api.github.com",
-      raw:    "https://raw.githubusercontent.com"
-    };
-
-    // Categorias válidas e labels
+    /* ======= CONFIG ======= */
+    const BASE_DIR = "games";
     const CATEGORY_ORDER = ["1-3","4-5","6-10","11-14","naee"];
-    const CATEGORY_LABELS = {
-      "1-3":  "1 a 3 anos",
-      "4-5":  "4 e 5 anos",
-      "6-10": "6 a 10 anos",
-      "11-14":"11 a 14 anos",
-      "naee": "Sala de Recursos"
+    const CATEGORY_TITLES = {
+      "1-3":"JOGOS PARA 1 A 3 ANOS",
+      "4-5":"JOGOS PARA 4 E 5 ANOS",
+      "6-10":"JOGOS PARA 6 A 10 ANOS",
+      "11-14":"JOGOS PARA 11 A 14 ANOS",
+      "naee":"SALA DO NAEE - EDUCAÇÃO ESPECIAL"
     };
 
-    const EXCLUDE_FILES   = new Set(["index.html",".DS_Store","README.md"]);
-    const EXCLUDE_FOLDERS = new Set([".git",".github","assets","static","img","images","css","js"]);
+    let entries = [];                 // {path, title, category}
+    let presentCategories = new Set();// categorias presentes
+    let capiEnabled = true;
 
-    // Estado
-    let indexEntries = []; // {category, path, title, href}
-    let presentCategories = new Set();
-
-    // UI refs
-    const $  = (s)=>document.querySelector(s);
+    // Refs UI
+    const $ = s => document.querySelector(s);
+    const searchBar = $("#searchBar");
+    const manifestInfo = $("#manifestInfo");
+    const ageGroupsSection = $("#ageGroupsSection");
+    const searchResults = $("#searchResults");
+    const resultsList = $("#resultsList");
+    const gamesSection = $("#gamesSection");
+    const gamesGrid = $("#gamesGrid");
+    const gamesSectionTitle = $("#gamesSectionTitle");
     const qEl = $("#q");
     const categoryFilterEl = $("#categoryFilter");
-    const catalogEl = $("#catalog");
-    const reindexBtn = $("#reindexBtn");
     const clearBtn = $("#clearBtn");
-    const progressModal = $("#progressModal");
-    const progressBar = $("#progressBar");
-    const progressText = $("#progressText");
-    $("#closeProgress").addEventListener("click", ()=>{progressModal.classList.add("hidden"); progressModal.classList.remove("flex");});
+    const toggleSearchBtn = $("#toggleSearchBtn");
+    const refreshBtn = $("#refreshBtn");
 
-    // Mascote
-    $("#capi").addEventListener("click", ()=>showMsg("Vamos explorar os jogos! 🎮"));
-    function showMsg(t){
-      $("#capiMessage").textContent = t;
-      const s = $("#capiSpeech");
-      s.classList.remove("hidden");
-      setTimeout(()=>s.classList.add("hidden"), 2400);
+    /* ======= CAPI (assistente) ======= */
+    function showCapiMessage(message){
+      if(!capiEnabled) return;
+      const speech = $("#capiSpeech");
+      $("#capiMessage").textContent = message;
+      speech.classList.remove("hidden");
+      setTimeout(()=>speech.classList.add("hidden"), 3000);
     }
+    $("#capi").addEventListener("click", ()=> showCapiMessage("POSSO AJUDAR! CLIQUE EM UMA CATEGORIA OU BUSQUE UM JOGO. 🐹"));
+    $("#toggleCapi").addEventListener("click", ()=>{
+      capiEnabled = !capiEnabled;
+      $("#capiContainer").style.display = capiEnabled ? "block" : "none";
+      $("#capiToggleText").textContent = capiEnabled ? "🐹 DESABILITAR CAPI" : "🐹 HABILITAR CAPI";
+      if(capiEnabled) showCapiMessage("OBA! ESTOU DE VOLTA! 🎉");
+    });
 
-    /* =======================
-       UTILITÁRIOS
-       ======================= */
-
-    function openProgress(msg="Iniciando..."){ progressText.textContent=msg; progressBar.style.width="0%"; progressModal.classList.remove("hidden"); progressModal.classList.add("flex"); }
-    function updateProgress(p, msg){ progressBar.style.width = p + "%"; if(msg) progressText.textContent = msg; }
-    function closeProgress(){ progressModal.classList.add("hidden"); progressModal.classList.remove("flex"); }
-
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
-
-    function firstFolder(path){
-      const parts = path.split("/").filter(Boolean);
-      return parts.length>1 ? parts[0].toLowerCase() : "";
+    /* ======= HELPERS ======= */
+    const normalizeSlashes = p => p.replace(/\\/g,'/');
+    const stripLeadingDots = p => p.replace(/^[.\/]+/,'');
+    function firstFolderAfterBase(relPath){
+      const p = normalizeSlashes(relPath);
+      const parts = p.split('/').filter(Boolean);
+      if(parts.length===0) return "";
+      if (parts[0].toLowerCase() === BASE_DIR.toLowerCase()) return parts[1]?.toLowerCase() || "";
+      return parts[0].toLowerCase();
     }
-
-    function normalizeCategoryFromPath(path){
-      const root = firstFolder(path);
-      // somente as 5 válidas; outras são ignoradas
-      if (CATEGORY_ORDER.includes(root)) return root;
-      return null;
+    function normalizeCategoryFromPath(relPath){
+      const root = firstFolderAfterBase(relPath);
+      return CATEGORY_ORDER.includes(root) ? root : null;
     }
-
-    function toRawUrl(path){
-      return `${GITHUB.raw}/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${path}`;
-    }
-
-    async function fetchDir(path=""){
-      const url = `${GITHUB.api}/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${encodeURIComponent(path)}?ref=${GITHUB.branch}`;
-      const res = await fetch(url, {headers:{Accept:"application/vnd.github.v3+json"}});
-      if (!res.ok) throw new Error("Falha GitHub contents: " + path);
-      return res.json();
-    }
-
-    async function walkTree(basePath="", acc=[]){
-      const items = await fetchDir(basePath);
-      for (const it of items){
-        if (it.type === "dir"){
-          if (EXCLUDE_FOLDERS.has(it.name)) continue;
-          await walkTree(it.path, acc);
-        } else if (it.type === "file"){
-          const n = it.name.toLowerCase();
-          if (!n.endsWith(".html")) continue;
-          if (EXCLUDE_FILES.has(it.name)) continue;
-          const cat = normalizeCategoryFromPath(it.path);
-          if (!cat) continue; // ignora fora das 5 categorias
-          acc.push(it.path);
-        }
-      }
-      return acc;
-    }
-
-    async function readHtmlTitle(url){
-      try{
-        const r = await fetch(url,{cache:"no-store"});
-        if(!r.ok) return null;
-        const tx = await r.text();
-        const m = tx.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-        return m ? m[1].trim() : null;
-      }catch{ return null; }
-    }
-
-    async function buildFromGitHub(){
-      openProgress("Lendo estrutura do GitHub…");
-      const files = await walkTree("");
-      if (files.length===0) throw new Error("Nenhum jogo (.html) encontrado nas 5 categorias.");
-
-      indexEntries = [];
-      presentCategories = new Set();
-      let done=0;
-
-      for (const filePath of files){
-        const cat = normalizeCategoryFromPath(filePath);
-        if(!cat) continue;
-        presentCategories.add(cat);
-
-        const title = await readHtmlTitle(toRawUrl(filePath))
-                    || filePath.split("/").pop().replace(/\.html?$/i,"");
-
-        indexEntries.push({ category:cat, path:filePath, title, href:filePath });
-        done++;
-        if (done%5===0) updateProgress(Math.round((done/files.length)*100), `Indexando (${done}/${files.length})…`);
-      }
-      updateProgress(100,"Concluído!");
-      closeProgress();
-    }
-
-    async function buildFromManifest(){
-      openProgress("Lendo games-manifest.json local…");
-      const res = await fetch("games-manifest.json",{cache:"no-store"});
-      if(!res.ok) throw new Error("games-manifest.json não encontrado.");
-      const manifest = await res.json();
-      const files = (manifest.entries||[]).map(e=>e.path).filter(p=>p.toLowerCase().endsWith(".html") && !/\/?index\.html?$/i.test(p));
-      if (files.length===0) throw new Error("Manifest sem arquivos .html válidos.");
-
-      indexEntries = [];
-      presentCategories = new Set();
-      let done=0;
-
-      for (const filePath of files){
-        const cat = normalizeCategoryFromPath(filePath);
-        if(!cat) { continue; } // ignora fora das 5 categorias
-        presentCategories.add(cat);
-
-        const title = await readHtmlTitle(filePath)
-                    || filePath.split("/").pop().replace(/\.html?$/i,"");
-        indexEntries.push({ category:cat, path:filePath, title, href:filePath });
-        done++;
-        if (done%5===0) updateProgress(Math.round((done/files.length)*100), `Indexando (${done}/${files.length})…`);
-      }
-      updateProgress(100,"Concluído!");
-      closeProgress();
-    }
-
-    async function buildIndex(){
-      try{
-        if (USE_GITHUB_INDEX) await buildFromGitHub();
-        else await buildFromManifest();
-      }catch(e){
-        console.warn(e);
-        if (USE_GITHUB_INDEX){
-          try{
-            await buildFromManifest();
-            showMsg("Sem GitHub. Usei o manifest local. 📄");
-          }catch(e2){
-            alert("Não foi possível construir o índice (GitHub e manifest local indisponíveis).");
-          }
-        }else{
-          alert("Não foi possível construir o índice a partir do manifest local.");
-        }
-      }
-      renderFilters();
-      renderCatalog();
-      showMsg("Índice atualizado! ✅");
-    }
-
-    /* =======================
-       RENDERIZAÇÃO
-       ======================= */
 
     function renderFilters(){
-      // popula select apenas com categorias presentes e válidas
       const cats = CATEGORY_ORDER.filter(c=>presentCategories.has(c));
-      categoryFilterEl.innerHTML = `<option value="">Todas</option>` +
-        cats.map(c=>`<option value="${c}">${escapeHtml(CATEGORY_LABELS[c])}</option>`).join("");
+      categoryFilterEl.innerHTML = `<option value="">Todas</option>` + cats.map(c=>`<option value="${c}">${c}</option>`).join("");
     }
 
-    function groupByCategory(entries){
-      const map = new Map();
-      for (const e of entries){
-        if (!map.has(e.category)) map.set(e.category, []);
-        map.get(e.category).push(e);
+    function drawGamesGrid(list){
+      if(list.length===0){
+        gamesGrid.innerHTML = `<div class="col-span-full text-center py-8 text-white/90">
+          <div class="text-4xl mb-2">😔</div><p class="text-xl font-bold">NENHUM JOGO ENCONTRADO</p></div>`;
+        return;
       }
-      // ordena por título dentro de cada grupo
-      for (const [k,arr] of map){ arr.sort((a,b)=>a.title.localeCompare(b.title,'pt-BR')); }
-      return map;
+      gamesGrid.innerHTML = list.map(item=>`
+        <a href="${encodeURI(item.path)}" class="game-card block" title="${item.title}">
+          <div class="text-4xl mb-2">🎮</div>
+          <div class="font-bold">${item.title}</div>
+          <div class="text-[11px] opacity-90 mt-1">${item.path}</div>
+        </a>
+      `).join("");
     }
 
-    function renderCatalog(){
+    /* ======= BUSCA NA HOME ======= */
+    function renderSearchResults(){
       const q = (qEl.value||"").trim().toUpperCase();
       const catFilter = categoryFilterEl.value;
 
-      let filtered = indexEntries.filter(e=>{
-        const inCat = !catFilter || e.category===catFilter;
-        const inText = !q || e.title.toUpperCase().includes(q) || e.path.toUpperCase().includes(q);
-        return inCat && inText;
-      });
-
-      const grouped = groupByCategory(filtered);
-
-      if (filtered.length===0){
-        catalogEl.innerHTML = `
-          <div class="text-center py-10 text-white/95">
-            <div class="text-5xl mb-3">😔</div>
-            <p class="text-2xl font-bold drop-shadow">Nenhum jogo encontrado</p>
-            <p>Tente alterar os filtros ou a palavra-chave.</p>
-          </div>`;
+      if(!q && !catFilter){
+        searchResults.classList.add("hidden");
+        resultsList.innerHTML = "";
         return;
       }
 
-      const sections = [];
-      for (const cat of CATEGORY_ORDER){
-        if (!grouped.has(cat)) continue;
-        const items = grouped.get(cat);
-        sections.push(`
-          <section class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-2xl">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-2xl font-bold text-purple-700">${escapeHtml(CATEGORY_LABELS[cat])}</h3>
-              <span class="text-sm text-gray-600">${items.length} jogo(s)</span>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              ${items.map(renderCard).join("")}
-            </div>
-          </section>
-        `);
+      let filtered = entries.filter(e=>{
+        const inCat = !catFilter || e.category===catFilter;
+        const t = (e.title||"").toUpperCase();
+        const p = (e.path ||"").toUpperCase();
+        const inText = !q || t.includes(q) || p.includes(q);
+        return inCat && inText;
+      });
+
+      if(filtered.length===0){
+        searchResults.classList.remove("hidden");
+        resultsList.innerHTML = `<div class="text-center text-gray-600 py-6">Nenhum jogo encontrado.</div>`;
+        return;
       }
-      catalogEl.innerHTML = sections.join("\n");
-    }
 
-    function renderCard(item){
-      return `
-        <a href="${encodeURI(item.href)}" class="card block" title="${escapeHtml(item.path)}">
-          <div class="text-4xl mb-2">🎮</div>
-          <h4 class="text-lg font-bold mb-1">${escapeHtml(item.title)}</h4>
-          <p class="text-[11px] opacity-90">${escapeHtml(item.path)}</p>
+      // lista simples com título e local
+      const html = filtered.map(e=>`
+        <a href="${encodeURI(e.path)}" class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg hover:bg-purple-50 transition">
+          <div>
+            <div class="font-semibold text-purple-700">${e.title}</div>
+            <div class="text-xs text-gray-600">${e.path}</div>
+          </div>
+          <span class="text-[11px] px-2 py-1 rounded-full bg-purple-100 text-purple-700 uppercase">${e.category}</span>
         </a>
-      `;
+      `).join("");
+
+      resultsList.innerHTML = html;
+      searchResults.classList.remove("hidden");
     }
 
-    /* =======================
-       EVENTOS
-       ======================= */
-    qEl.addEventListener("input", renderCatalog);
-    categoryFilterEl.addEventListener("change", renderCatalog);
-    clearBtn.addEventListener("click", ()=>{ qEl.value=""; categoryFilterEl.value=""; renderCatalog(); });
-    reindexBtn.addEventListener("click", buildIndex);
+    // mostrar/esconder barra de busca só na home
+    toggleSearchBtn.addEventListener("click", ()=>{
+      const open = searchBar.classList.contains("hidden");
+      searchBar.classList.toggle("hidden");
+      if(open) { showCapiMessage("VAMOS BUSCAR JOGOS INCRÍVEIS! 🔍"); }
+      else { showCapiMessage("TELA PRINCIPAL! 🏠"); searchResults.classList.add("hidden"); qEl.value=""; categoryFilterEl.value=""; }
+    });
+    clearBtn.addEventListener("click", ()=>{
+      qEl.value=""; categoryFilterEl.value=""; renderSearchResults();
+    });
+    qEl.addEventListener("input", renderSearchResults);
+    categoryFilterEl.addEventListener("change", renderSearchResults);
 
-    // start
-    buildIndex();
+    /* ======= FLUXO: CARREGAR MANIFESTO (OBRIGATÓRIO) ======= */
+    function loadManifest(){
+      const m = window.CAPI_MANIFEST;
+      if(!m || !Array.isArray(m.entries)){
+        manifestInfo.innerHTML = `<span class="text-rose-600 font-semibold">Manifesto não encontrado.</span> Execute <strong>generate-manifest.vbs</strong>.`;
+        showCapiMessage("Precisa gerar o manifesto primeiro. 📄");
+        return false;
+      }
+      const fixed = [];
+      for(const e of m.entries){
+        if(!e || !e.path) continue;
+        const p = stripLeadingDots(normalizeSlashes(e.path));
+        const cat = normalizeCategoryFromPath(p);
+        if(!cat) continue;
+        const withBase = p.toLowerCase().startsWith(BASE_DIR.toLowerCase()+"/") ? p : `${BASE_DIR}/${p}`;
+        fixed.push({ path: withBase, title: e.title || withBase.split("/").pop().replace(/\.html?$/i,""), category: cat });
+      }
+      entries = fixed;
+      presentCategories = new Set(entries.map(e=>e.category));
+      renderFilters();
+      manifestInfo.textContent = `Manifesto: ${m.generated_at || "desconhecido"} • Jogos: ${entries.length}`;
+      showCapiMessage(`Manifesto carregado • ${entries.length} jogo(s)`);
+      return true;
+    }
+
+    /* ======= NAVEGAÇÃO DE CATEGORIA ======= */
+    function openCategory(cat){
+      const list = entries.filter(e=>e.category===cat);
+      gamesSectionTitle.textContent = CATEGORY_TITLES[cat] || "Jogos";
+      ageGroupsSection.classList.add("hidden");
+      searchBar.classList.add("hidden");      // busca só na home
+      searchResults.classList.add("hidden");  // e resultados também
+      gamesSection.classList.remove("hidden");
+      drawGamesGrid(list);
+      showCapiMessage(`ÓTIMA ESCOLHA! 💡`);
+    }
+    function backHome(){
+      gamesSection.classList.add("hidden");
+      ageGroupsSection.classList.remove("hidden");
+      // não abre automaticamente a busca; fica como estava
+      showCapiMessage("TELA PRINCIPAL! 🏠");
+    }
+
+    /* ======= START ======= */
+    refreshBtn.addEventListener("click", ()=>location.reload());
+
+    window.addEventListener("DOMContentLoaded", ()=>{
+      loadManifest();  // obrigatório
+      // dica inicial
+      setTimeout(()=> showCapiMessage("OLÁ! ESCOLHA SUA CATEGORIA OU CLIQUE EM BUSCAR JOGOS. 🎮"), 800);
+    });
+
+    // Expor funções de navegação no escopo global
+    window.openCategory = openCategory;
+    window.backHome = backHome;
   </script>
 </body>
 </html>
