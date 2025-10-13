@@ -1,1557 +1,426 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogos Pedagógicos - Capi Games v2</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
-        }
-        
-        @keyframes dance {
-            0%, 100% { transform: rotate(0deg) scale(1); }
-            25% { transform: rotate(-5deg) scale(1.1); }
-            50% { transform: rotate(5deg) scale(1.1); }
-            75% { transform: rotate(-3deg) scale(1.05); }
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
-        }
-        
-        .bounce { animation: bounce 2s infinite; }
-        .dance { animation: dance 1s ease-in-out; }
-        .float { animation: float 3s ease-in-out infinite; }
-        
-        .age-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .age-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-        
-        .speech-bubble {
-            position: relative;
-            background: white;
-            border-radius: 20px;
-            padding: 15px;
-            margin: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .speech-bubble:after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 30px;
-            width: 0;
-            height: 0;
-            border: 10px solid transparent;
-            border-top-color: white;
-        }
-        
-        .game-preview {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            padding: 20px;
-            color: white;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        
-        .game-preview:hover {
-            transform: scale(1.05);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jogos Pedagógicos - Capi Games</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { box-sizing: border-box; }
+    @keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(-10px)}60%{transform:translateY(-5px)}}
+    @keyframes dance{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-5deg) scale(1.1)}50%{transform:rotate(5deg) scale(1.1)}75%{transform:rotate(-3deg) scale(1.05)}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .bounce{animation:bounce 2s infinite}
+    .dance{animation:dance 1s ease-in-out}
+    .float{animation:float 3s ease-in-out infinite}
+    .speech-bubble{position:relative;background:#fff;border-radius:20px;padding:15px;margin:10px;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+    .speech-bubble:after{content:'';position:absolute;bottom:-10px;left:30px;border:10px solid transparent;border-top-color:#fff}
+    .age-card{transition:all .3s ease;cursor:pointer}
+    .age-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,.15)}
+    .game-preview{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:15px;padding:20px;color:#fff;text-align:center;cursor:pointer;transition:transform .3s ease}
+    .game-preview:hover{transform:scale(1.05)}
+  </style>
 </head>
 <body class="min-h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-400">
-    <!-- Header -->
-    <header class="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <img src="https://www.riopreto.sp.leg.br/Content/css/images/logo-1.png" alt="Logo Câmara Municipal" class="h-12 w-auto" onerror="this.src=''; this.alt='Logo não disponível'; this.style.display='none';">
-                <h1 class="text-3xl font-bold text-purple-600 uppercase">CAPI GAMES v2</h1>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-                <button id="toggleCapi" class="bg-yellow-400 hover:bg-yellow-500 text-purple-800 font-bold py-2 px-4 rounded-full transition-colors">
-                    <span id="capiToggleText">🐹 DESABILITAR CAPI</span>
-                </button>
-                <button onclick="checkForUpdates()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full">
-                    🔄 ATUALIZAR JOGOS
-                </button>
-            </div>
+
+  <!-- Header -->
+  <header class="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <img src="https://www.riopreto.sp.leg.br/Content/css/images/logo-1.png" alt="Logo Câmara Municipal" class="h-12 w-auto" onerror="this.src=''; this.alt=''; this.style.display='none';">
+        <h1 class="text-3xl font-bold text-purple-600 uppercase">CAPI GAMES</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <button id="toggleCapi" class="bg-yellow-400 hover:bg-yellow-500 text-purple-800 font-bold py-2 px-4 rounded-full transition-colors">
+          <span id="capiToggleText">🐹 DESABILITAR CAPI</span>
+        </button>
+        <button id="reindexBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full">
+          🔄 ATUALIZAR JOGOS
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+
+    <!-- Boas-vindas -->
+    <div class="text-center mb-8">
+      <h2 class="text-5xl font-bold text-white mb-4 drop-shadow-lg">BEM-VINDOS AO MUNDO DOS JOGOS!</h2>
+      <p class="text-xl text-white/90 max-w-3xl mx-auto drop-shadow uppercase">
+        Explore, aprenda e divirta-se com jogos educativos organizados por pastas e categorias!
+      </p>
+    </div>
+
+    <!-- Busca -->
+    <div class="max-w-4xl mx-auto mb-8 bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">PALAVRA-CHAVE</label>
+          <input id="q" type="text" placeholder="Digite aqui..." class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none uppercase">
         </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
-        <!-- Welcome Section -->
-        <div class="text-center mb-12">
-            <h2 class="text-5xl font-bold text-white mb-4 drop-shadow-lg">
-                BEM-VINDOS AO MUNDO DOS JOGOS!
-            </h2>
-            <p class="text-xl text-white/90 max-w-3xl mx-auto drop-shadow uppercase">
-                EXPLORE, APRENDA E DIVIRTA-SE COM JOGOS EDUCATIVOS CRIADOS ESPECIALMENTE PARA CADA IDADE!
-            </p>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">CATEGORIA (PASTA)</label>
+          <select id="categoryFilter" class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
+            <option value="">Todas</option>
+          </select>
         </div>
-
-        <!-- Search Section -->
-        <div id="searchSection" class="max-w-4xl mx-auto mb-12 bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl hidden">
-            <div class="text-center mb-6">
-                <h3 class="text-3xl font-bold text-purple-600 mb-2">🔍 BUSCAR JOGOS</h3>
-                <p class="text-gray-600">ENCONTRE O JOGO PERFEITO PARA VOCÊ!</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">PALAVRA-CHAVE:</label>
-                    <input type="text" id="searchKeyword" placeholder="Digite aqui..." 
-                           class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none uppercase"
-                           oninput="performSearch()">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">IDADE:</label>
-                    <select id="searchAge" onchange="performSearch()" 
-                            class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
-                        <option value="">TODAS AS IDADES</option>
-                        <option value="1-3">1 A 3 ANOS</option>
-                        <option value="4-6">4 A 6 ANOS</option>
-                        <option value="7-9">7 A 9 ANOS</option>
-                        <option value="10-14">10 A 14 ANOS</option>
-                        <option value="naee">SALA DO NAEE</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">TIPO:</label>
-                    <select id="searchType" onchange="performSearch()" 
-                            class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
-                        <option value="">TODOS OS TIPOS</option>
-                        <option value="matematica">MATEMÁTICA</option>
-                        <option value="portugues">PORTUGUÊS</option>
-                        <option value="ciencias">CIÊNCIAS</option>
-                        <option value="cores">CORES E FORMAS</option>
-                        <option value="coordenacao">COORDENAÇÃO</option>
-                        <option value="comunicacao">COMUNICAÇÃO</option>
-                        <option value="sensorial">SENSORIAL</option>
-                        <option value="rotina">ROTINA</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="flex justify-center space-x-4">
-                <button onclick="clearSearch()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full transition-colors">
-                    🗑️ LIMPAR BUSCA
-                </button>
-                <button onclick="toggleSearch()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-full transition-colors">
-                    ← VOLTAR
-                </button>
-            </div>
-            
-            <!-- Search Results -->
-            <div id="searchResults" class="mt-8 hidden">
-                <h4 class="text-2xl font-bold text-purple-600 mb-4">RESULTADOS DA BUSCA:</h4>
-                <div id="searchResultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Search results will appear here -->
-                </div>
-            </div>
+        <div class="flex items-end gap-2">
+          <button id="clearBtn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full transition-colors">🗑️ Limpar</button>
         </div>
+      </div>
+    </div>
 
-        <!-- Search Toggle Button -->
-        <div class="text-center mb-8">
-            <button onclick="toggleSearch()" class="bg-white/90 hover:bg-white text-purple-600 font-bold py-4 px-8 rounded-full text-xl shadow-lg transition-colors">
-                🔍 BUSCAR JOGOS
-            </button>
+    <!-- Lista dinâmica por categoria -->
+    <div id="catalog" class="space-y-10"></div>
+
+    <!-- Mascote -->
+    <div id="capiContainer" class="fixed bottom-8 right-8 z-40">
+      <div id="capiSpeech" class="speech-bubble hidden mb-4 max-w-xs">
+        <p id="capiMessage" class="text-purple-800 font-semibold"></p>
+      </div>
+      <div id="capi" class="float cursor-pointer bg-orange-400 rounded-full p-4 shadow-2xl hover:bg-orange-500 transition-colors">
+        <svg width="80" height="80" viewBox="0 0 100 100" class="text-white">
+          <ellipse cx="50" cy="60" rx="35" ry="25" fill="#8B4513"/>
+          <ellipse cx="50" cy="35" rx="25" ry="20" fill="#A0522D"/>
+          <ellipse cx="35" cy="25" rx="8" ry="12" fill="#8B4513"/>
+          <ellipse cx="65" cy="25" rx="8" ry="12" fill="#8B4513"/>
+          <circle cx="42" cy="32" r="4" fill="white"/><circle cx="58" cy="32" r="4" fill="white"/>
+          <circle cx="42" cy="32" r="2" fill="black"/><circle cx="58" cy="32" r="2" fill="black"/>
+          <ellipse cx="50" cy="40" rx="3" ry="2" fill="black"/>
+          <path d="M45 45 Q50 48 55 45" stroke="black" stroke-width="2" fill="none"/>
+          <ellipse cx="35" cy="80" rx="6" ry="8" fill="#8B4513"/>
+          <ellipse cx="50" cy="80" rx="6" ry="8" fill="#8B4513"/>
+          <ellipse cx="65" cy="80" rx="6" ry="8" fill="#8B4513"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Modal simples de progresso -->
+    <div id="progressModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl">
+        <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white">
+          <div class="flex items-center justify-between">
+            <h3 class="text-2xl font-bold">🔄 Indexando Jogos</h3>
+            <button id="closeProgress" class="bg-white/20 hover:bg-white/30 rounded-full p-2">&times;</button>
+          </div>
         </div>
-
-        <!-- Capi Mascot -->
-        <div id="capiContainer" class="fixed bottom-8 right-8 z-40">
-            <div id="capiSpeech" class="speech-bubble hidden mb-4 max-w-xs">
-                <p id="capiMessage" class="text-purple-800 font-semibold"></p>
-            </div>
-            
-            <div id="capi" class="float cursor-pointer bg-orange-400 rounded-full p-4 shadow-2xl hover:bg-orange-500 transition-colors">
-                <svg width="80" height="80" viewBox="0 0 100 100" class="text-white">
-                    <!-- Corpo da Capivara -->
-                    <ellipse cx="50" cy="60" rx="35" ry="25" fill="#8B4513"/>
-                    <!-- Cabeça -->
-                    <ellipse cx="50" cy="35" rx="25" ry="20" fill="#A0522D"/>
-                    <!-- Orelhas -->
-                    <ellipse cx="35" cy="25" rx="8" ry="12" fill="#8B4513"/>
-                    <ellipse cx="65" cy="25" rx="8" ry="12" fill="#8B4513"/>
-                    <!-- Olhos -->
-                    <circle cx="42" cy="32" r="4" fill="white"/>
-                    <circle cx="58" cy="32" r="4" fill="white"/>
-                    <circle cx="42" cy="32" r="2" fill="black"/>
-                    <circle cx="58" cy="32" r="2" fill="black"/>
-                    <!-- Nariz -->
-                    <ellipse cx="50" cy="40" rx="3" ry="2" fill="black"/>
-                    <!-- Boca -->
-                    <path d="M 45 45 Q 50 48 55 45" stroke="black" stroke-width="2" fill="none"/>
-                    <!-- Patas -->
-                    <ellipse cx="35" cy="80" rx="6" ry="8" fill="#8B4513"/>
-                    <ellipse cx="50" cy="80" rx="6" ry="8" fill="#8B4513"/>
-                    <ellipse cx="65" cy="80" rx="6" ry="8" fill="#8B4513"/>
-                </svg>
-            </div>
+        <div class="p-6">
+          <div class="bg-gray-200 rounded-full h-4 mb-2">
+            <div id="progressBar" class="bg-green-500 h-4 rounded-full transition-all duration-300" style="width:0%"></div>
+          </div>
+          <p id="progressText" class="text-center text-sm text-gray-600">Preparando...</p>
         </div>
+      </div>
+    </div>
 
-        <!-- Name Input Section -->
-        <div id="nameSection" class="max-w-md mx-auto mb-12">
-            <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl text-center">
-                <div class="text-6xl mb-4">👋</div>
-                <h3 class="text-2xl font-bold text-purple-600 mb-6">OLÁÁÁ! QUAL É O SEU NOME?</h3>
-                
-                <div class="mb-6">
-                    <input 
-                        type="text" 
-                        id="playerName" 
-                        placeholder="DIGITE SEU NOME AQUI"
-                        class="w-full p-4 text-2xl font-bold text-center text-purple-800 bg-yellow-100 border-4 border-yellow-300 rounded-2xl focus:border-yellow-500 focus:outline-none placeholder-purple-400 uppercase"
-                        maxlength="20"
-                    >
-                </div>
-                
-                <button 
-                    id="startButton" 
-                    onclick="startGame()" 
-                    class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    disabled
-                >
-                    🎮 VAMOS JOGAR!
-                </button>
-                
-                <p class="text-sm text-gray-600 mt-4 uppercase">PRECISO SABER SEU NOME PARA COMEÇARMOS!</p>
-            </div>
-        </div>
+  </main>
 
-        <!-- Age Groups Dashboard -->
-        <div id="ageGroupsSection" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12 hidden">
-            <!-- 1-3 anos -->
-            <div class="age-card bg-white rounded-3xl p-6 shadow-xl" onclick="selectAgeGroup('1-3')">
-                <div class="text-center">
-                    <div class="text-6xl mb-4">🧸</div>
-                    <h3 class="text-2xl font-bold text-purple-600 mb-2">1 A 3 ANOS</h3>
-                    <p class="text-gray-600 mb-4">CORES E FORMAS</p>
-                    <div class="bg-red-100 rounded-2xl p-4">
-                        <p class="text-red-800 font-semibold text-sm">EXPLORAÇÃO SENSORIAL</p>
-                        <p class="text-red-600 text-xs mt-1">RECONHECIMENTO BÁSICO</p>
-                    </div>
-                </div>
-            </div>
+  <script>
+    /*** CONFIGURAÇÃO ***/
+    // true = usa GitHub API para espelhar exatamente a estrutura do repositório
+    // false = ignora GitHub e usa manifest local games-manifest.json (raiz do site)
+    const USE_GITHUB_INDEX = true;
 
-            <!-- 4-6 anos -->
-            <div class="age-card bg-white rounded-3xl p-6 shadow-xl" onclick="selectAgeGroup('4-6')">
-                <div class="text-center">
-                    <div class="text-6xl mb-4">🧩</div>
-                    <h3 class="text-2xl font-bold text-blue-600 mb-2">4 A 6 ANOS</h3>
-                    <p class="text-gray-600 mb-4">LETRAS E NÚMEROS</p>
-                    <div class="bg-blue-100 rounded-2xl p-4">
-                        <p class="text-blue-800 font-semibold text-sm">ALFABETIZAÇÃO</p>
-                        <p class="text-blue-600 text-xs mt-1">PRIMEIRAS PALAVRAS</p>
-                    </div>
-                </div>
-            </div>
+    const GITHUB = {
+      owner: "educacaodigital",
+      repo:  "capigames",
+      branch:"main",
+      apiBase: "https://api.github.com",
+    };
 
-            <!-- 7-9 anos -->
-            <div class="age-card bg-white rounded-3xl p-6 shadow-xl" onclick="selectAgeGroup('7-9')">
-                <div class="text-center">
-                    <div class="text-6xl mb-4">🚲</div>
-                    <h3 class="text-2xl font-bold text-green-600 mb-2">7 A 9 ANOS</h3>
-                    <p class="text-gray-600 mb-4">LEITURA E MATEMÁTICA</p>
-                    <div class="bg-green-100 rounded-2xl p-4">
-                        <p class="text-green-800 font-semibold text-sm">RACIOCÍNIO LÓGICO</p>
-                        <p class="text-green-600 text-xs mt-1">RESOLUÇÃO DE PROBLEMAS</p>
-                    </div>
-                </div>
-            </div>
+    // Excluir arquivos/pastas do índice
+    const EXCLUDE_FILES  = new Set(["index.html", ".DS_Store", "README.md"]);
+    const EXCLUDE_FOLDERS= new Set([".git", ".github", "assets", "static", "img", "images", "css", "js"]);
 
-            <!-- 10-14 anos -->
-            <div class="age-card bg-white rounded-3xl p-6 shadow-xl" onclick="selectAgeGroup('10-14')">
-                <div class="text-center">
-                    <div class="text-6xl mb-4">🎮</div>
-                    <h3 class="text-2xl font-bold text-purple-600 mb-2">10 A 14 ANOS</h3>
-                    <p class="text-gray-600 mb-4">CIÊNCIAS E CULTURA</p>
-                    <div class="bg-purple-100 rounded-2xl p-4">
-                        <p class="text-purple-800 font-semibold text-sm">PENSAMENTO CRÍTICO</p>
-                        <p class="text-purple-600 text-xs mt-1">PROJETOS AVANÇADOS</p>
-                    </div>
-                </div>
-            </div>
+    /*** VARS ***/
+    let capiEnabled = true;
+    const $ = (sel)=>document.querySelector(sel);
+    const $$ = (sel)=>document.querySelectorAll(sel);
+    const catalogEl = $("#catalog");
+    const qEl = $("#q");
+    const categoryFilterEl = $("#categoryFilter");
+    const reindexBtn = $("#reindexBtn");
+    const clearBtn = $("#clearBtn");
 
-            <!-- SALA DO NAEE -->
-            <div class="age-card bg-gradient-to-br from-orange-400 to-pink-500 rounded-3xl p-6 shadow-xl border-4 border-yellow-300" onclick="selectAgeGroup('naee')">
-                <div class="text-center">
-                    <div class="text-6xl mb-4">🌟</div>
-                    <h3 class="text-2xl font-bold text-white mb-2">SALA DO NAEE</h3>
-                    <p class="text-white/90 mb-4 font-semibold">EDUCAÇÃO ESPECIAL</p>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-4">
-                        <p class="text-white font-semibold text-sm">JOGOS ADAPTADOS</p>
-                        <p class="text-white/90 text-xs mt-1">INCLUSÃO E ACESSIBILIDADE</p>
-                    </div>
-                    <div class="mt-3 flex justify-center space-x-1">
-                        <span class="text-lg">♿</span>
-                        <span class="text-lg">🤝</span>
-                        <span class="text-lg">💝</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+    const progressModal = $("#progressModal");
+    const progressBar   = $("#progressBar");
+    const progressText  = $("#progressText");
+    const closeProgress = $("#closeProgress");
 
-        <!-- Games Section -->
-        <div id="gamesSection" class="hidden">
-            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 id="gamesSectionTitle" class="text-3xl font-bold text-purple-600"></h3>
-                    <button onclick="backToDashboard()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full">
-                        ← VOLTAR
-                    </button>
-                </div>
-                
-                <div id="gamesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Games will be loaded here -->
-                </div>
-            </div>
-        </div>
+    // Estado do índice
+    let indexEntries = []; // {category, path, title, href}
+    let categories   = new Set();
 
-        <!-- Game Modal -->
-        <div id="gameModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-            <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-                <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <h3 id="gameTitle" class="text-2xl font-bold"></h3>
-                        <button onclick="closeGame()" class="bg-white/20 hover:bg-white/30 rounded-full p-2">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div id="gameContent" class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-                    <!-- Game content will be loaded here -->
-                </div>
-            </div>
-        </div>
+    /*** UI Helpers ***/
+    function showCapiMessage(message){
+      if(!capiEnabled) return;
+      const speech = $("#capiSpeech");
+      const msg = $("#capiMessage");
+      msg.textContent = message;
+      speech.classList.remove("hidden");
+      setTimeout(()=>speech.classList.add("hidden"), 2600);
+    }
+    $("#capi").addEventListener("click", function(){
+      if(!capiEnabled) return;
+      this.classList.add("dance");
+      setTimeout(()=>this.classList.remove("dance"), 1000);
+      showCapiMessage("Vamos jogar? 🎮");
+    });
+    $("#toggleCapi").addEventListener("click", ()=>{
+      capiEnabled = !capiEnabled;
+      const cont = $("#capiContainer");
+      const t = $("#capiToggleText");
+      if(capiEnabled){
+        cont.style.display = "block";
+        t.textContent = "🐹 DESABILITAR CAPI";
+        showCapiMessage("Opa! Voltei! 😄");
+      }else{
+        cont.style.display = "none";
+        t.textContent = "🐹 HABILITAR CAPI";
+      }
+    });
 
-        <!-- Update Modal -->
-        <div id="updateModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-            <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl">
-                <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white rounded-t-3xl">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-2xl font-bold">🔄 ATUALIZAÇÃO DE JOGOS</h3>
-                        <button onclick="closeUpdateModal()" class="bg-white/20 hover:bg-white/30 rounded-full p-2">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="p-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">🚀</div>
-                        <h4 class="text-2xl font-bold text-gray-800 mb-2">SISTEMA DE ATUALIZAÇÃO</h4>
-                        <p class="text-gray-600">Conectando com o repositório GitHub para buscar novos jogos</p>
-                    </div>
-                    
-                    <div class="bg-blue-50 rounded-2xl p-6 mb-6">
-                        <div class="flex items-center space-x-3 mb-4">
-                            <span class="text-2xl">📂</span>
-                            <div>
-                                <h5 class="font-bold text-blue-800">REPOSITÓRIO OFICIAL</h5>
-                                <p class="text-blue-600 text-sm">github.com/educacaodigital/capigames</p>
-                            </div>
-                        </div>
-                        
-                        <div id="updateStatus" class="space-y-3">
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg">
-                                <span class="text-gray-700">Status da Conexão:</span>
-                                <span id="connectionStatus" class="text-yellow-600 font-semibold">🔄 VERIFICANDO...</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg">
-                                <span class="text-gray-700">Última Atualização:</span>
-                                <span id="lastUpdate" class="text-gray-600 font-semibold">NUNCA</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between p-3 bg-white rounded-lg">
-                                <span class="text-gray-700">Versão Atual:</span>
-                                <span id="currentVersion" class="text-gray-600 font-semibold">v1.0.0</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <button id="updateButton" onclick="performUpdate()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-2xl text-lg transition-colors">
-                            🔄 BUSCAR E INSTALAR ATUALIZAÇÕES
-                        </button>
-                        
-                        <div class="grid grid-cols-2 gap-4">
-                            <button onclick="checkVersion()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                                📋 VERIFICAR VERSÃO
-                            </button>
-                            
-                            <button onclick="viewChangelog()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                                📝 VER NOVIDADES
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="updateProgress" class="hidden mt-6">
-                        <div class="bg-gray-200 rounded-full h-4 mb-2">
-                            <div id="progressBar" class="bg-green-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
-                        </div>
-                        <p id="progressText" class="text-center text-sm text-gray-600">Preparando atualização...</p>
-                    </div>
-                    
-                    <div class="mt-6 p-4 bg-yellow-100 rounded-lg">
-                        <p class="text-yellow-800 text-sm font-semibold">⚠️ IMPORTANTE:</p>
-                        <p class="text-yellow-700 text-sm mt-1">A atualização substituirá o arquivo atual. Certifique-se de ter uma conexão estável com a internet.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    function openProgress(msg="Iniciando..."){
+      progressText.textContent = msg;
+      progressBar.style.width = "0%";
+      progressModal.classList.remove("hidden");
+      progressModal.classList.add("flex");
+    }
+    function updateProgress(pct, msg){
+      progressBar.style.width = pct + "%";
+      if(msg) progressText.textContent = msg;
+    }
+    function closeProgressModal(){
+      progressModal.classList.add("hidden");
+      progressModal.classList.remove("flex");
+    }
+    closeProgress.addEventListener("click", closeProgressModal);
 
-        <!-- Game Detail Modal -->
-        <div id="gameDetailModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-60 hidden items-center justify-center p-4">
-            <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl">
-                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
-                    <div class="flex items-center justify-between">
-                        <h3 id="detailGameTitle" class="text-2xl font-bold"></h3>
-                        <button onclick="closeGameDetail()" class="bg-white/20 hover:bg-white/30 rounded-full p-2">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div id="gameDetailContent" class="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
-                    <!-- Game details will be loaded here -->
-                </div>
-            </div>
-        </div>
-    </main>
+    /*** FETCH GitHub ***/
+    async function ghListDir(path=""){
+      // GET /repos/{owner}/{repo}/contents/{path}?ref=branch
+      const url = `${GITHUB.apiBase}/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${encodeURIComponent(path)}?ref=${GITHUB.branch}`;
+      const res = await fetch(url, {headers:{Accept:"application/vnd.github.v3+json"}});
+      if(!res.ok) throw new Error("Falha ao acessar GitHub contents: " + path);
+      return res.json(); // array de items {name,path,download_url,type}
+    }
 
-    <script>
-        let capiEnabled = true;
-        let currentAgeGroup = null;
-        let playerName = '';
-        let searchActive = false;
-        let updateInProgress = false;
-        
-        // GitHub repository configuration
-        const GITHUB_REPO = 'educacaodigital/capigames';
-        const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_REPO}`;
-        const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/index.html`;
-        
-        // Version and update tracking
-        let currentVersion = localStorage.getItem('capiGamesVersion') || 'v1.0.0';
-        let lastUpdateCheck = localStorage.getItem('lastUpdateCheck') || null;
-        
-        const games = {
-            '1-3': [
-                {
-                    title: 'CORES MÁGICAS',
-                    description: 'TOQUE NAS CORES IGUAIS!',
-                    icon: '🌈',
-                    type: 'cores',
-                    content: createColorGame
-                }
-            ],
-            '4-6': [
-                {
-                    title: 'CAÇA LETRAS',
-                    description: 'ENCONTRE AS LETRAS DO ALFABETO!',
-                    icon: '🔤',
-                    type: 'portugues',
-                    content: createLetterGame
-                }
-            ],
-            '7-9': [
-                {
-                    title: 'Quebra-Cabeça Matemático',
-                    description: 'Resolva as operações e monte o quebra-cabeça!',
-                    icon: '🧮',
-                    type: 'matematica',
-                    content: createMathGame
-                }
-            ],
-            '10-14': [
-                {
-                    title: 'Laboratório de Ciências',
-                    description: 'Experimente e descubra os segredos da natureza!',
-                    icon: '🔬',
-                    type: 'ciencias',
-                    content: createScienceGame
-                }
-            ],
-            'naee': [
-                {
-                    title: 'COMUNICAÇÃO VISUAL',
-                    description: 'Jogos com símbolos e gestos para comunicação!',
-                    icon: '👋',
-                    type: 'comunicacao',
-                    content: createCommunicationGame
-                },
-                {
-                    title: 'COORDENAÇÃO MOTORA',
-                    description: 'Exercícios adaptados para desenvolvimento motor!',
-                    icon: '🤲',
-                    type: 'coordenacao',
-                    content: createMotorGame
-                },
-                {
-                    title: 'RECONHECIMENTO SENSORIAL',
-                    description: 'Estímulos visuais e auditivos adaptados!',
-                    icon: '👁️',
-                    type: 'sensorial',
-                    content: createSensoryGame
-                },
-                {
-                    title: 'ROTINA E AUTONOMIA',
-                    description: 'Atividades para desenvolver independência!',
-                    icon: '⏰',
-                    type: 'rotina',
-                    content: createRoutineGame
-                }
-            ]
-        };
-
-        const capiMessages = [
-            "OI! EU SOU O CAPI! 🐹",
-            "VAMOS APRENDER JUNTOS? 📚",
-            "ESCOLHA SUA IDADE E VAMOS BRINCAR! 🎮",
-            "QUE LEGAL! VOCÊ ESTÁ EXPLORANDO! 🌟",
-            "CONTINUE ASSIM, VOCÊ ESTÁ INDO MUITO BEM! 👏",
-            "LEMBRE-SE: ERRAR FAZ PARTE DO APRENDER! 💪"
-        ];
-
-        // Search Functions
-        function toggleSearch() {
-            const searchSection = document.getElementById('searchSection');
-            const ageGroupsSection = document.getElementById('ageGroupsSection');
-            const nameSection = document.getElementById('nameSection');
-            
-            if (searchActive) {
-                searchSection.classList.add('hidden');
-                if (playerName) {
-                    ageGroupsSection.classList.remove('hidden');
-                } else {
-                    nameSection.classList.remove('hidden');
-                }
-                searchActive = false;
-                showCapiMessage("VOLTOU PARA A TELA PRINCIPAL! 🏠");
-            } else {
-                searchSection.classList.remove('hidden');
-                ageGroupsSection.classList.add('hidden');
-                nameSection.classList.add('hidden');
-                searchActive = true;
-                showCapiMessage("VAMOS BUSCAR JOGOS INCRÍVEIS! 🔍");
-            }
+    async function ghWalkTree(basePath="", accumulator=[]){
+      const items = await ghListDir(basePath);
+      for(const item of items){
+        if(item.type === "dir"){
+          if(EXCLUDE_FOLDERS.has(item.name)) continue;
+          await ghWalkTree(item.path, accumulator);
+        }else if(item.type === "file"){
+          const nameLower = item.name.toLowerCase();
+          if(!nameLower.endsWith(".html")) continue;
+          if(EXCLUDE_FILES.has(item.name)) continue;
+          accumulator.push(item.path);
         }
+      }
+      return accumulator;
+    }
 
-        function performSearch() {
-            const keyword = document.getElementById('searchKeyword').value.toUpperCase();
-            const age = document.getElementById('searchAge').value;
-            const type = document.getElementById('searchType').value;
-            
-            const searchResults = document.getElementById('searchResults');
-            const searchResultsGrid = document.getElementById('searchResultsGrid');
-            
-            let allGames = [];
-            
-            // Collect all games
-            Object.keys(games).forEach(category => {
-                games[category].forEach(game => {
-                    allGames.push({
-                        ...game,
-                        category: category
-                    });
-                });
-            });
-            
-            // Filter games
-            let filteredGames = allGames.filter(game => {
-                let matchesKeyword = !keyword || 
-                    game.title.toUpperCase().includes(keyword) || 
-                    game.description.toUpperCase().includes(keyword);
-                
-                let matchesAge = !age || game.category === age;
-                let matchesType = !type || game.type === type;
-                
-                return matchesKeyword && matchesAge && matchesType;
-            });
-            
-            if (filteredGames.length === 0) {
-                searchResultsGrid.innerHTML = `
-                    <div class="col-span-full text-center py-8 text-gray-500">
-                        <div class="text-4xl mb-2">😔</div>
-                        <p class="text-xl font-bold">NENHUM JOGO ENCONTRADO</p>
-                        <p>Tente outros filtros ou palavras-chave!</p>
-                    </div>
-                `;
-            } else {
-                searchResultsGrid.innerHTML = filteredGames.map(game => `
-                    <div class="game-preview cursor-pointer" onclick="openGameFromSearch('${game.category}', '${game.title}')" 
-                         style="background: linear-gradient(135deg, ${game.color || '#667eea'} 0%, ${adjustColor(game.color || '#667eea', -20)} 100%)">
-                        <div class="text-6xl mb-4">${game.icon}</div>
-                        <h4 class="text-xl font-bold mb-2">${game.title}</h4>
-                        <p class="text-sm opacity-90 mb-2">${game.description}</p>
-                        <div class="text-xs bg-white/20 px-2 py-1 rounded-full">
-                            ${getCategoryName(game.category)} • ${getTypeName(game.type)}
-                        </div>
-                    </div>
-                `).join('');
-                
-                showCapiMessage(`ENCONTREI ${filteredGames.length} JOGOS PARA VOCÊ! 🎯`);
-            }
-            
-            searchResults.classList.remove('hidden');
-        }
+    /*** Leitura de <title> de um arquivo HTML ***/
+    async function readHtmlTitleByUrl(url){
+      try{
+        const res = await fetch(url,{cache:"no-store"});
+        if(!res.ok) return null;
+        const text = await res.text();
+        const m = text.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+        return m ? m[1].trim() : null;
+      }catch{
+        return null;
+      }
+    }
 
-        function openGameFromSearch(category, title) {
-            const game = games[category].find(g => g.title === title);
-            if (game) {
-                openGame(game);
-            }
-        }
+    async function readHtmlTitleLocal(path){
+      // tenta via fetch relativo (servidor local precisa servir o arquivo)
+      return readHtmlTitleByUrl(path);
+    }
 
-        function clearSearch() {
-            document.getElementById('searchKeyword').value = '';
-            document.getElementById('searchAge').value = '';
-            document.getElementById('searchType').value = '';
-            document.getElementById('searchResults').classList.add('hidden');
-            showCapiMessage("BUSCA LIMPA! DIGITE NOVOS FILTROS! 🧹");
-        }
+    /*** Construção do índice ***/
+    function pathToCategory(path){
+      // Categoria = primeira pasta do caminho
+      const parts = path.split("/").filter(Boolean);
+      return parts.length>1 ? parts[0] : "(raiz)";
+    }
 
-        function getTypeName(type) {
-            const types = {
-                'matematica': 'Matemática',
-                'portugues': 'Português',
-                'ciencias': 'Ciências',
-                'cores': 'Cores e Formas',
-                'coordenacao': 'Coordenação',
-                'comunicacao': 'Comunicação',
-                'sensorial': 'Sensorial',
-                'rotina': 'Rotina'
-            };
-            return types[type] || 'Geral';
-        }
+    function toRawUrl(path){
+      // URL crua do GitHub para ler o HTML (CORS habilitado)
+      return `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${path}`;
+    }
 
-        // Update System Functions
-        function checkForUpdates() {
-            document.getElementById('updateModal').classList.remove('hidden');
-            document.getElementById('updateModal').classList.add('flex');
-            
-            // Initialize update status
-            document.getElementById('connectionStatus').textContent = '🔄 VERIFICANDO...';
-            document.getElementById('connectionStatus').className = 'text-yellow-600 font-semibold';
-            
-            if (lastUpdateCheck) {
-                const lastCheck = new Date(lastUpdateCheck);
-                document.getElementById('lastUpdate').textContent = lastCheck.toLocaleDateString('pt-BR') + ' às ' + lastCheck.toLocaleTimeString('pt-BR');
-            }
-            
-            document.getElementById('currentVersion').textContent = currentVersion;
-            
-            // Check GitHub connection and repository structure
-            setTimeout(() => {
-                checkGitHubConnection();
-            }, 1500);
-            
-            showCapiMessage("VERIFICANDO REPOSITÓRIO COMPLETO NO GITHUB! 🔍");
-        }
+    async function buildIndexFromGitHub(){
+      openProgress("Lendo estrutura do GitHub...");
+      const files = await ghWalkTree("");
+      if(files.length===0) throw new Error("Nenhum arquivo .html encontrado no repositório.");
 
-        function closeUpdateModal() {
-            if (updateInProgress) {
-                if (!confirm('Uma atualização está em andamento. Tem certeza que deseja cancelar?')) {
-                    return;
-                }
-                updateInProgress = false;
-            }
-            
-            document.getElementById('updateModal').classList.add('hidden');
-            document.getElementById('updateModal').classList.remove('flex');
-            document.getElementById('updateProgress').classList.add('hidden');
-        }
-
-        async function checkGitHubConnection() {
-            try {
-                // Check repository access and get file tree
-                const response = await fetch(`${GITHUB_API_URL}/contents`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                
-                if (response.ok) {
-                    const files = await response.json();
-                    const fileCount = files.length;
-                    
-                    document.getElementById('connectionStatus').textContent = `✅ CONECTADO (${fileCount} arquivos)`;
-                    document.getElementById('connectionStatus').className = 'text-green-600 font-semibold';
-                    showCapiMessage(`REPOSITÓRIO ACESSÍVEL! ${fileCount} ARQUIVOS ENCONTRADOS! ✅`);
-                } else {
-                    throw new Error('Falha ao acessar repositório');
-                }
-            } catch (error) {
-                document.getElementById('connectionStatus').textContent = '❌ ERRO DE CONEXÃO';
-                document.getElementById('connectionStatus').className = 'text-red-600 font-semibold';
-                showCapiMessage("ERRO AO ACESSAR REPOSITÓRIO GITHUB! ❌");
-            }
-        }
-
-        async function performUpdate() {
-            if (updateInProgress) {
-                showCapiMessage("ATUALIZAÇÃO JÁ EM ANDAMENTO! ⏳");
-                return;
-            }
-            
-            // Confirm complete file replacement
-            if (!confirm('⚠️ ATENÇÃO!\n\nEsta operação irá:\n• Baixar TODOS os arquivos do repositório GitHub\n• Substituir FISICAMENTE os arquivos locais\n• Incluindo o próprio index.html\n\nDeseja continuar?')) {
-                return;
-            }
-            
-            updateInProgress = true;
-            const updateButton = document.getElementById('updateButton');
-            const progressDiv = document.getElementById('updateProgress');
-            const progressBar = document.getElementById('progressBar');
-            const progressText = document.getElementById('progressText');
-            
-            updateButton.disabled = true;
-            updateButton.textContent = '⏳ BAIXANDO REPOSITÓRIO...';
-            progressDiv.classList.remove('hidden');
-            
-            try {
-                // Step 1: Get repository file structure
-                progressBar.style.width = '10%';
-                progressText.textContent = 'Analisando estrutura do repositório...';
-                showCapiMessage("MAPEANDO TODOS OS ARQUIVOS DO REPOSITÓRIO... 📂");
-                
-                const repoResponse = await fetch(`${GITHUB_API_URL}/contents`, {
-                    headers: { 'Accept': 'application/vnd.github.v3+json' }
-                });
-                
-                if (!repoResponse.ok) {
-                    throw new Error('Falha ao acessar repositório');
-                }
-                
-                const files = await repoResponse.json();
-                const downloadableFiles = files.filter(file => file.type === 'file');
-                
-                progressBar.style.width = '20%';
-                progressText.textContent = `Encontrados ${downloadableFiles.length} arquivos para download...`;
-                
-                // Step 2: Download all files
-                const downloadedFiles = [];
-                let downloadedCount = 0;
-                
-                for (const file of downloadableFiles) {
-                    progressBar.style.width = `${20 + (downloadedCount / downloadableFiles.length) * 60}%`;
-                    progressText.textContent = `Baixando: ${file.name} (${downloadedCount + 1}/${downloadableFiles.length})`;
-                    
-                    try {
-                        const fileResponse = await fetch(file.download_url);
-                        if (fileResponse.ok) {
-                            const content = await fileResponse.text();
-                            downloadedFiles.push({
-                                name: file.name,
-                                path: file.path,
-                                content: content,
-                                size: file.size
-                            });
-                            
-                            showCapiMessage(`BAIXADO: ${file.name} ✅`);
-                        } else {
-                            console.warn(`Falha ao baixar: ${file.name}`);
-                        }
-                    } catch (error) {
-                        console.warn(`Erro ao baixar ${file.name}:`, error);
-                    }
-                    
-                    downloadedCount++;
-                    await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
-                }
-                
-                // Step 3: Validate downloads
-                progressBar.style.width = '85%';
-                progressText.textContent = 'Validando arquivos baixados...';
-                
-                const indexFile = downloadedFiles.find(f => f.name === 'index.html');
-                if (!indexFile || !indexFile.content.includes('CAPI GAMES')) {
-                    throw new Error('Arquivo index.html inválido ou não encontrado');
-                }
-                
-                // Step 4: Create file system operations
-                progressBar.style.width = '95%';
-                progressText.textContent = 'Preparando substituição de arquivos...';
-                
-                // Create download links for all files
-                const fileOperations = downloadedFiles.map(file => {
-                    const blob = new Blob([file.content], { type: getFileType(file.name) });
-                    const url = URL.createObjectURL(blob);
-                    return {
-                        name: file.name,
-                        url: url,
-                        size: file.size
-                    };
-                });
-                
-                // Step 5: Complete update
-                progressBar.style.width = '100%';
-                progressText.textContent = 'Atualização concluída! Preparando downloads...';
-                
-                // Update version info
-                const newVersion = `v${new Date().toISOString().split('T')[0]}`;
-                localStorage.setItem('capiGamesVersion', newVersion);
-                localStorage.setItem('lastUpdateCheck', new Date().toISOString());
-                
-                showCapiMessage("TODOS OS ARQUIVOS BAIXADOS! INICIANDO DOWNLOADS... 📥");
-                
-                // Show download instructions
-                setTimeout(() => {
-                    showDownloadInstructions(fileOperations, downloadedFiles.length);
-                }, 1000);
-                
-            } catch (error) {
-                console.error('Update failed:', error);
-                progressBar.style.width = '0%';
-                progressText.textContent = 'Erro na atualização: ' + error.message;
-                progressBar.className = 'bg-red-500 h-4 rounded-full transition-all duration-300';
-                
-                showCapiMessage("ERRO NO DOWNLOAD! VERIFIQUE SUA CONEXÃO! ❌");
-                
-                updateButton.disabled = false;
-                updateButton.textContent = '🔄 BUSCAR E INSTALAR ATUALIZAÇÕES';
-                
-                setTimeout(() => {
-                    progressDiv.classList.add('hidden');
-                    progressBar.className = 'bg-green-500 h-4 rounded-full transition-all duration-300';
-                }, 3000);
-            }
-            
-            updateInProgress = false;
-        }
-
-        function getFileType(filename) {
-            const extension = filename.split('.').pop().toLowerCase();
-            const types = {
-                'html': 'text/html',
-                'css': 'text/css',
-                'js': 'application/javascript',
-                'json': 'application/json',
-                'txt': 'text/plain',
-                'md': 'text/markdown',
-                'png': 'image/png',
-                'jpg': 'image/jpeg',
-                'jpeg': 'image/jpeg',
-                'gif': 'image/gif',
-                'svg': 'image/svg+xml'
-            };
-            return types[extension] || 'application/octet-stream';
-        }
-
-        function showDownloadInstructions(fileOperations, totalFiles) {
-            const modal = document.getElementById('updateModal');
-            const modalContent = modal.querySelector('.p-8');
-            
-            modalContent.innerHTML = `
-                <div class="text-center mb-8">
-                    <div class="text-6xl mb-4">📥</div>
-                    <h4 class="text-2xl font-bold text-gray-800 mb-2">DOWNLOAD COMPLETO</h4>
-                    <p class="text-gray-600">Todos os ${totalFiles} arquivos foram baixados com sucesso!</p>
-                </div>
-                
-                <div class="bg-green-50 rounded-2xl p-6 mb-6">
-                    <h5 class="font-bold text-green-800 mb-4">📋 INSTRUÇÕES PARA ATUALIZAÇÃO:</h5>
-                    <ol class="text-green-700 space-y-2 text-sm">
-                        <li><strong>1.</strong> Clique em "BAIXAR TODOS OS ARQUIVOS" abaixo</li>
-                        <li><strong>2.</strong> Extraia os arquivos baixados</li>
-                        <li><strong>3.</strong> Substitua os arquivos na pasta raiz do projeto</li>
-                        <li><strong>4.</strong> O index.html será substituído automaticamente</li>
-                        <li><strong>5.</strong> Recarregue a página para ver as atualizações</li>
-                    </ol>
-                </div>
-                
-                <div class="space-y-4">
-                    <button onclick="downloadAllFiles()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-2xl text-lg transition-colors">
-                        📥 BAIXAR TODOS OS ARQUIVOS (${totalFiles} arquivos)
-                    </button>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <button onclick="downloadFileByFile()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                            📄 BAIXAR UM POR VEZ
-                        </button>
-                        
-                        <button onclick="showFileList()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                            📋 VER LISTA DE ARQUIVOS
-                        </button>
-                    </div>
-                    
-                    <button onclick="closeUpdateModal()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                        ✖️ FECHAR
-                    </button>
-                </div>
-                
-                <div class="mt-6 p-4 bg-yellow-100 rounded-lg">
-                    <p class="text-yellow-800 text-sm font-semibold">⚠️ IMPORTANTE:</p>
-                    <p class="text-yellow-700 text-sm mt-1">Após substituir os arquivos, recarregue completamente a página (Ctrl+F5) para aplicar todas as mudanças.</p>
-                </div>
-            `;
-            
-            // Store file operations globally for download functions
-            window.pendingFileOperations = fileOperations;
-        }
-
-        function downloadAllFiles() {
-            if (!window.pendingFileOperations) {
-                showCapiMessage("ERRO: ARQUIVOS NÃO ENCONTRADOS! ❌");
-                return;
-            }
-            
-            showCapiMessage("INICIANDO DOWNLOAD DE TODOS OS ARQUIVOS... 📥");
-            
-            // Create a zip-like download experience by downloading all files
-            window.pendingFileOperations.forEach((file, index) => {
-                setTimeout(() => {
-                    const link = document.createElement('a');
-                    link.href = file.url;
-                    link.download = file.name;
-                    link.style.display = 'none';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    if (index === window.pendingFileOperations.length - 1) {
-                        showCapiMessage("TODOS OS ARQUIVOS BAIXADOS! SUBSTITUA NA PASTA RAIZ! 🎉");
-                    }
-                }, index * 500); // Stagger downloads
-            });
-        }
-
-        function downloadFileByFile() {
-            if (!window.pendingFileOperations) {
-                showCapiMessage("ERRO: ARQUIVOS NÃO ENCONTRADOS! ❌");
-                return;
-            }
-            
-            let currentIndex = 0;
-            
-            function downloadNext() {
-                if (currentIndex >= window.pendingFileOperations.length) {
-                    showCapiMessage("TODOS OS DOWNLOADS CONCLUÍDOS! 🎉");
-                    return;
-                }
-                
-                const file = window.pendingFileOperations[currentIndex];
-                const link = document.createElement('a');
-                link.href = file.url;
-                link.download = file.name;
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                showCapiMessage(`BAIXADO: ${file.name} (${currentIndex + 1}/${window.pendingFileOperations.length}) 📄`);
-                
-                currentIndex++;
-                setTimeout(downloadNext, 1000);
-            }
-            
-            downloadNext();
-        }
-
-        function showFileList() {
-            if (!window.pendingFileOperations) {
-                showCapiMessage("ERRO: LISTA NÃO ENCONTRADA! ❌");
-                return;
-            }
-            
-            const fileList = window.pendingFileOperations.map(file => 
-                `• ${file.name} (${(file.size / 1024).toFixed(1)} KB)`
-            ).join('\n');
-            
-            alert(`📋 ARQUIVOS PARA DOWNLOAD:\n\n${fileList}\n\nTotal: ${window.pendingFileOperations.length} arquivos`);
-        }
-
-        function extractVersionFromContent(content) {
-            // Try to extract version from content
-            const versionMatch = content.match(/version["\s]*[:=]["\s]*([v]?[\d.]+)/i);
-            return versionMatch ? versionMatch[1] : null;
-        }
-
-        async function checkVersion() {
-            showCapiMessage("VERIFICANDO VERSÃO ATUAL... 📋");
-            
-            try {
-                const response = await fetch(GITHUB_API_URL + '/releases/latest');
-                if (response.ok) {
-                    const release = await response.json();
-                    const latestVersion = release.tag_name || 'Desconhecida';
-                    
-                    alert(`📋 INFORMAÇÕES DE VERSÃO\n\nVersão Atual: ${currentVersion}\nÚltima Versão: ${latestVersion}\n\nRepositório: ${GITHUB_REPO}`);
-                    showCapiMessage(`VERSÃO ATUAL: ${currentVersion} | ÚLTIMA: ${latestVersion} 📋`);
-                } else {
-                    throw new Error('Não foi possível verificar a versão');
-                }
-            } catch (error) {
-                alert(`📋 INFORMAÇÕES DE VERSÃO\n\nVersão Atual: ${currentVersion}\nStatus: Erro ao verificar versão remota\n\nRepositório: ${GITHUB_REPO}`);
-                showCapiMessage("ERRO AO VERIFICAR VERSÃO REMOTA! ❌");
-            }
-        }
-
-        async function viewChangelog() {
-            showCapiMessage("CARREGANDO NOVIDADES... 📝");
-            
-            try {
-                const response = await fetch(GITHUB_API_URL + '/releases');
-                if (response.ok) {
-                    const releases = await response.json();
-                    const latest = releases[0] || {};
-                    
-                    const changelog = latest.body || 'Nenhuma informação de mudanças disponível.';
-                    const version = latest.tag_name || 'Versão desconhecida';
-                    const date = latest.published_at ? new Date(latest.published_at).toLocaleDateString('pt-BR') : 'Data desconhecida';
-                    
-                    alert(`📝 NOVIDADES - ${version}\n\nData: ${date}\n\n${changelog}\n\nRepositório: ${GITHUB_REPO}`);
-                    showCapiMessage("NOVIDADES CARREGADAS! 📝");
-                } else {
-                    throw new Error('Não foi possível carregar as novidades');
-                }
-            } catch (error) {
-                alert(`📝 NOVIDADES\n\nNão foi possível carregar as informações de mudanças do repositório.\n\nRepositório: ${GITHUB_REPO}\nErro: ${error.message}`);
-                showCapiMessage("ERRO AO CARREGAR NOVIDADES! ❌");
-            }
-        }
-
-        // Capi interactions
-        document.getElementById('capi').addEventListener('click', function() {
-            if (!capiEnabled) return;
-            
-            this.classList.add('dance');
-            setTimeout(() => this.classList.remove('dance'), 1000);
-            
-            showCapiMessage(capiMessages[Math.floor(Math.random() * capiMessages.length)]);
+      indexEntries = [];
+      let done=0;
+      for(const filePath of files){
+        const cat = pathToCategory(filePath);
+        categories.add(cat);
+        const rawUrl = toRawUrl(filePath);
+        const title = await readHtmlTitleByUrl(rawUrl) || filePath.split("/").pop().replace(/\.html?$/i,"");
+        indexEntries.push({
+          category: cat,
+          path: filePath,
+          title: title,
+          href: filePath // o link relativo funciona se a estrutura local espelhar a do GitHub
         });
+        done++;
+        if(done%5===0) updateProgress(Math.round((done/files.length)*100), `Indexando (${done}/${files.length})...`);
+      }
+      updateProgress(100, "Concluído!");
+      closeProgressModal();
+    }
 
-        document.getElementById('toggleCapi').addEventListener('click', function() {
-            capiEnabled = !capiEnabled;
-            const capiContainer = document.getElementById('capiContainer');
-            const toggleText = document.getElementById('capiToggleText');
-            
-            if (capiEnabled) {
-                capiContainer.style.display = 'block';
-                toggleText.textContent = '🐹 DESABILITAR CAPI';
-                showCapiMessage("OBA! ESTOU DE VOLTA! 🎉");
-            } else {
-                capiContainer.style.display = 'none';
-                toggleText.textContent = '🐹 HABILITAR CAPI';
-            }
+    async function buildIndexFromLocalManifest(){
+      openProgress("Lendo games-manifest.json local...");
+      const res = await fetch("games-manifest.json",{cache:"no-store"});
+      if(!res.ok) throw new Error("games-manifest.json não encontrado na raiz.");
+      const manifest = await res.json();
+      const files = (manifest.entries||[]).map(e=>e.path).filter(p=>p.toLowerCase().endsWith(".html") && !/\/?index\.html?$/i.test(p));
+      if(files.length===0) throw new Error("Manifesto sem arquivos .html válidos.");
+
+      indexEntries = [];
+      let done=0;
+      for(const filePath of files){
+        const cat = pathToCategory(filePath);
+        categories.add(cat);
+        const title = await readHtmlTitleLocal(filePath) || filePath.split("/").pop().replace(/\.html?$/i,"");
+        indexEntries.push({
+          category: cat,
+          path: filePath,
+          title: title,
+          href: filePath
         });
+        done++;
+        if(done%5===0) updateProgress(Math.round((done/files.length)*100), `Indexando (${done}/${files.length})...`);
+      }
+      updateProgress(100, "Concluído!");
+      closeProgressModal();
+    }
 
-        function showCapiMessage(message) {
-            if (!capiEnabled) return;
-            
-            const speech = document.getElementById('capiSpeech');
-            const messageEl = document.getElementById('capiMessage');
-            
-            messageEl.textContent = message;
-            speech.classList.remove('hidden');
-            
-            setTimeout(() => {
-                speech.classList.add('hidden');
-            }, 3000);
+    async function buildIndex(){
+      categories = new Set();
+      indexEntries = [];
+      try{
+        if(USE_GITHUB_INDEX){
+          await buildIndexFromGitHub();
+        }else{
+          await buildIndexFromLocalManifest();
         }
-
-        function selectAgeGroup(ageGroup) {
-            currentAgeGroup = ageGroup;
-            
-            // Hide dashboard, show games
-            document.querySelector('.grid').style.display = 'none';
-            document.getElementById('gamesSection').classList.remove('hidden');
-            
-            // Update title
-            const titles = {
-                '1-3': 'JOGOS PARA 1 A 3 ANOS',
-                '4-6': 'JOGOS PARA 4 A 6 ANOS',
-                '7-9': 'Jogos para 7 a 9 anos',
-                '10-14': 'Jogos para 10 a 14 anos',
-                'naee': 'SALA DO NAEE - EDUCAÇÃO ESPECIAL'
-            };
-            
-            document.getElementById('gamesSectionTitle').textContent = titles[ageGroup];
-            
-            // Load games
-            loadGames(ageGroup);
-            
-            // Capi message
-            const messages = {
-                '1-3': `${playerName}, VAMOS BRINCAR COM CORES! 🌈`,
-                '4-6': `${playerName}, HORA DE APRENDER LETRAS! 📝`,
-                '7-9': `${playerName}, QUE LEGAL! VAMOS RESOLVER PROBLEMAS JUNTOS! 🧠`,
-                '10-14': `${playerName}, EXCELENTE ESCOLHA! PREPARE-SE PARA DESAFIOS INCRÍVEIS! 🚀`,
-                'naee': `${playerName}, BEM-VINDO À SALA DO NAEE! JOGOS ESPECIAIS PARA VOCÊ! 🌟`
-            };
-            
-            showCapiMessage(messages[ageGroup]);
+        renderFilters();
+        renderCatalog();
+        showCapiMessage("Índice atualizado com sucesso! ✅");
+      }catch(err){
+        closeProgressModal();
+        console.warn(err);
+        // Fallback automático: se GitHub falhar, tenta manifest local
+        if(USE_GITHUB_INDEX){
+          try{
+            await buildIndexFromLocalManifest();
+            renderFilters();
+            renderCatalog();
+            showCapiMessage("Sem GitHub. Usei o manifest local. 📄");
+          }catch(err2){
+            console.error(err2);
+            alert("Não foi possível construir o índice (GitHub e manifest local indisponíveis).");
+            showCapiMessage("Erro ao indexar. ❌");
+          }
+        }else{
+          alert("Não foi possível construir o índice a partir do manifest local.");
+          showCapiMessage("Erro ao indexar. ❌");
         }
+      }
+    }
 
-        function loadGames(ageGroup) {
-            const gamesGrid = document.getElementById('gamesGrid');
-            gamesGrid.innerHTML = '';
-            
-            games[ageGroup].forEach(game => {
-                const gameCard = document.createElement('div');
-                gameCard.className = 'game-preview';
-                
-                // Use custom color if available
-                if (game.color) {
-                    gameCard.style.background = `linear-gradient(135deg, ${game.color} 0%, ${adjustColor(game.color, -20)} 100%)`;
-                }
-                
-                gameCard.innerHTML = `
-                    <div class="text-6xl mb-4">${game.icon}</div>
-                    <h4 class="text-xl font-bold mb-2">${game.title}</h4>
-                    <p class="text-sm opacity-90">${game.description}</p>
-                    ${game.id ? '<div class="text-xs mt-2 bg-white/20 px-2 py-1 rounded-full">PERSONALIZADO</div>' : ''}
-                `;
-                
-                gameCard.addEventListener('click', () => openGame(game));
-                gamesGrid.appendChild(gameCard);
-            });
-        }
+    /*** Renderização ***/
+    function renderFilters(){
+      // Categoria
+      const cats = Array.from(categories).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+      categoryFilterEl.innerHTML = `<option value="">Todas</option>` + cats.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+    }
 
-        function backToDashboard() {
-            document.getElementById('gamesSection').classList.add('hidden');
-            document.querySelector('.grid').style.display = 'grid';
-            showCapiMessage("ESCOLHA OUTRA IDADE SE QUISER! 😊");
-        }
+    function groupByCategory(entries){
+      const map = new Map();
+      for(const e of entries){
+        if(!map.has(e.category)) map.set(e.category, []);
+        map.get(e.category).push(e);
+      }
+      // ordena cada grupo por título
+      for(const [k,arr] of map){
+        arr.sort((a,b)=>a.title.localeCompare(b.title,'pt-BR'));
+      }
+      return map;
+    }
 
-        function openGame(game) {
-            document.getElementById('gameTitle').textContent = game.title;
-            document.getElementById('gameContent').innerHTML = '';
-            
-            // Load game content
-            game.content(document.getElementById('gameContent'));
-            
-            document.getElementById('gameModal').classList.remove('hidden');
-            document.getElementById('gameModal').classList.add('flex');
-            
-            showCapiMessage("DIVIRTA-SE JOGANDO! 🎮");
-        }
+    function renderCatalog(){
+      const q = (qEl.value||"").trim().toUpperCase();
+      const catFilter = categoryFilterEl.value;
 
-        function closeGame() {
-            document.getElementById('gameModal').classList.add('hidden');
-            document.getElementById('gameModal').classList.remove('flex');
-        }
+      let filtered = indexEntries.filter(e=>{
+        const inCat = !catFilter || e.category===catFilter;
+        const inText = !q || e.title.toUpperCase().includes(q) || e.path.toUpperCase().includes(q);
+        return inCat && inText;
+      });
 
-        // Game creation functions (without scoring systems)
-        function createColorGame(container) {
-            const colors = ['🔴', '🟡', '🟢', '🔵', '🟣', '🟠'];
-            let targetColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            container.innerHTML = `
-                <div class="text-center">
-                    <h4 class="text-3xl font-bold text-purple-600 mb-4">ENCONTRE A COR:</h4>
-                    <div class="text-8xl mb-6">${targetColor}</div>
-                    <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
-                        ${colors.map(color => `
-                            <button class="text-6xl p-4 rounded-2xl bg-gray-100 hover:bg-gray-200 transition-colors" 
-                                    onclick="checkColor('${color}', '${targetColor}')">
-                                ${color}
-                            </button>
-                        `).join('')}
-                    </div>
-                    <div id="colorResult" class="mt-6 text-2xl font-bold"></div>
-                </div>
-            `;
-        }
+      const grouped = groupByCategory(filtered);
+      const sections = [];
 
-        function createLetterGame(container) {
-            const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-            let targetLetter = letters[Math.floor(Math.random() * letters.length)];
-            
-            container.innerHTML = `
-                <div class="text-center">
-                    <h4 class="text-2xl font-bold text-blue-600 mb-4">ENCONTRE A LETRA:</h4>
-                    <div class="text-8xl mb-6 font-bold text-blue-800">${targetLetter}</div>
-                    <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
-                        ${letters.map(letter => `
-                            <button class="text-4xl font-bold p-4 rounded-2xl bg-blue-100 hover:bg-blue-200 transition-colors text-blue-800" 
-                                    onclick="checkLetter('${letter}', '${targetLetter}')">
-                                ${letter}
-                            </button>
-                        `).join('')}
-                    </div>
-                    <div id="letterResult" class="mt-6 text-xl font-bold"></div>
-                </div>
-            `;
-        }
+      if(filtered.length===0){
+        catalogEl.innerHTML = `
+          <div class="text-center py-10 text-white/90">
+            <div class="text-5xl mb-3">😔</div>
+            <p class="text-2xl font-bold drop-shadow">Nenhum jogo encontrado</p>
+            <p>Tente alterar os filtros ou a palavra-chave.</p>
+          </div>`;
+        return;
+      }
 
-        function createMathGame(container) {
-            const num1 = Math.floor(Math.random() * 10) + 1;
-            const num2 = Math.floor(Math.random() * 10) + 1;
-            const correctAnswer = num1 + num2;
-            const wrongAnswers = [correctAnswer + 1, correctAnswer - 1, correctAnswer + 2].filter(n => n > 0);
-            const allAnswers = [correctAnswer, ...wrongAnswers.slice(0, 2)].sort(() => Math.random() - 0.5);
-            
-            container.innerHTML = `
-                <div class="text-center">
-                    <h4 class="text-2xl font-bold text-green-600 mb-4">RESOLVA A OPERAÇÃO:</h4>
-                    <div class="text-6xl mb-6 font-bold text-green-800">${num1} + ${num2} = ?</div>
-                    <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
-                        ${allAnswers.map(answer => `
-                            <button class="text-3xl font-bold p-4 rounded-2xl bg-green-100 hover:bg-green-200 transition-colors text-green-800" 
-                                    onclick="checkMath(${answer}, ${correctAnswer})">
-                                ${answer}
-                            </button>
-                        `).join('')}
-                    </div>
-                    <div id="mathResult" class="mt-6 text-xl font-bold"></div>
-                </div>
-            `;
-        }
+      for(const [category, items] of grouped){
+        sections.push(`
+          <section class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-2xl font-bold text-purple-600">${escapeHtml(category)}</h3>
+              <span class="text-sm text-gray-600">${items.length} jogo(s)</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              ${items.map(renderCard).join("")}
+            </div>
+          </section>
+        `);
+      }
+      catalogEl.innerHTML = sections.join("\n");
+    }
 
-        function createScienceGame(container) {
-            const experiments = [
-                { question: "O que acontece quando misturamos água e óleo?", answer: "Eles não se misturam", options: ["Eles se misturam completamente", "Eles não se misturam", "Eles viram gelo"] },
-                { question: "Qual é o estado da água a 100°C?", answer: "Vapor", options: ["Líquido", "Sólido", "Vapor"] },
-                { question: "O que as plantas precisam para fazer fotossíntese?", answer: "Luz solar", options: ["Apenas água", "Luz solar", "Apenas terra"] }
-            ];
-            
-            const experiment = experiments[Math.floor(Math.random() * experiments.length)];
-            
-            container.innerHTML = `
-                <div class="text-center">
-                    <h4 class="text-2xl font-bold text-purple-600 mb-4">EXPERIMENTO CIENTÍFICO</h4>
-                    <div class="text-4xl mb-4">🔬</div>
-                    <p class="text-lg mb-6 text-gray-700">${experiment.question}</p>
-                    <div class="space-y-3 max-w-md mx-auto">
-                        ${experiment.options.map(option => `
-                            <button class="w-full text-left p-4 rounded-2xl bg-purple-100 hover:bg-purple-200 transition-colors text-purple-800 font-semibold" 
-                                    onclick="checkScience('${option}', '${experiment.answer}')">
-                                ${option}
-                            </button>
-                        `).join('')}
-                    </div>
-                    <div id="scienceResult" class="mt-6 text-xl font-bold"></div>
-                </div>
-            `;
-        }
+    function renderCard(item){
+      // link direto para o arquivo local (estrutura espelhada do GitHub)
+      return `
+      <a href="${encodeURI(item.href)}" class="game-preview block" title="${escapeHtml(item.path)}">
+        <div class="text-5xl mb-3">🎮</div>
+        <h4 class="text-xl font-bold mb-1">${escapeHtml(item.title)}</h4>
+        <p class="text-xs opacity-90">${escapeHtml(item.path)}</p>
+      </a>`;
+    }
 
-        // Game check functions (without scoring)
-        function checkColor(selected, target) {
-            const result = document.getElementById('colorResult');
-            if (selected === target) {
-                result.innerHTML = '<span class="text-green-600">🎉 MUITO BEM!</span>';
-                showCapiMessage(`PARABÉNS ${playerName}! VOCÊ ACERTOU! 🌟`);
-            } else {
-                result.innerHTML = '<span class="text-orange-600">TENTE NOVAMENTE!</span>';
-                showCapiMessage(`${playerName}, QUASE LÁ! TENTA DE NOVO! 💪`);
-            }
-        }
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, (m)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+    }
 
-        function checkLetter(selected, target) {
-            const result = document.getElementById('letterResult');
-            if (selected === target) {
-                result.innerHTML = '<span class="text-green-600">🎉 EXCELENTE!</span>';
-                showCapiMessage(`${playerName}, ISSO AÍ! VOCÊ CONHECE AS LETRAS! 📚`);
-            } else {
-                result.innerHTML = '<span class="text-orange-600">TENTE OUTRA VEZ!</span>';
-                showCapiMessage(`${playerName}, BOA TENTATIVA! VAMOS TENTAR MAIS UMA VEZ! 🎯`);
-            }
-        }
+    /*** Eventos ***/
+    qEl.addEventListener("input", ()=>renderCatalog());
+    categoryFilterEl.addEventListener("change", ()=>renderCatalog());
+    clearBtn.addEventListener("click", ()=>{
+      qEl.value = ""; categoryFilterEl.value = "";
+      renderCatalog();
+    });
+    reindexBtn.addEventListener("click", ()=>buildIndex());
 
-        function checkMath(selected, correct) {
-            const result = document.getElementById('mathResult');
-            if (selected === correct) {
-                result.innerHTML = '<span class="text-green-600">🎉 Perfeito! Você é um matemático!</span>';
-                showCapiMessage("Incrível! Você domina a matemática! 🧮");
-            } else {
-                result.innerHTML = '<span class="text-orange-600">Quase! Pense um pouco mais...</span>';
-                showCapiMessage("Boa tentativa! A matemática é sobre praticar! 💡");
-            }
-        }
-
-        function checkScience(selected, correct) {
-            const result = document.getElementById('scienceResult');
-            if (selected === correct) {
-                result.innerHTML = '<span class="text-green-600">🎉 Excelente! Você é um cientista!</span>';
-                showCapiMessage("Fantástico! Continue explorando a ciência! 🔬");
-            } else {
-                result.innerHTML = '<span class="text-orange-600">Interessante hipótese! Que tal tentar outra?</span>';
-                showCapiMessage("Ótima reflexão! A ciência é sobre experimentar! 🧪");
-            }
-        }
-
-        // NAEE Games Functions
-        function createCommunicationGame(container) {
-            const symbols = [
-                { emoji: '😊', word: 'FELIZ', sound: 'Feliz!' },
-                { emoji: '😢', word: 'TRISTE', sound: 'Triste!' },
-                { emoji: '🍎', word: 'MAÇÃ', sound: 'Maçã!' },
-                { emoji: '💧', word: 'ÁGUA', sound: 'Água!' }
-            ];
-            
-            const targetSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-            
-            container.innerHTML = `
-                <div class="text-center">
-                    <h4 class="text-3xl font-bold text-orange-600 mb-6">COMUNICAÇÃO VISUAL</h4>
-                    <div class="bg-yellow-100 rounded-3xl p-8 mb-6">
-                        <p class="text-2xl font-bold text-orange-800 mb-4">ENCONTRE O SÍMBOLO:</p>
-                        <div class="text-9xl mb-4">${targetSymbol.emoji}</div>
-                        <p class="text-3xl font-bold text-orange-700">${targetSymbol.word}</p>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-6 max-w-lg mx-auto">
-                        ${symbols.map(symbol => `
-                            <button class="bg-white hover:bg-orange-50 border-4 border-orange-200 hover:border-orange-400 rounded-3xl p-6 transition-all transform hover:scale-105" 
-                                    onclick="checkCommunication('${symbol.emoji}', '${targetSymbol.emoji}', '${symbol.sound}')">
-                                <div class="text-6xl mb-2">${symbol.emoji}</div>
-                                <p class="text-xl font-bold text-orange-700">${symbol.word}</p>
-                            </button>
-                        `).join('')}
-                    </div>
-                    <div id="communicationResult" class="mt-6 text-2xl font-bold"></div>
-                </div>
-            `;
-        }
-
-        function createMotorGame(container) {
-            container.innerHTML = `
-                <div class="text-center">
-                    <h4 class="text-3xl font-bold text-pink-600 mb-6">COORDENAÇÃO MOTORA</h4>
-                    <div class="bg-pink-100 rounded-3xl p-8 mb-6">
-                        <p class="text-2xl font-bold text-pink-800 mb-4">SIGA OS MOVIMENTOS:</p>
-                        <div id="motorTarget" class="text-8xl mb-4">👋</div>
-                        <p class="text-xl text-pink-700">ACENE COM A MÃO!</p>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-6 max-w-lg mx-auto">
-                        <button class="bg-white hover:bg-pink-50 border-4 border-pink-200 hover:border-pink-400 rounded-3xl p-8 transition-all transform hover:scale-105" 
-                                onclick="performMotorAction('wave')">
-                            <div class="text-6xl mb-2">👋</div>
-                            <p class="text-xl font-bold text-pink-700">ACENAR</p>
-                        </button>
-                        
-                        <button class="bg-white hover:bg-pink-50 border-4 border-pink-200 hover:border-pink-400 rounded-3xl p-8 transition-all transform hover:scale-105" 
-                                onclick="performMotorAction('clap')">
-                            <div class="text-6xl mb-2">👏</div>
-                            <p class="text-xl font-bold text-pink-700">BATER PALMAS</p>
-                        </button>
-                        
-                        <button class="bg-white hover:bg-pink-50 border-4 border-pink-200 hover:border-pink-400 rounded-3xl p-8 transition-all transform hover:scale-105" 
-                                onclick="performMotorAction('point')">
-                            <div class="text-6xl mb-2">👉</div>
-                            <p class="text-xl font-bold text-pink-700">APONTAR</p>
-                        </button>
-                        
-                        <button class="bg-white hover:bg-pink-50 border-4 border-pink-200 hover:border-pink-400 rounded-3xl p-8 transition-all transform hover:scale-105" 
-                                onclick="performMotorAction('thumbs')">
-                            <div class="text-6xl mb-2">👍</div>
-                            <p class="text-xl font-bold text-pink-700">JOINHA</p>
-                        </button>
-                    </div>
-                    <div id="motorResult" class="mt-6 text-2xl font-bold"></div>
-                </div>
-            `;
-        }
-
-        function createSensoryGame(container) {
-            const colors = ['🔴', '🟡', '🔵', '🟢'];
-            const shapes = ['⭐', '❤️', '🔷', '🔶'];
-            
-            container.innerHTML = `
-                <div class="text-center">
-                    <h4 class="text-3xl font-bold text-indigo-600 mb-6">RECONHECIMENTO SENSORIAL</h4>
-                    <div class="bg-indigo-100 rounded-3xl p-8 mb-6">
-                        <p class="text-2xl font-bold text-indigo-800 mb-4">TOQUE NAS CORES:</p>
-                        <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
-                            ${colors.map(color => `
-                                <button class="text-8xl p-6 bg-white rounded-3xl border-4 border-indigo-200 hover:border-indigo-400 transition-all transform hover:scale-110" 
-                                        onclick="touchSensory('${color}')">
-                                    ${color}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                    
-                    <div class="bg-purple-100 rounded-3xl p-8">
-                        <p class="text-2xl font-bold text-purple-800 mb-4">TOQUE NAS FORMAS:</p>
-                        <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
-                            ${shapes.map(shape => `
-                                <button class="text-8xl p-6 bg-white rounded-3xl border-4 border-purple-200 hover:border-purple-400 transition-all transform hover:scale-110" 
-                                        onclick="touchSensory('${shape}')">
-                                    ${shape}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div id="sensoryResult" class="mt-6 text-2xl font-bold"></div>
-                </div>
-            `;
-        }
-
-        function createRoutineGame(container) {
-            const routines = [
-                { icon: '🦷', action: 'ESCOVAR OS DENTES', time: 'MANHÃ' },
-                { icon: '🍽️', action: 'ALMOÇAR', time: 'MEIO-DIA' },
-                { icon: '🛁', action: 'TOMAR BANHO', time: 'NOITE' },
-                { icon: '😴', action: 'DORMIR', time: 'NOITE' }
-            ];
-            
-            container.innerHTML = `
-                <div class="text-center">
-                    <h4 class="text-3xl font-bold text-teal-600 mb-6">ROTINA E AUTONOMIA</h4>
-                    <div class="bg-teal-100 rounded-3xl p-8 mb-6">
-                        <p class="text-2xl font-bold text-teal-800 mb-6">ORGANIZE SUA ROTINA:</p>
-                        <div class="grid grid-cols-1 gap-4 max-w-lg mx-auto">
-                            ${routines.map((routine, index) => `
-                                <div class="bg-white rounded-2xl p-6 border-4 border-teal-200 hover:border-teal-400 transition-all cursor-pointer" 
-                                     onclick="selectRoutine(${index})">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-4">
-                                            <span class="text-4xl">${routine.icon}</span>
-                                            <div class="text-left">
-                                                <p class="text-xl font-bold text-teal-700">${routine.action}</p>
-                                                <p class="text-lg text-teal-600">${routine.time}</p>
-                                            </div>
-                                        </div>
-                                        <div class="text-3xl text-teal-400">✓</div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div id="routineResult" class="mt-6 text-2xl font-bold"></div>
-                </div>
-            `;
-        }
-
-        // NAEE Game Check Functions
-        function checkCommunication(selected, target, sound) {
-            const result = document.getElementById('communicationResult');
-            if (selected === target) {
-                result.innerHTML = '<span class="text-green-600">🎉 MUITO BEM! COMUNICAÇÃO PERFEITA!</span>';
-                showCapiMessage(`EXCELENTE ${playerName}! VOCÊ SE COMUNICOU MUITO BEM! 👏`);
-            } else {
-                result.innerHTML = '<span class="text-orange-600">CONTINUE TENTANDO! VOCÊ CONSEGUE!</span>';
-                showCapiMessage(`${playerName}, TENTE NOVAMENTE! CADA TENTATIVA É UM APRENDIZADO! 💪`);
-            }
-        }
-
-        function performMotorAction(action) {
-            const result = document.getElementById('motorResult');
-            const target = document.getElementById('motorTarget');
-            
-            const actions = {
-                'wave': { emoji: '👋', message: 'ACENANDO!' },
-                'clap': { emoji: '👏', message: 'BATENDO PALMAS!' },
-                'point': { emoji: '👉', message: 'APONTANDO!' },
-                'thumbs': { emoji: '👍', message: 'JOINHA!' }
-            };
-            
-            target.textContent = actions[action].emoji;
-            result.innerHTML = `<span class="text-green-600">🎉 ${actions[action].message}</span>`;
-            showCapiMessage(`ÓTIMO MOVIMENTO ${playerName}! CONTINUE PRATICANDO! 🤲`);
-        }
-
-        function touchSensory(item) {
-            const result = document.getElementById('sensoryResult');
-            result.innerHTML = '<span class="text-green-600">🎉 ÓTIMO TOQUE! VOCÊ RECONHECEU!</span>';
-            showCapiMessage(`PERFEITO ${playerName}! SEUS SENTIDOS ESTÃO FUNCIONANDO MUITO BEM! 👁️`);
-        }
-
-        function selectRoutine(index) {
-            const result = document.getElementById('routineResult');
-            const routines = ['MANHÃ', 'MEIO-DIA', 'NOITE', 'NOITE'];
-            result.innerHTML = `<span class="text-green-600">🎉 ROTINA ORGANIZADA! HORA DE ${routines[index]}!</span>`;
-            showCapiMessage(`MUITO BOM ${playerName}! VOCÊ ESTÁ ORGANIZANDO SUA ROTINA! ⏰`);
-        }
-
-        // Name input functionality
-        document.getElementById('playerName').addEventListener('input', function(e) {
-            // Convert to uppercase
-            e.target.value = e.target.value.toUpperCase();
-            
-            // Enable/disable start button
-            const startButton = document.getElementById('startButton');
-            if (e.target.value.trim().length >= 2) {
-                startButton.disabled = false;
-                startButton.classList.remove('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
-            } else {
-                startButton.disabled = true;
-                startButton.classList.add('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
-            }
-        });
-
-        // Enter key to start game
-        document.getElementById('playerName').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !document.getElementById('startButton').disabled) {
-                startGame();
-            }
-        });
-
-        function startGame() {
-            const nameInput = document.getElementById('playerName');
-            playerName = nameInput.value.trim();
-            
-            if (playerName.length < 2) {
-                showCapiMessage("PRECISO SABER SEU NOME PRIMEIRO! 😊");
-                return;
-            }
-            
-            // Hide name section, show age groups
-            document.getElementById('nameSection').classList.add('hidden');
-            document.getElementById('ageGroupsSection').classList.remove('hidden');
-            
-            // Personalized Capi greeting
-            showCapiMessage(`OLÁ ${playerName}! ESCOLHA SUA IDADE PARA COMEÇAR! 🎮`);
-        }
-
-        function getCategoryName(category) {
-            const names = {
-                '1-3': 'Creche',
-                '4-6': 'Infantil',
-                '7-9': 'Fund. I',
-                '10-14': 'Fund. II',
-                'naee': 'NAEE'
-            };
-            return names[category] || category;
-        }
-
-        // Initial Capi greeting and system initialization
-        setTimeout(() => {
-            showCapiMessage("OLÁ! BEM-VINDOS AO CAPI GAMES! 🎮");
-            
-            // Check for automatic updates on startup
-            if (lastUpdateCheck) {
-                const daysSinceUpdate = Math.floor((Date.now() - new Date(lastUpdateCheck).getTime()) / (1000 * 60 * 60 * 24));
-                if (daysSinceUpdate >= 7) {
-                    showCapiMessage("VERIFICANDO ATUALIZAÇÕES AUTOMÁTICAS... 🔄");
-                    setTimeout(() => {
-                        checkGitHubConnection();
-                    }, 3000);
-                }
-            }
-        }, 1000);
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c8e23ab33e8b17',t:'MTc2MDEyODMxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    // inicia
+    buildIndex();
+  </script>
+</body>
 </html>
-
