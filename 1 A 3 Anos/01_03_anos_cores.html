@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌈 Toque nas Cores - Capi Games</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { box-sizing: border-box; }
+        @keyframes bounce { 0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); } 40%, 43% { transform: translate3d(0,-30px,0); } 70% { transform: translate3d(0,-15px,0); } 90% { transform: translate3d(0,-4px,0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes celebration { 0% { transform: scale(1) rotate(0deg); } 25% { transform: scale(1.2) rotate(5deg); } 50% { transform: scale(1.3) rotate(-5deg); } 75% { transform: scale(1.2) rotate(5deg); } 100% { transform: scale(1) rotate(0deg); } }
+        @keyframes sparkle { 0%, 100% { opacity: 0; transform: scale(0); } 50% { opacity: 1; transform: scale(1); } }
+        .bounce { animation: bounce 1s infinite; } .pulse { animation: pulse 1.5s infinite; } .celebration { animation: celebration 0.6s ease-in-out; } .sparkle { animation: sparkle 1s ease-in-out; }
+        .color-button { transition: all 0.3s ease; transform: scale(1); } .color-button:hover { transform: scale(1.05); } .color-button:active { transform: scale(0.95); }
+        .correct-answer { animation: celebration 0.6s ease-in-out; box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+        .sparkles { position: absolute; width: 100%; height: 100%; pointer-events: none; }
+        .sparkle-dot { position: absolute; width: 20px; height: 20px; background: linear-gradient(45deg, #FFD700, #FFA500); border-radius: 50%; animation: sparkle 1s ease-in-out; }
+    </style>
+</head>
+<body class="min-h-full bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-400 font-bold">
+    <header class="bg-white/90 backdrop-blur-sm shadow-lg p-4 text-center">
+        <h1 class="text-4xl font-black text-purple-600 mb-2">🌈 TOQUE NAS CORES 🌈</h1>
+        <div class="flex justify-between items-center max-w-4xl mx-auto">
+            <button onclick="parent.postMessage('closeGame', '*')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full text-xl font-bold shadow-lg transition-all duration-300 hover:scale-105">← VOLTAR AO CAPI GAMES</button>
+            <div class="bg-yellow-400 px-6 py-3 rounded-full shadow-lg"><span class="text-2xl">⭐ <span id="score">0</span> pontos</span></div>
+        </div>
+    </header>
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 mb-8 text-center shadow-xl">
+            <h2 class="text-3xl font-black text-purple-600 mb-4">🎯 ENCONTRE A COR!</h2>
+            <div class="text-6xl mb-4 pulse" id="targetColorDisplay">🔴</div>
+            <p class="text-2xl font-bold text-gray-700" id="instruction">Toque na cor VERMELHA!</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8" id="colorGrid"></div>
+        <div class="text-center">
+            <div id="feedback" class="text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center"></div>
+            <div id="encouragement" class="text-2xl font-bold text-white bg-purple-500/80 rounded-full px-8 py-4 inline-block shadow-lg">Você consegue! 💪</div>
+        </div>
+        <div id="sparklesContainer" class="sparkles"></div>
+    </main>
+    <script>
+        class ColorGame {
+            constructor() {
+                this.score = 0; this.currentLevel = 1;
+                this.colors = [
+                    { name: 'VERMELHO', emoji: '🔴', class: 'bg-red-500', rgb: 'rgb(239, 68, 68)' },
+                    { name: 'AZUL', emoji: '🔵', class: 'bg-blue-500', rgb: 'rgb(59, 130, 246)' },
+                    { name: 'AMARELO', emoji: '🟡', class: 'bg-yellow-500', rgb: 'rgb(234, 179, 8)' },
+                    { name: 'VERDE', emoji: '🟢', class: 'bg-green-500', rgb: 'rgb(34, 197, 94)' },
+                    { name: 'ROXO', emoji: '🟣', class: 'bg-purple-500', rgb: 'rgb(168, 85, 247)' },
+                    { name: 'LARANJA', emoji: '🟠', class: 'bg-orange-500', rgb: 'rgb(249, 115, 22)' }
+                ];
+                this.currentTarget = null; this.gameColors = []; this.init();
+            }
+            init() { this.generateLevel(); this.updateScore(); }
+            generateLevel() {
+                this.currentTarget = this.colors[Math.floor(Math.random() * this.colors.length)];
+                this.gameColors = [this.currentTarget];
+                const availableColors = this.colors.filter(c => c !== this.currentTarget);
+                const numColors = Math.min(3 + Math.floor(this.currentLevel / 3), 6);
+                for (let i = 1; i < numColors; i++) {
+                    const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
+                    if (!this.gameColors.includes(randomColor)) { this.gameColors.push(randomColor); }
+                }
+                this.gameColors.sort(() => Math.random() - 0.5); this.updateDisplay();
+            }
+            updateDisplay() {
+                document.getElementById('targetColorDisplay').textContent = this.currentTarget.emoji;
+                document.getElementById('instruction').textContent = `Toque na cor ${this.currentTarget.name}!`;
+                const grid = document.getElementById('colorGrid'); grid.innerHTML = '';
+                this.gameColors.forEach((color, index) => {
+                    const button = document.createElement('button');
+                    button.className = `color-button ${color.class} rounded-3xl h-32 md:h-40 shadow-xl border-4 border-white hover:border-yellow-400 transition-all duration-300 text-6xl flex items-center justify-center`;
+                    button.innerHTML = `<span class="pulse">${color.emoji}</span>`;
+                    button.onclick = () => this.checkAnswer(color); grid.appendChild(button);
+                });
+            }
+            checkAnswer(selectedColor) {
+                const feedback = document.getElementById('feedback');
+                const encouragement = document.getElementById('encouragement');
+                if (selectedColor === this.currentTarget) {
+                    this.score += 10; this.updateScore();
+                    feedback.innerHTML = '🎉 MUITO BEM! 🎉';
+                    feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center text-green-600 celebration';
+                    encouragement.textContent = this.getPositiveMessage();
+                    encouragement.className = 'text-2xl font-bold text-white bg-green-500/80 rounded-full px-8 py-4 inline-block shadow-lg celebration';
+                    this.createSparkles(); event.target.classList.add('correct-answer');
+                    setTimeout(() => {
+                        this.currentLevel++; this.generateLevel();
+                        feedback.innerHTML = ''; feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center';
+                        encouragement.textContent = 'Você consegue! 💪';
+                        encouragement.className = 'text-2xl font-bold text-white bg-purple-500/80 rounded-full px-8 py-4 inline-block shadow-lg';
+                    }, 2000);
+                } else {
+                    feedback.innerHTML = '😊 Tente novamente!';
+                    feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center text-orange-600 bounce';
+                    encouragement.textContent = 'Quase lá! Tente de novo! 🌟';
+                    encouragement.className = 'text-2xl font-bold text-white bg-orange-500/80 rounded-full px-8 py-4 inline-block shadow-lg pulse';
+                    setTimeout(() => {
+                        feedback.innerHTML = ''; feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center';
+                        encouragement.textContent = 'Você consegue! 💪';
+                        encouragement.className = 'text-2xl font-bold text-white bg-purple-500/80 rounded-full px-8 py-4 inline-block shadow-lg';
+                    }, 1500);
+                }
+            }
+            createSparkles() {
+                const container = document.getElementById('sparklesContainer'); container.innerHTML = '';
+                for (let i = 0; i < 15; i++) {
+                    const sparkle = document.createElement('div'); sparkle.className = 'sparkle-dot';
+                    sparkle.style.left = Math.random() * 100 + '%'; sparkle.style.top = Math.random() * 100 + '%';
+                    sparkle.style.animationDelay = Math.random() * 0.5 + 's'; container.appendChild(sparkle);
+                }
+                setTimeout(() => { container.innerHTML = ''; }, 1500);
+            }
+            getPositiveMessage() {
+                const messages = ['Parabéns! 🌟', 'Você é incrível! ⭐', 'Muito bem! 🎊', 'Perfeito! 💫', 'Excelente! 🏆', 'Fantástico! 🎈', 'Maravilhoso! 🌈'];
+                return messages[Math.floor(Math.random() * messages.length)];
+            }
+            updateScore() { document.getElementById('score').textContent = this.score; }
+        }
+        window.addEventListener('load', () => { new ColorGame(); });
+    </script>

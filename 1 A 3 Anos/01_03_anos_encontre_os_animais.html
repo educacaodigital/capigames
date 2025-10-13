@@ -1,0 +1,139 @@
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c7a2eb11e28b17',t:'MTc2MDExNTIzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 Encontre os Animais - Capi Games</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { box-sizing: border-box; }
+        @keyframes bounce { 0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); } 40%, 43% { transform: translate3d(0,-30px,0); } 70% { transform: translate3d(0,-15px,0); } 90% { transform: translate3d(0,-4px,0); } }
+        @keyframes wiggle { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } }
+        @keyframes grow { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes celebration { 0% { transform: scale(1) rotate(0deg); } 25% { transform: scale(1.3) rotate(10deg); } 50% { transform: scale(1.4) rotate(-10deg); } 75% { transform: scale(1.3) rotate(10deg); } 100% { transform: scale(1) rotate(0deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        .bounce { animation: bounce 1s infinite; } .wiggle { animation: wiggle 0.5s ease-in-out infinite; } .grow { animation: grow 1.5s infinite; } .celebration { animation: celebration 0.8s ease-in-out; } .float { animation: float 2s ease-in-out infinite; }
+        .animal-button { transition: all 0.3s ease; transform: scale(1); } .animal-button:hover { transform: scale(1.1); } .animal-button:active { transform: scale(0.9); }
+        .correct-animal { animation: celebration 0.8s ease-in-out; box-shadow: 0 0 40px rgba(255, 215, 0, 0.9); }
+        .hearts { position: absolute; width: 100%; height: 100%; pointer-events: none; }
+        .heart { position: absolute; font-size: 30px; animation: float 2s ease-in-out; opacity: 0; }
+        @keyframes heartFloat { 0% { opacity: 1; transform: translateY(0px) scale(0.5); } 50% { opacity: 1; transform: translateY(-50px) scale(1); } 100% { opacity: 0; transform: translateY(-100px) scale(0.5); } }
+        .heart-float { animation: heartFloat 2s ease-out; }
+    </style>
+</head>
+<body class="min-h-full bg-gradient-to-br from-green-300 via-blue-300 to-purple-400 font-bold">
+    <header class="bg-white/90 backdrop-blur-sm shadow-lg p-4 text-center">
+        <h1 class="text-4xl font-black text-green-600 mb-2">🐾 ENCONTRE OS ANIMAIS 🐾</h1>
+        <div class="flex justify-between items-center max-w-4xl mx-auto">
+            <button onclick="parent.postMessage('closeGame', '*')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full text-xl font-bold shadow-lg transition-all duration-300 hover:scale-105">← VOLTAR AO CAPI GAMES</button>
+            <div class="bg-yellow-400 px-6 py-3 rounded-full shadow-lg"><span class="text-2xl">🏆 <span id="score">0</span> pontos</span></div>
+        </div>
+    </header>
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 mb-8 text-center shadow-xl">
+            <h2 class="text-3xl font-black text-green-600 mb-4">🎯 ENCONTRE O ANIMAL!</h2>
+            <div class="text-8xl mb-4 grow" id="targetAnimalDisplay">🐶</div>
+            <p class="text-2xl font-bold text-gray-700" id="instruction">Toque no CACHORRO!</p>
+            <div class="text-lg text-gray-600 mt-2" id="animalSound">Au au! 🔊</div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8" id="animalGrid"></div>
+        <div class="text-center">
+            <div id="feedback" class="text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center"></div>
+            <div id="encouragement" class="text-2xl font-bold text-white bg-green-500/80 rounded-full px-8 py-4 inline-block shadow-lg">Encontre o animalzinho! 🐾</div>
+        </div>
+        <div id="heartsContainer" class="hearts"></div>
+    </main>
+    <script>
+        class AnimalGame {
+            constructor() {
+                this.score = 0; this.currentLevel = 1;
+                this.animals = [
+                    { name: 'CACHORRO', emoji: '🐶', sound: 'Au au!', environment: 'casa' },
+                    { name: 'GATO', emoji: '🐱', sound: 'Miau!', environment: 'casa' },
+                    { name: 'VACA', emoji: '🐄', sound: 'Muuu!', environment: 'fazenda' },
+                    { name: 'PORCO', emoji: '🐷', sound: 'Oinc oinc!', environment: 'fazenda' },
+                    { name: 'PATO', emoji: '🦆', sound: 'Quá quá!', environment: 'lago' },
+                    { name: 'GALINHA', emoji: '🐔', sound: 'Có có có!', environment: 'fazenda' },
+                    { name: 'PEIXE', emoji: '🐠', sound: 'Glub glub!', environment: 'mar' },
+                    { name: 'BORBOLETA', emoji: '🦋', sound: 'Fru fru!', environment: 'jardim' },
+                    { name: 'ABELHA', emoji: '🐝', sound: 'Bzzzz!', environment: 'jardim' },
+                    { name: 'COELHO', emoji: '🐰', sound: 'Hop hop!', environment: 'campo' },
+                    { name: 'ELEFANTE', emoji: '🐘', sound: 'Pfffrrrr!', environment: 'selva' },
+                    { name: 'LEÃO', emoji: '🦁', sound: 'Roaaaar!', environment: 'selva' }
+                ];
+                this.currentTarget = null; this.gameAnimals = []; this.init();
+            }
+            init() { this.generateLevel(); this.updateScore(); }
+            generateLevel() {
+                this.currentTarget = this.animals[Math.floor(Math.random() * this.animals.length)];
+                this.gameAnimals = [this.currentTarget];
+                const availableAnimals = this.animals.filter(a => a !== this.currentTarget);
+                const numAnimals = Math.min(3 + Math.floor(this.currentLevel / 4), 6);
+                for (let i = 1; i < numAnimals; i++) {
+                    const randomAnimal = availableAnimals[Math.floor(Math.random() * availableAnimals.length)];
+                    if (!this.gameAnimals.find(a => a.name === randomAnimal.name)) { this.gameAnimals.push(randomAnimal); }
+                }
+                this.gameAnimals.sort(() => Math.random() - 0.5); this.updateDisplay();
+            }
+            updateDisplay() {
+                document.getElementById('targetAnimalDisplay').textContent = this.currentTarget.emoji;
+                document.getElementById('instruction').textContent = `Toque no ${this.currentTarget.name}!`;
+                document.getElementById('animalSound').textContent = `${this.currentTarget.sound} 🔊`;
+                const grid = document.getElementById('animalGrid'); grid.innerHTML = '';
+                this.gameAnimals.forEach((animal, index) => {
+                    const button = document.createElement('button');
+                    button.className = `animal-button bg-white rounded-3xl h-32 md:h-40 shadow-xl border-4 border-gray-200 hover:border-yellow-400 transition-all duration-300 text-7xl flex flex-col items-center justify-center wiggle`;
+                    button.innerHTML = `<div class="text-6xl mb-1">${animal.emoji}</div><div class="text-sm font-bold text-gray-600">${animal.name}</div>`;
+                    button.onclick = () => this.checkAnswer(animal); grid.appendChild(button);
+                });
+            }
+            checkAnswer(selectedAnimal) {
+                const feedback = document.getElementById('feedback');
+                const encouragement = document.getElementById('encouragement');
+                if (selectedAnimal.name === this.currentTarget.name) {
+                    this.score += 15; this.updateScore();
+                    feedback.innerHTML = `🎉 ACHOU O ${selectedAnimal.name}! 🎉`;
+                    feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center text-green-600 celebration';
+                    encouragement.textContent = this.getPositiveMessage();
+                    encouragement.className = 'text-2xl font-bold text-white bg-green-500/80 rounded-full px-8 py-4 inline-block shadow-lg celebration';
+                    this.createHearts(); event.target.classList.add('correct-animal');
+                    setTimeout(() => {
+                        this.currentLevel++; this.generateLevel();
+                        feedback.innerHTML = ''; feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center';
+                        encouragement.textContent = 'Encontre o animalzinho! 🐾';
+                        encouragement.className = 'text-2xl font-bold text-white bg-green-500/80 rounded-full px-8 py-4 inline-block shadow-lg';
+                    }, 2500);
+                } else {
+                    feedback.innerHTML = `😊 Não é esse! Tente de novo!`;
+                    feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center text-orange-600 bounce';
+                    encouragement.textContent = `Procure o ${this.currentTarget.name}! ${this.currentTarget.sound} 🎵`;
+                    encouragement.className = 'text-2xl font-bold text-white bg-orange-500/80 rounded-full px-8 py-4 inline-block shadow-lg wiggle';
+                    setTimeout(() => {
+                        feedback.innerHTML = ''; feedback.className = 'text-4xl font-black mb-4 min-h-[60px] flex items-center justify-center';
+                        encouragement.textContent = 'Encontre o animalzinho! 🐾';
+                        encouragement.className = 'text-2xl font-bold text-white bg-green-500/80 rounded-full px-8 py-4 inline-block shadow-lg';
+                    }, 2000);
+                }
+            }
+            createHearts() {
+                const container = document.getElementById('heartsContainer'); container.innerHTML = '';
+                const heartEmojis = ['💖', '💝', '💕', '💗', '🧡', '💛', '💚', '💙', '💜'];
+                for (let i = 0; i < 12; i++) {
+                    const heart = document.createElement('div'); heart.className = 'heart heart-float';
+                    heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+                    heart.style.left = Math.random() * 100 + '%'; heart.style.top = Math.random() * 50 + 50 + '%';
+                    heart.style.animationDelay = Math.random() * 0.5 + 's'; container.appendChild(heart);
+                }
+                setTimeout(() => { container.innerHTML = ''; }, 2500);
+            }
+            getPositiveMessage() {
+                const messages = ['Que esperto! 🌟', 'Você encontrou! ⭐', 'Muito bem! 🎊', 'Perfeito! 💫', 'Incrível! 🏆', 'Parabéns! 🎈', 'Fantástico! 🌈', 'Você é demais! 🎯'];
+                return messages[Math.floor(Math.random() * messages.length)];
+            }
+            updateScore() { document.getElementById('score').textContent = this.score; }
+        }
+        window.addEventListener('load', () => { new AnimalGame(); });
+    </script>
+</body>
+</html>
