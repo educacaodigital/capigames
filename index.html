@@ -3,22 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jogos Pedagógicos - Capi Games</title>
+  <title>Capi Games — Catálogo de Jogos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { box-sizing: border-box; }
-    @keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(-10px)}60%{transform:translateY(-5px)}}
-    @keyframes dance{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-5deg) scale(1.1)}50%{transform:rotate(5deg) scale(1.1)}75%{transform:rotate(-3deg) scale(1.05)}}
+    body{box-sizing:border-box}
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-    .bounce{animation:bounce 2s infinite}
-    .dance{animation:dance 1s ease-in-out}
     .float{animation:float 3s ease-in-out infinite}
-    .speech-bubble{position:relative;background:#fff;border-radius:20px;padding:15px;margin:10px;box-shadow:0 4px 15px rgba(0,0,0,.1)}
-    .speech-bubble:after{content:'';position:absolute;bottom:-10px;left:30px;border:10px solid transparent;border-top-color:#fff}
-    .age-card{transition:all .3s ease;cursor:pointer}
-    .age-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,.15)}
-    .game-preview{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:15px;padding:20px;color:#fff;text-align:center;cursor:pointer;transition:transform .3s ease}
-    .game-preview:hover{transform:scale(1.05)}
+    .bubble{position:relative;background:#fff;border-radius:16px;padding:12px;margin:8px;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+    .bubble:after{content:'';position:absolute;bottom:-10px;left:24px;border:10px solid transparent;border-top-color:#fff}
+    .card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:14px;padding:18px;color:#fff;text-align:center;transition:transform .2s ease}
+    .card:hover{transform:scale(1.03)}
   </style>
 </head>
 <body class="min-h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-400">
@@ -26,16 +20,10 @@
   <!-- Header -->
   <header class="bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-50">
     <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <img src="https://www.riopreto.sp.leg.br/Content/css/images/logo-1.png" alt="Logo Câmara Municipal" class="h-12 w-auto" onerror="this.src=''; this.alt=''; this.style.display='none';">
-        <h1 class="text-3xl font-bold text-purple-600 uppercase">CAPI GAMES</h1>
-      </div>
-      <div class="flex items-center space-x-4">
-        <button id="toggleCapi" class="bg-yellow-400 hover:bg-yellow-500 text-purple-800 font-bold py-2 px-4 rounded-full transition-colors">
-          <span id="capiToggleText">🐹 DESABILITAR CAPI</span>
-        </button>
+      <h1 class="text-2xl md:text-3xl font-extrabold text-purple-700 uppercase tracking-wide">Capi Games</h1>
+      <div class="flex items-center gap-2">
         <button id="reindexBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full">
-          🔄 ATUALIZAR JOGOS
+          🔄 Atualizar Jogos
         </button>
       </div>
     </div>
@@ -43,43 +31,35 @@
 
   <main class="container mx-auto px-4 py-8">
 
-    <!-- Boas-vindas -->
-    <div class="text-center mb-8">
-      <h2 class="text-5xl font-bold text-white mb-4 drop-shadow-lg">BEM-VINDOS AO MUNDO DOS JOGOS!</h2>
-      <p class="text-xl text-white/90 max-w-3xl mx-auto drop-shadow uppercase">
-        Explore, aprenda e divirta-se com jogos educativos organizados por pastas e categorias!
-      </p>
-    </div>
-
-    <!-- Busca -->
-    <div class="max-w-4xl mx-auto mb-8 bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl">
+    <!-- Busca / Filtros -->
+    <section class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl max-w-4xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">PALAVRA-CHAVE</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Palavra-chave</label>
           <input id="q" type="text" placeholder="Digite aqui..." class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none uppercase">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">CATEGORIA (PASTA)</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Categoria</label>
           <select id="categoryFilter" class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
             <option value="">Todas</option>
           </select>
         </div>
-        <div class="flex items-end gap-2">
-          <button id="clearBtn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full transition-colors">🗑️ Limpar</button>
+        <div class="flex items-end">
+          <button id="clearBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-full">🗑️ Limpar</button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Lista dinâmica por categoria -->
-    <div id="catalog" class="space-y-10"></div>
+    <!-- Catálogo -->
+    <section id="catalog" class="space-y-8 mt-8"></section>
 
     <!-- Mascote -->
-    <div id="capiContainer" class="fixed bottom-8 right-8 z-40">
-      <div id="capiSpeech" class="speech-bubble hidden mb-4 max-w-xs">
+    <div id="capiContainer" class="fixed bottom-6 right-6">
+      <div id="capiSpeech" class="bubble hidden max-w-xs">
         <p id="capiMessage" class="text-purple-800 font-semibold"></p>
       </div>
-      <div id="capi" class="float cursor-pointer bg-orange-400 rounded-full p-4 shadow-2xl hover:bg-orange-500 transition-colors">
-        <svg width="80" height="80" viewBox="0 0 100 100" class="text-white">
+      <div id="capi" class="float cursor-pointer bg-orange-400 rounded-full p-3 shadow-2xl hover:bg-orange-500">
+        <svg width="72" height="72" viewBox="0 0 100 100">
           <ellipse cx="50" cy="60" rx="35" ry="25" fill="#8B4513"/>
           <ellipse cx="50" cy="35" rx="25" ry="20" fill="#A0522D"/>
           <ellipse cx="35" cy="25" rx="8" ry="12" fill="#8B4513"/>
@@ -95,7 +75,7 @@
       </div>
     </div>
 
-    <!-- Modal simples de progresso -->
+    <!-- Modal de Progresso -->
     <div id="progressModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
       <div class="bg-white rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl">
         <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white">
@@ -105,8 +85,8 @@
           </div>
         </div>
         <div class="p-6">
-          <div class="bg-gray-200 rounded-full h-4 mb-2">
-            <div id="progressBar" class="bg-green-500 h-4 rounded-full transition-all duration-300" style="width:0%"></div>
+          <div class="bg-gray-200 rounded-full h-3 mb-2">
+            <div id="progressBar" class="bg-green-500 h-3 rounded-full transition-all duration-300" style="width:0%"></div>
           </div>
           <p id="progressText" class="text-center text-sm text-gray-600">Preparando...</p>
         </div>
@@ -116,244 +96,214 @@
   </main>
 
   <script>
-    /*** CONFIGURAÇÃO ***/
-    // true = usa GitHub API para espelhar exatamente a estrutura do repositório
-    // false = ignora GitHub e usa manifest local games-manifest.json (raiz do site)
+    /* =======================
+       CONFIGURAÇÃO DO INDEXADOR
+       ======================= */
+
+    // true -> Indexa direto do GitHub (estrutura oficial)
+    // false -> Usa games-manifest.json local (raiz do site)
     const USE_GITHUB_INDEX = true;
 
     const GITHUB = {
-      owner: "educacaodigital",
-      repo:  "capigames",
-      branch:"main",
-      apiBase: "https://api.github.com",
+      owner:  "educacaodigital",
+      repo:   "capigames",
+      branch: "main",
+      api:    "https://api.github.com",
+      raw:    "https://raw.githubusercontent.com"
     };
 
-    // Excluir arquivos/pastas do índice
-    const EXCLUDE_FILES  = new Set(["index.html", ".DS_Store", "README.md"]);
-    const EXCLUDE_FOLDERS= new Set([".git", ".github", "assets", "static", "img", "images", "css", "js"]);
+    // Categorias válidas e labels
+    const CATEGORY_ORDER = ["1-3","4-5","6-10","11-14","naee"];
+    const CATEGORY_LABELS = {
+      "1-3":  "1 a 3 anos",
+      "4-5":  "4 e 5 anos",
+      "6-10": "6 a 10 anos",
+      "11-14":"11 a 14 anos",
+      "naee": "Sala de Recursos"
+    };
 
-    /*** VARS ***/
-    let capiEnabled = true;
-    const $ = (sel)=>document.querySelector(sel);
-    const $$ = (sel)=>document.querySelectorAll(sel);
-    const catalogEl = $("#catalog");
+    const EXCLUDE_FILES   = new Set(["index.html",".DS_Store","README.md"]);
+    const EXCLUDE_FOLDERS = new Set([".git",".github","assets","static","img","images","css","js"]);
+
+    // Estado
+    let indexEntries = []; // {category, path, title, href}
+    let presentCategories = new Set();
+
+    // UI refs
+    const $  = (s)=>document.querySelector(s);
     const qEl = $("#q");
     const categoryFilterEl = $("#categoryFilter");
+    const catalogEl = $("#catalog");
     const reindexBtn = $("#reindexBtn");
     const clearBtn = $("#clearBtn");
-
     const progressModal = $("#progressModal");
-    const progressBar   = $("#progressBar");
-    const progressText  = $("#progressText");
-    const closeProgress = $("#closeProgress");
+    const progressBar = $("#progressBar");
+    const progressText = $("#progressText");
+    $("#closeProgress").addEventListener("click", ()=>{progressModal.classList.add("hidden"); progressModal.classList.remove("flex");});
 
-    // Estado do índice
-    let indexEntries = []; // {category, path, title, href}
-    let categories   = new Set();
-
-    /*** UI Helpers ***/
-    function showCapiMessage(message){
-      if(!capiEnabled) return;
-      const speech = $("#capiSpeech");
-      const msg = $("#capiMessage");
-      msg.textContent = message;
-      speech.classList.remove("hidden");
-      setTimeout(()=>speech.classList.add("hidden"), 2600);
-    }
-    $("#capi").addEventListener("click", function(){
-      if(!capiEnabled) return;
-      this.classList.add("dance");
-      setTimeout(()=>this.classList.remove("dance"), 1000);
-      showCapiMessage("Vamos jogar? 🎮");
-    });
-    $("#toggleCapi").addEventListener("click", ()=>{
-      capiEnabled = !capiEnabled;
-      const cont = $("#capiContainer");
-      const t = $("#capiToggleText");
-      if(capiEnabled){
-        cont.style.display = "block";
-        t.textContent = "🐹 DESABILITAR CAPI";
-        showCapiMessage("Opa! Voltei! 😄");
-      }else{
-        cont.style.display = "none";
-        t.textContent = "🐹 HABILITAR CAPI";
-      }
-    });
-
-    function openProgress(msg="Iniciando..."){
-      progressText.textContent = msg;
-      progressBar.style.width = "0%";
-      progressModal.classList.remove("hidden");
-      progressModal.classList.add("flex");
-    }
-    function updateProgress(pct, msg){
-      progressBar.style.width = pct + "%";
-      if(msg) progressText.textContent = msg;
-    }
-    function closeProgressModal(){
-      progressModal.classList.add("hidden");
-      progressModal.classList.remove("flex");
-    }
-    closeProgress.addEventListener("click", closeProgressModal);
-
-    /*** FETCH GitHub ***/
-    async function ghListDir(path=""){
-      // GET /repos/{owner}/{repo}/contents/{path}?ref=branch
-      const url = `${GITHUB.apiBase}/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${encodeURIComponent(path)}?ref=${GITHUB.branch}`;
-      const res = await fetch(url, {headers:{Accept:"application/vnd.github.v3+json"}});
-      if(!res.ok) throw new Error("Falha ao acessar GitHub contents: " + path);
-      return res.json(); // array de items {name,path,download_url,type}
+    // Mascote
+    $("#capi").addEventListener("click", ()=>showMsg("Vamos explorar os jogos! 🎮"));
+    function showMsg(t){
+      $("#capiMessage").textContent = t;
+      const s = $("#capiSpeech");
+      s.classList.remove("hidden");
+      setTimeout(()=>s.classList.add("hidden"), 2400);
     }
 
-    async function ghWalkTree(basePath="", accumulator=[]){
-      const items = await ghListDir(basePath);
-      for(const item of items){
-        if(item.type === "dir"){
-          if(EXCLUDE_FOLDERS.has(item.name)) continue;
-          await ghWalkTree(item.path, accumulator);
-        }else if(item.type === "file"){
-          const nameLower = item.name.toLowerCase();
-          if(!nameLower.endsWith(".html")) continue;
-          if(EXCLUDE_FILES.has(item.name)) continue;
-          accumulator.push(item.path);
-        }
-      }
-      return accumulator;
-    }
+    /* =======================
+       UTILITÁRIOS
+       ======================= */
 
-    /*** Leitura de <title> de um arquivo HTML ***/
-    async function readHtmlTitleByUrl(url){
-      try{
-        const res = await fetch(url,{cache:"no-store"});
-        if(!res.ok) return null;
-        const text = await res.text();
-        const m = text.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-        return m ? m[1].trim() : null;
-      }catch{
-        return null;
-      }
-    }
+    function openProgress(msg="Iniciando..."){ progressText.textContent=msg; progressBar.style.width="0%"; progressModal.classList.remove("hidden"); progressModal.classList.add("flex"); }
+    function updateProgress(p, msg){ progressBar.style.width = p + "%"; if(msg) progressText.textContent = msg; }
+    function closeProgress(){ progressModal.classList.add("hidden"); progressModal.classList.remove("flex"); }
 
-    async function readHtmlTitleLocal(path){
-      // tenta via fetch relativo (servidor local precisa servir o arquivo)
-      return readHtmlTitleByUrl(path);
-    }
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
 
-    /*** Construção do índice ***/
-    function pathToCategory(path){
-      // Categoria = primeira pasta do caminho
+    function firstFolder(path){
       const parts = path.split("/").filter(Boolean);
-      return parts.length>1 ? parts[0] : "(raiz)";
+      return parts.length>1 ? parts[0].toLowerCase() : "";
+    }
+
+    function normalizeCategoryFromPath(path){
+      const root = firstFolder(path);
+      // somente as 5 válidas; outras são ignoradas
+      if (CATEGORY_ORDER.includes(root)) return root;
+      return null;
     }
 
     function toRawUrl(path){
-      // URL crua do GitHub para ler o HTML (CORS habilitado)
-      return `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${path}`;
+      return `${GITHUB.raw}/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${path}`;
     }
 
-    async function buildIndexFromGitHub(){
-      openProgress("Lendo estrutura do GitHub...");
-      const files = await ghWalkTree("");
-      if(files.length===0) throw new Error("Nenhum arquivo .html encontrado no repositório.");
+    async function fetchDir(path=""){
+      const url = `${GITHUB.api}/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${encodeURIComponent(path)}?ref=${GITHUB.branch}`;
+      const res = await fetch(url, {headers:{Accept:"application/vnd.github.v3+json"}});
+      if (!res.ok) throw new Error("Falha GitHub contents: " + path);
+      return res.json();
+    }
+
+    async function walkTree(basePath="", acc=[]){
+      const items = await fetchDir(basePath);
+      for (const it of items){
+        if (it.type === "dir"){
+          if (EXCLUDE_FOLDERS.has(it.name)) continue;
+          await walkTree(it.path, acc);
+        } else if (it.type === "file"){
+          const n = it.name.toLowerCase();
+          if (!n.endsWith(".html")) continue;
+          if (EXCLUDE_FILES.has(it.name)) continue;
+          const cat = normalizeCategoryFromPath(it.path);
+          if (!cat) continue; // ignora fora das 5 categorias
+          acc.push(it.path);
+        }
+      }
+      return acc;
+    }
+
+    async function readHtmlTitle(url){
+      try{
+        const r = await fetch(url,{cache:"no-store"});
+        if(!r.ok) return null;
+        const tx = await r.text();
+        const m = tx.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+        return m ? m[1].trim() : null;
+      }catch{ return null; }
+    }
+
+    async function buildFromGitHub(){
+      openProgress("Lendo estrutura do GitHub…");
+      const files = await walkTree("");
+      if (files.length===0) throw new Error("Nenhum jogo (.html) encontrado nas 5 categorias.");
 
       indexEntries = [];
+      presentCategories = new Set();
       let done=0;
-      for(const filePath of files){
-        const cat = pathToCategory(filePath);
-        categories.add(cat);
-        const rawUrl = toRawUrl(filePath);
-        const title = await readHtmlTitleByUrl(rawUrl) || filePath.split("/").pop().replace(/\.html?$/i,"");
-        indexEntries.push({
-          category: cat,
-          path: filePath,
-          title: title,
-          href: filePath // o link relativo funciona se a estrutura local espelhar a do GitHub
-        });
+
+      for (const filePath of files){
+        const cat = normalizeCategoryFromPath(filePath);
+        if(!cat) continue;
+        presentCategories.add(cat);
+
+        const title = await readHtmlTitle(toRawUrl(filePath))
+                    || filePath.split("/").pop().replace(/\.html?$/i,"");
+
+        indexEntries.push({ category:cat, path:filePath, title, href:filePath });
         done++;
-        if(done%5===0) updateProgress(Math.round((done/files.length)*100), `Indexando (${done}/${files.length})...`);
+        if (done%5===0) updateProgress(Math.round((done/files.length)*100), `Indexando (${done}/${files.length})…`);
       }
-      updateProgress(100, "Concluído!");
-      closeProgressModal();
+      updateProgress(100,"Concluído!");
+      closeProgress();
     }
 
-    async function buildIndexFromLocalManifest(){
-      openProgress("Lendo games-manifest.json local...");
+    async function buildFromManifest(){
+      openProgress("Lendo games-manifest.json local…");
       const res = await fetch("games-manifest.json",{cache:"no-store"});
-      if(!res.ok) throw new Error("games-manifest.json não encontrado na raiz.");
+      if(!res.ok) throw new Error("games-manifest.json não encontrado.");
       const manifest = await res.json();
       const files = (manifest.entries||[]).map(e=>e.path).filter(p=>p.toLowerCase().endsWith(".html") && !/\/?index\.html?$/i.test(p));
-      if(files.length===0) throw new Error("Manifesto sem arquivos .html válidos.");
+      if (files.length===0) throw new Error("Manifest sem arquivos .html válidos.");
 
       indexEntries = [];
+      presentCategories = new Set();
       let done=0;
-      for(const filePath of files){
-        const cat = pathToCategory(filePath);
-        categories.add(cat);
-        const title = await readHtmlTitleLocal(filePath) || filePath.split("/").pop().replace(/\.html?$/i,"");
-        indexEntries.push({
-          category: cat,
-          path: filePath,
-          title: title,
-          href: filePath
-        });
+
+      for (const filePath of files){
+        const cat = normalizeCategoryFromPath(filePath);
+        if(!cat) { continue; } // ignora fora das 5 categorias
+        presentCategories.add(cat);
+
+        const title = await readHtmlTitle(filePath)
+                    || filePath.split("/").pop().replace(/\.html?$/i,"");
+        indexEntries.push({ category:cat, path:filePath, title, href:filePath });
         done++;
-        if(done%5===0) updateProgress(Math.round((done/files.length)*100), `Indexando (${done}/${files.length})...`);
+        if (done%5===0) updateProgress(Math.round((done/files.length)*100), `Indexando (${done}/${files.length})…`);
       }
-      updateProgress(100, "Concluído!");
-      closeProgressModal();
+      updateProgress(100,"Concluído!");
+      closeProgress();
     }
 
     async function buildIndex(){
-      categories = new Set();
-      indexEntries = [];
       try{
-        if(USE_GITHUB_INDEX){
-          await buildIndexFromGitHub();
-        }else{
-          await buildIndexFromLocalManifest();
-        }
-        renderFilters();
-        renderCatalog();
-        showCapiMessage("Índice atualizado com sucesso! ✅");
-      }catch(err){
-        closeProgressModal();
-        console.warn(err);
-        // Fallback automático: se GitHub falhar, tenta manifest local
-        if(USE_GITHUB_INDEX){
+        if (USE_GITHUB_INDEX) await buildFromGitHub();
+        else await buildFromManifest();
+      }catch(e){
+        console.warn(e);
+        if (USE_GITHUB_INDEX){
           try{
-            await buildIndexFromLocalManifest();
-            renderFilters();
-            renderCatalog();
-            showCapiMessage("Sem GitHub. Usei o manifest local. 📄");
-          }catch(err2){
-            console.error(err2);
+            await buildFromManifest();
+            showMsg("Sem GitHub. Usei o manifest local. 📄");
+          }catch(e2){
             alert("Não foi possível construir o índice (GitHub e manifest local indisponíveis).");
-            showCapiMessage("Erro ao indexar. ❌");
           }
         }else{
           alert("Não foi possível construir o índice a partir do manifest local.");
-          showCapiMessage("Erro ao indexar. ❌");
         }
       }
+      renderFilters();
+      renderCatalog();
+      showMsg("Índice atualizado! ✅");
     }
 
-    /*** Renderização ***/
+    /* =======================
+       RENDERIZAÇÃO
+       ======================= */
+
     function renderFilters(){
-      // Categoria
-      const cats = Array.from(categories).sort((a,b)=>a.localeCompare(b,'pt-BR'));
-      categoryFilterEl.innerHTML = `<option value="">Todas</option>` + cats.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+      // popula select apenas com categorias presentes e válidas
+      const cats = CATEGORY_ORDER.filter(c=>presentCategories.has(c));
+      categoryFilterEl.innerHTML = `<option value="">Todas</option>` +
+        cats.map(c=>`<option value="${c}">${escapeHtml(CATEGORY_LABELS[c])}</option>`).join("");
     }
 
     function groupByCategory(entries){
       const map = new Map();
-      for(const e of entries){
-        if(!map.has(e.category)) map.set(e.category, []);
+      for (const e of entries){
+        if (!map.has(e.category)) map.set(e.category, []);
         map.get(e.category).push(e);
       }
-      // ordena cada grupo por título
-      for(const [k,arr] of map){
-        arr.sort((a,b)=>a.title.localeCompare(b.title,'pt-BR'));
-      }
+      // ordena por título dentro de cada grupo
+      for (const [k,arr] of map){ arr.sort((a,b)=>a.title.localeCompare(b.title,'pt-BR')); }
       return map;
     }
 
@@ -368,11 +318,10 @@
       });
 
       const grouped = groupByCategory(filtered);
-      const sections = [];
 
-      if(filtered.length===0){
+      if (filtered.length===0){
         catalogEl.innerHTML = `
-          <div class="text-center py-10 text-white/90">
+          <div class="text-center py-10 text-white/95">
             <div class="text-5xl mb-3">😔</div>
             <p class="text-2xl font-bold drop-shadow">Nenhum jogo encontrado</p>
             <p>Tente alterar os filtros ou a palavra-chave.</p>
@@ -380,11 +329,14 @@
         return;
       }
 
-      for(const [category, items] of grouped){
+      const sections = [];
+      for (const cat of CATEGORY_ORDER){
+        if (!grouped.has(cat)) continue;
+        const items = grouped.get(cat);
         sections.push(`
           <section class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-2xl">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-2xl font-bold text-purple-600">${escapeHtml(category)}</h3>
+              <h3 class="text-2xl font-bold text-purple-700">${escapeHtml(CATEGORY_LABELS[cat])}</h3>
               <span class="text-sm text-gray-600">${items.length} jogo(s)</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -397,29 +349,24 @@
     }
 
     function renderCard(item){
-      // link direto para o arquivo local (estrutura espelhada do GitHub)
       return `
-      <a href="${encodeURI(item.href)}" class="game-preview block" title="${escapeHtml(item.path)}">
-        <div class="text-5xl mb-3">🎮</div>
-        <h4 class="text-xl font-bold mb-1">${escapeHtml(item.title)}</h4>
-        <p class="text-xs opacity-90">${escapeHtml(item.path)}</p>
-      </a>`;
+        <a href="${encodeURI(item.href)}" class="card block" title="${escapeHtml(item.path)}">
+          <div class="text-4xl mb-2">🎮</div>
+          <h4 class="text-lg font-bold mb-1">${escapeHtml(item.title)}</h4>
+          <p class="text-[11px] opacity-90">${escapeHtml(item.path)}</p>
+        </a>
+      `;
     }
 
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"']/g, (m)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-    }
+    /* =======================
+       EVENTOS
+       ======================= */
+    qEl.addEventListener("input", renderCatalog);
+    categoryFilterEl.addEventListener("change", renderCatalog);
+    clearBtn.addEventListener("click", ()=>{ qEl.value=""; categoryFilterEl.value=""; renderCatalog(); });
+    reindexBtn.addEventListener("click", buildIndex);
 
-    /*** Eventos ***/
-    qEl.addEventListener("input", ()=>renderCatalog());
-    categoryFilterEl.addEventListener("change", ()=>renderCatalog());
-    clearBtn.addEventListener("click", ()=>{
-      qEl.value = ""; categoryFilterEl.value = "";
-      renderCatalog();
-    });
-    reindexBtn.addEventListener("click", ()=>buildIndex());
-
-    // inicia
+    // start
     buildIndex();
   </script>
 </body>
