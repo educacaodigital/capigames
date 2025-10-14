@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRENZINHO DAS CORES</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 3rem;
+            color: #FF6B6B;
+            text-shadow: 3px 3px 0px #FFF;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .instruction {
+            font-size: 2rem;
+            color: #4ECDC4;
+            background: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 4px solid #FFE66D;
+        }
+
+        .train-container {
+            margin: 30px 0;
+            min-height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .train-engine {
+            width: 120px;
+            height: 100px;
+            position: relative;
+            animation: chugChug 1s infinite;
+        }
+
+        .train-engine svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+        }
+
+        @keyframes chugChug {
+            0%, 100% { transform: translateX(0px); }
+            50% { transform: translateX(3px); }
+        }
+
+        .train-car {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            animation: carAppear 0.5s ease-out;
+        }
+
+        .train-car svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+        }
+
+        @keyframes carAppear {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .color-options {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px auto;
+            max-width: 800px;
+        }
+
+        .color-button {
+            width: 120px;
+            height: 120px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: none;
+            border: none;
+        }
+
+        .color-button svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
+        }
+
+        .color-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+        }
+
+        .color-button:active {
+            transform: scale(0.95);
+        }
+
+        .progress {
+            font-size: 1.8rem;
+            color: #FF6B6B;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 20px 0;
+            border: 3px solid #4ECDC4;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .celebration.show {
+            display: flex;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .celebration-text {
+            font-size: 4rem;
+            color: #FF6B6B;
+            text-shadow: 3px 3px 0px #FFE66D;
+            margin-bottom: 30px;
+            animation: celebrate 1s infinite;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .restart-button {
+            font-size: 1.5rem;
+            background: #4ECDC4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .restart-button:hover {
+            background: #45B7B8;
+            transform: translateY(-2px);
+        }
+
+        /* Controles de áudio */
+        .audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 15px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .audio-toggle {
+            background: #4ECDC4;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .audio-toggle:hover {
+            background: #45B7B8;
+            transform: scale(1.1);
+        }
+
+        .volume-slider {
+            width: 80px;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4ECDC4;
+            cursor: pointer;
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4ECDC4;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Tela de início */
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 2000;
+        }
+
+        .start-button {
+            font-size: 2rem;
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            font-family: 'Comic Sans MS', cursive;
+            margin-top: 30px;
+        }
+
+        .start-button:hover {
+            background: #FF5252;
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .start-title {
+            font-size: 4rem;
+            color: #FF6B6B;
+            text-shadow: 3px 3px 0px #FFE66D;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        .start-instruction {
+            font-size: 1.5rem;
+            color: #4ECDC4;
+            background: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 4px solid #FFE66D;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        /* Indicador de som */
+        .sound-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #4ECDC4;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 100;
+        }
+
+        .sound-indicator.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .instruction {
+                font-size: 1.5rem;
+                padding: 10px 20px;
+            }
+            
+            .color-button {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .train-engine {
+                width: 80px;
+                height: 70px;
+            }
+            
+            .train-car {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .celebration-text {
+                font-size: 2.5rem;
+            }
+            
+            .audio-controls {
+                bottom: 10px;
+                right: 10px;
+                padding: 8px 12px;
+            }
+            
+            .volume-slider {
+                width: 60px;
+            }
+            
+            .start-title {
+                font-size: 2.5rem;
+            }
+            
+            .start-button {
+                font-size: 1.5rem;
+                padding: 15px 30px;
+            }
+            
+            .start-instruction {
+                font-size: 1.2rem;
+                padding: 10px 20px;
+            }
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #FFE66D;
+            border-radius: 50%;
+            animation: sparkle 1s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes trainMove {
+            0%, 100% { transform: translateX(0px); }
+            25% { transform: translateX(2px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(2px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Indicador de som -->
+    <div class="sound-indicator" id="soundIndicator">🔊 Som Ativado!</div>
+
+    <!-- Tela de início -->
+    <div class="start-screen" id="startScreen">
+        <h1 class="start-title">🚂 TRENZINHO DAS CORES 🌈</h1>
+        <div class="start-instruction">
+            Ajude o trenzinho a completar sua viagem!<br>
+            Clique na cor correta para adicionar vagões ao trem.<br>
+            Complete 10 vagões para vencer o jogo!
+        </div>
+        <button class="start-button" id="startButton">
+            🎮 INICIAR JOGO! 🎮
+        </button>
+    </div>
+
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <div style="position: absolute; top: 20px; left: 20px;">
+            <button onclick="window.history.back()" style="
+                background: #FF6B6B;
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-size: 1.2rem;
+                font-family: 'Comic Sans MS', cursive;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
+            " onmouseover="this.style.background='#FF5252'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#FF6B6B'; this.style.transform='translateY(0)'">
+                ← VOLTAR
+            </button>
+        </div>
+        <h1 class="title">🚂 TRENZINHO DAS CORES 🌈</h1>
+        
+        <div class="instruction" id="instruction">
+            CLIQUE NA COR: <span id="target-color">VERMELHO</span>
+        </div>
+        
+        <div class="progress" id="progress">
+            Vagões: 0/10 🚃
+        </div>
+        
+        <div class="train-container" id="train">
+            <div class="train-engine">
+                <svg viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Locomotiva -->
+                    <rect x="20" y="40" width="80" height="40" rx="5" fill="#FF6B6B" stroke="#FFF" stroke-width="3"/>
+                    
+                    <!-- Cabine -->
+                    <rect x="30" y="25" width="40" height="25" rx="3" fill="#4ECDC4" stroke="#FFF" stroke-width="2"/>
+                    
+                    <!-- Janelas -->
+                    <rect x="35" y="30" width="12" height="12" rx="2" fill="#87CEEB"/>
+                    <rect x="53" y="30" width="12" height="12" rx="2" fill="#87CEEB"/>
+                    
+                    <!-- Chaminé -->
+                    <rect x="75" y="15" width="8" height="25" rx="2" fill="#333"/>
+                    <ellipse cx="79" cy="15" rx="6" ry="3" fill="#666"/>
+                    
+                    <!-- Fumaça -->
+                    <circle cx="75" cy="10" r="3" fill="#DDD" opacity="0.7"/>
+                    <circle cx="70" cy="5" r="4" fill="#DDD" opacity="0.5"/>
+                    <circle cx="65" cy="2" r="3" fill="#DDD" opacity="0.3"/>
+                    
+                    <!-- Rodas -->
+                    <circle cx="35" cy="85" r="12" fill="#333" stroke="#666" stroke-width="2"/>
+                    <circle cx="35" cy="85" r="6" fill="#999"/>
+                    <circle cx="65" cy="85" r="12" fill="#333" stroke="#666" stroke-width="2"/>
+                    <circle cx="65" cy="85" r="6" fill="#999"/>
+                    <circle cx="85" cy="85" r="8" fill="#333" stroke="#666" stroke-width="2"/>
+                    <circle cx="85" cy="85" r="4" fill="#999"/>
+                    
+                    <!-- Detalhes -->
+                    <rect x="25" y="50" width="6" height="6" rx="1" fill="#FFE66D"/>
+                    <rect x="25" y="60" width="6" height="6" rx="1" fill="#FFE66D"/>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="color-options" id="color-options">
+            <!-- Cores serão geradas dinamicamente -->
+        </div>
+    </div>
+    
+    <!-- Controles de áudio -->
+    <div class="audio-controls" id="audioControls" style="display: none;">
+        <button class="audio-toggle" id="audioToggle">🔊</button>
+        <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider">
+    </div>
+    
+    <div class="celebration" id="celebration">
+        <div class="celebration-text">🎉 PARABÉNS! 🎉</div>
+        <div style="font-size: 2rem; color: #4ECDC4; margin-bottom: 30px;">
+            VOCÊ COMPLETOU O TRENZINHO COLORIDO!
+        </div>
+        <button class="restart-button" onclick="restartGame()">
+            🔄 JOGAR NOVAMENTE!
+        </button>
+    </div>
+
+    <script>
+        const colors = [
+            { name: 'VERMELHO', value: '#FF0000' },
+            { name: 'AZUL', value: '#0066FF' },
+            { name: 'AMARELO', value: '#FFFF00' },
+            { name: 'ROSA', value: '#CC0066' },
+            { name: 'VERDE', value: '#006600' },
+            { name: 'ROXO', value: '#6600CC' }
+        ];
+
+        let currentLevel = 0;
+        let cars = 0;
+        let targetColor = null;
+        let gameColors = [];
+        
+        // Variáveis para controle de áudio
+        let trainAudio = null;
+        let isAudioPlaying = false;
+        let gameStarted = false;
+
+        // Inicialização do jogo
+        function initializeGame() {
+            const startScreen = document.getElementById('startScreen');
+            const gameContainer = document.getElementById('gameContainer');
+            const audioControls = document.getElementById('audioControls');
+            const startButton = document.getElementById('startButton');
+            
+            startButton.addEventListener('click', function() {
+                startScreen.style.display = 'none';
+                gameContainer.style.display = 'block';
+                audioControls.style.display = 'flex';
+                gameStarted = true;
+                
+                // Inicia o jogo e o som após a interação do usuário
+                initGame();
+                startTrainSound();
+            });
+        }
+
+        // Funções para controle de áudio - USANDO ARQUIVO MP3
+        function startTrainSound() {
+            if (!gameStarted) return;
+            
+            try {
+                // Para qualquer som anterior
+                if (trainAudio) {
+                    trainAudio.pause();
+                    trainAudio.currentTime = 0;
+                }
+                
+                // Cria novo elemento de áudio
+                trainAudio = new Audio();
+                
+                // USA CAMINHO RELATIVO - arquivo na mesma pasta do HTML
+                trainAudio.src = 'trenzinho.mp3';
+                trainAudio.loop = true;
+                trainAudio.volume = volumeSlider.value / 100;
+                
+                // Tenta reproduzir
+                trainAudio.play().then(() => {
+                    isAudioPlaying = true;
+                    audioToggle.textContent = '🔊';
+                    showSoundIndicator();
+                    console.log("Som do trem MP3 iniciado com sucesso!");
+                }).catch(error => {
+                    console.log("Erro ao reproduzir MP3:", error);
+                    isAudioPlaying = false;
+                    audioToggle.textContent = '🔇';
+                    // Tenta novamente após interação
+                    document.addEventListener('click', retryAudio, { once: true });
+                });
+                
+            } catch (error) {
+                console.log("Erro ao iniciar som:", error);
+                isAudioPlaying = false;
+                audioToggle.textContent = '🔇';
+            }
+        }
+
+        function retryAudio() {
+            if (!isAudioPlaying && gameStarted) {
+                startTrainSound();
+            }
+        }
+
+        function stopTrainSound() {
+            if (trainAudio) {
+                trainAudio.pause();
+                trainAudio.currentTime = 0;
+            }
+            isAudioPlaying = false;
+        }
+
+        function updateVolume() {
+            if (trainAudio) {
+                trainAudio.volume = volumeSlider.value / 100;
+            }
+        }
+
+        function toggleAudio() {
+            if (isAudioPlaying) {
+                stopTrainSound();
+                audioToggle.textContent = '🔇';
+            } else {
+                startTrainSound();
+                audioToggle.textContent = '🔊';
+            }
+        }
+
+        function showSoundIndicator() {
+            const indicator = document.getElementById('soundIndicator');
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 3000);
+        }
+
+        function initGame() {
+            cars = 0;
+            currentLevel = 0;
+            document.getElementById('train').innerHTML = `
+                <div class="train-engine">
+                    <svg viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Locomotiva -->
+                        <rect x="20" y="40" width="80" height="40" rx="5" fill="#FF0000" stroke="#FFF" stroke-width="3"/>
+                        
+                        <!-- Cabine -->
+                        <rect x="30" y="25" width="40" height="25" rx="3" fill="#4ECDC4" stroke="#FFF" stroke-width="2"/>
+                        
+                        <!-- Janelas -->
+                        <rect x="35" y="30" width="12" height="12" rx="2" fill="#87CEEB"/>
+                        <rect x="53" y="30" width="12" height="12" rx="2" fill="#87CEEB"/>
+                        
+                        <!-- Chaminé -->
+                        <rect x="75" y="15" width="8" height="25" rx="2" fill="#333"/>
+                        <ellipse cx="79" cy="15" rx="6" ry="3" fill="#666"/>
+                        
+                        <!-- Fumaça -->
+                        <circle cx="75" cy="10" r="3" fill="#DDD" opacity="0.7"/>
+                        <circle cx="70" cy="5" r="4" fill="#DDD" opacity="0.5"/>
+                        <circle cx="65" cy="2" r="3" fill="#DDD" opacity="0.3"/>
+                        
+                        <!-- Rodas -->
+                        <circle cx="35" cy="85" r="12" fill="#333" stroke="#666" stroke-width="2"/>
+                        <circle cx="35" cy="85" r="6" fill="#999"/>
+                        <circle cx="65" cy="85" r="12" fill="#333" stroke="#666" stroke-width="2"/>
+                        <circle cx="65" cy="85" r="6" fill="#999"/>
+                        <circle cx="85" cy="85" r="8" fill="#333" stroke="#666" stroke-width="2"/>
+                        <circle cx="85" cy="85" r="4" fill="#999"/>
+                        
+                        <!-- Detalhes -->
+                        <rect x="25" y="50" width="6" height="6" rx="1" fill="#FFFF00"/>
+                        <rect x="25" y="60" width="6" height="6" rx="1" fill="#FFFF00"/>
+                    </svg>
+                </div>
+            `;
+            updateProgress();
+            nextLevel();
+        }
+
+        function nextLevel() {
+            if (cars >= 10) {
+                showCelebration();
+                return;
+            }
+
+            // Escolhe uma cor alvo aleatória
+            targetColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Cria array com a cor correta e 2-3 cores incorretas
+            gameColors = [targetColor];
+            while (gameColors.length < Math.min(4, colors.length)) {
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                if (!gameColors.find(c => c.name === randomColor.name)) {
+                    gameColors.push(randomColor);
+                }
+            }
+            
+            // Embaralha as cores
+            gameColors.sort(() => Math.random() - 0.5);
+            
+            updateInstruction();
+            createColorButtons();
+        }
+
+        function updateInstruction() {
+            document.getElementById('instruction').innerHTML = 
+                `CLIQUE NA COR: <span style="color: ${targetColor.value}; font-weight: bold;">${targetColor.name}</span>`;
+        }
+
+        function updateProgress() {
+            document.getElementById('progress').textContent = `VAGÕES: ${cars}/10 🚃`;
+        }
+
+        function createColorButtons() {
+            const container = document.getElementById('color-options');
+            container.innerHTML = '';
+            
+            gameColors.forEach(color => {
+                const button = document.createElement('div');
+                button.className = 'color-button';
+                button.onclick = () => selectColor(color);
+                
+                // Cria SVG colorido para o botão
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('viewBox', '0 0 120 120');
+                svg.innerHTML = `
+                    <!-- Círculo principal -->
+                    <circle cx="60" cy="60" r="50" fill="${color.value}" stroke="#FFF" stroke-width="6"/>
+                    
+                    <!-- Brilho -->
+                    <ellipse cx="45" cy="40" rx="15" ry="20" fill="#FFF" opacity="0.3"/>
+                    
+                    <!-- Contorno decorativo -->
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="${color.value}" stroke-width="2" opacity="0.5" stroke-dasharray="5,5"/>
+                `;
+                
+                button.appendChild(svg);
+                container.appendChild(button);
+            });
+        }
+
+        function selectColor(selectedColor) {
+            if (selectedColor.name === targetColor.name) {
+                // Resposta correta!
+                addTrainCar(selectedColor.value);
+                createSparkles(event.target);
+                cars++;
+                updateProgress();
+                
+                setTimeout(() => {
+                    nextLevel();
+                }, 1000);
+            } else {
+                // Resposta incorreta - feedback visual
+                const button = event.target.closest('.color-button');
+                button.style.animation = 'none';
+                button.style.transform = 'scale(0.8)';
+                button.style.filter = 'grayscale(50%)';
+                
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                    button.style.filter = 'none';
+                }, 300);
+            }
+        }
+
+        function addTrainCar(color) {
+            const train = document.getElementById('train');
+            const car = document.createElement('div');
+            car.className = 'train-car';
+            
+            // Cria SVG do vagão do trem
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 80 80');
+            svg.innerHTML = `
+                <!-- Vagão -->
+                <rect x="10" y="30" width="60" height="35" rx="3" fill="${color}" stroke="#FFF" stroke-width="3"/>
+                
+                <!-- Janela -->
+                <rect x="20" y="35" width="40" height="15" rx="2" fill="#87CEEB" stroke="#FFF" stroke-width="1"/>
+                
+                <!-- Detalhes decorativos -->
+                <rect x="15" y="55" width="8" height="4" rx="1" fill="#FFE66D"/>
+                <rect x="57" y="55" width="8" height="4" rx="1" fill="#FFE66D"/>
+                
+                <!-- Rodas -->
+                <circle cx="25" cy="70" r="8" fill="#333" stroke="#666" stroke-width="2"/>
+                <circle cx="25" cy="70" r="4" fill="#999"/>
+                <circle cx="55" cy="70" r="8" fill="#333" stroke="#666" stroke-width="2"/>
+                <circle cx="55" cy="70" r="4" fill="#999"/>
+                
+                <!-- Conexão -->
+                <rect x="5" y="45" width="8" height="4" rx="2" fill="#666"/>
+            `;
+            
+            car.appendChild(svg);
+            train.appendChild(car);
+        }
+
+        function createSparkles(element) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 6; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = centerX + (Math.random() - 0.5) * 100 + 'px';
+                sparkle.style.top = centerY + (Math.random() - 0.5) * 100 + 'px';
+                document.body.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 1000);
+            }
+        }
+
+        function showCelebration() {
+            // Para o som do trem durante a celebração
+            stopTrainSound();
+            isAudioPlaying = false;
+            audioToggle.textContent = '🔇';
+            
+            // Anima o trem saindo da tela para a esquerda
+            const train = document.getElementById('train');
+            train.style.transition = 'transform 3s ease-in-out';
+            train.style.transform = 'translateX(-150%)';
+            
+            // Adiciona animação de movimento para todos os vagões
+            const cars = train.querySelectorAll('.train-car, .train-engine');
+            cars.forEach((car, index) => {
+                setTimeout(() => {
+                    car.style.animation = 'trainMove 0.2s infinite';
+                }, index * 50);
+            });
+            
+            // Mostra a celebração após o trem sair
+            setTimeout(() => {
+                document.getElementById('celebration').classList.add('show');
+            }, 3500);
+        }
+
+        function restartGame() {
+            document.getElementById('celebration').classList.remove('show');
+            
+            // Reseta a posição e animação do trem
+            const train = document.getElementById('train');
+            train.style.transition = 'none';
+            train.style.transform = 'translateX(0%)';
+            
+            // Reinicia o som do trem
+            if (gameStarted) {
+                startTrainSound();
+            }
+            
+            initGame();
+        }
+		
+        // Inicializa o jogo quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGame();
+            
+            // Adiciona event listeners para os controles de áudio
+            audioToggle.addEventListener('click', toggleAudio);
+            volumeSlider.addEventListener('input', updateVolume);
+        });
+    </script>
+</body>
+</html>

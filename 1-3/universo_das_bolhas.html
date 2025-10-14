@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universo de Bolhas</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef, #fecfef, #a8edea);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            overflow: hidden;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            box-shadow: 
+                inset -10px -10px 20px rgba(255, 255, 255, 0.3),
+                inset 10px 10px 20px rgba(0, 0, 0, 0.1),
+                0 8px 20px rgba(0, 0, 0, 0.2);
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), transparent 50%);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .bubble:hover {
+            transform: scale(1.1);
+        }
+
+        .bubble:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(-10px) rotate(-3deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        .pop-effect {
+            position: absolute;
+            pointer-events: none;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: popAnimation 0.8s ease-out forwards;
+        }
+
+        @keyframes popAnimation {
+            0% {
+                opacity: 1;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.5) translateY(-30px);
+            }
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkleAnimation 1s ease-out forwards;
+        }
+
+        @keyframes sparkleAnimation {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0) translateY(-50px);
+            }
+        }
+
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            animation: titleBounce 3s ease-in-out infinite;
+        }
+
+        @keyframes titleBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+                top: 15px;
+            }
+            
+            .bubble {
+                min-width: 80px;
+                min-height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">🫧 Universo de Bolhas 🫧</h1>
+    </div>
+
+    <script>
+        class BubbleGame {
+            constructor() {
+                this.container = document.querySelector('.game-container');
+                this.bubbles = [];
+                this.colors = [
+                    'linear-gradient(135deg, #ff6b6b, #ff8e8e)',
+                    'linear-gradient(135deg, #4ecdc4, #7fdddd)',
+                    'linear-gradient(135deg, #45b7d1, #6cc5e0)',
+                    'linear-gradient(135deg, #96ceb4, #b3dac7)',
+                    'linear-gradient(135deg, #feca57, #fed976)',
+                    'linear-gradient(135deg, #ff9ff3, #ffb3f7)',
+                    'linear-gradient(135deg, #a8e6cf, #c1f0d8)',
+                    'linear-gradient(135deg, #ffd93d, #ffe066)'
+                ];
+                this.popEmojis = ['✨', '🌟', '💫', '⭐', '🎉', '🎊', '💖', '🌈'];
+                
+                // Tentar carregar o som
+                this.popSound = new Audio();
+                this.popSound.src = 'pop_bolhas.mp3';
+                this.popSound.volume = 0.3;
+                
+                // Som alternativo usando Web Audio API se o arquivo não carregar
+                this.audioContext = null;
+                this.initAudioContext();
+                
+                this.init();
+            }
+
+            initAudioContext() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Web Audio API não suportado');
+                }
+            }
+
+            createSoftPopSound() {
+                if (!this.audioContext) return;
+                
+                // Som principal da bolha estourando
+                const oscillator1 = this.audioContext.createOscillator();
+                const gainNode1 = this.audioContext.createGain();
+                
+                oscillator1.connect(gainNode1);
+                gainNode1.connect(this.audioContext.destination);
+                
+                // Frequência que imita bolha estourando - mais grave e suave
+                oscillator1.frequency.setValueAtTime(400, this.audioContext.currentTime);
+                oscillator1.frequency.exponentialRampToValueAtTime(80, this.audioContext.currentTime + 0.4);
+                
+                gainNode1.gain.setValueAtTime(0.08, this.audioContext.currentTime);
+                gainNode1.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.4);
+                
+                oscillator1.type = 'sine';
+                oscillator1.start(this.audioContext.currentTime);
+                oscillator1.stop(this.audioContext.currentTime + 0.4);
+                
+                // Som secundário para dar textura de bolha
+                const oscillator2 = this.audioContext.createOscillator();
+                const gainNode2 = this.audioContext.createGain();
+                
+                oscillator2.connect(gainNode2);
+                gainNode2.connect(this.audioContext.destination);
+                
+                oscillator2.frequency.setValueAtTime(600, this.audioContext.currentTime);
+                oscillator2.frequency.exponentialRampToValueAtTime(150, this.audioContext.currentTime + 0.2);
+                
+                gainNode2.gain.setValueAtTime(0.04, this.audioContext.currentTime);
+                gainNode2.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.2);
+                
+                oscillator2.type = 'triangle';
+                oscillator2.start(this.audioContext.currentTime);
+                oscillator2.stop(this.audioContext.currentTime + 0.2);
+            }
+
+            init() {
+                this.createBubbles();
+                this.startBubbleGeneration();
+                
+                // Ativar contexto de áudio no primeiro toque/clique
+                document.addEventListener('touchstart', () => {
+                    if (this.audioContext && this.audioContext.state === 'suspended') {
+                        this.audioContext.resume();
+                    }
+                }, { once: true });
+                
+                document.addEventListener('click', () => {
+                    if (this.audioContext && this.audioContext.state === 'suspended') {
+                        this.audioContext.resume();
+                    }
+                }, { once: true });
+            }
+
+            createBubble() {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                
+                const size = Math.random() * 80 + 60; // 60px a 140px
+                const color = this.colors[Math.floor(Math.random() * this.colors.length)];
+                
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.background = color;
+                
+                // Posição inicial aleatória nas bordas da tela
+                const side = Math.floor(Math.random() * 4); // 0=top, 1=right, 2=bottom, 3=left
+                let startX, startY, targetX, targetY;
+                
+                switch(side) {
+                    case 0: // Do topo
+                        startX = Math.random() * window.innerWidth;
+                        startY = -size;
+                        break;
+                    case 1: // Da direita
+                        startX = window.innerWidth + size;
+                        startY = Math.random() * window.innerHeight;
+                        break;
+                    case 2: // De baixo
+                        startX = Math.random() * window.innerWidth;
+                        startY = window.innerHeight + size;
+                        break;
+                    case 3: // Da esquerda
+                        startX = -size;
+                        startY = Math.random() * window.innerHeight;
+                        break;
+                }
+                
+                // Posição alvo aleatória na tela
+                targetX = Math.random() * (window.innerWidth - size);
+                targetY = Math.random() * (window.innerHeight - size);
+                
+                bubble.style.left = startX + 'px';
+                bubble.style.top = startY + 'px';
+                
+                // Movimento mais lento e suave
+                const duration = Math.random() * 15000 + 12000; // 12-27 segundos
+                
+                bubble.style.animation = `float ${duration/1000}s ease-in-out infinite`;
+                
+                // Movimento suave em direção ao alvo
+                const startTime = Date.now();
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    if (progress >= 1) {
+                        bubble.remove();
+                        const index = this.bubbles.indexOf(bubble);
+                        if (index > -1) this.bubbles.splice(index, 1);
+                        return;
+                    }
+                    
+                    // Movimento suave com curva
+                    const easeProgress = 1 - Math.pow(1 - progress, 3); // Easing suave
+                    
+                    const currentX = startX + (targetX - startX) * easeProgress + Math.sin(progress * Math.PI * 3) * 40;
+                    const currentY = startY + (targetY - startY) * easeProgress + Math.cos(progress * Math.PI * 2) * 30;
+                    
+                    bubble.style.left = Math.max(-size/2, Math.min(window.innerWidth + size/2, currentX)) + 'px';
+                    bubble.style.top = Math.max(-size/2, Math.min(window.innerHeight + size/2, currentY)) + 'px';
+                    
+                    requestAnimationFrame(animate);
+                };
+                
+                requestAnimationFrame(animate);
+                
+                // Event listeners para toque e clique
+                bubble.addEventListener('click', (e) => this.popBubble(bubble, e));
+                bubble.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.popBubble(bubble, e);
+                });
+                
+                this.container.appendChild(bubble);
+                this.bubbles.push(bubble);
+            }
+
+            popBubble(bubble, event) {
+                const rect = bubble.getBoundingClientRect();
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                
+                // Tocar som
+                this.playPopSound();
+                
+                // Criar efeito visual
+                this.createPopEffect(x, y);
+                this.createSparkles(x, y);
+                
+                // Remover bolha
+                bubble.remove();
+                const index = this.bubbles.indexOf(bubble);
+                if (index > -1) this.bubbles.splice(index, 1);
+                
+                // Criar nova bolha imediatamente
+                setTimeout(() => this.createBubble(), Math.random() * 1000);
+            }
+
+            playPopSound() {
+                // Tentar tocar o arquivo MP3 primeiro
+                if (this.popSound.readyState >= 2) {
+                    this.popSound.currentTime = 0;
+                    this.popSound.play().catch(() => {
+                        // Se falhar, usar som sintético
+                        this.createSoftPopSound();
+                    });
+                } else {
+                    // Usar som sintético como fallback
+                    this.createSoftPopSound();
+                }
+            }
+
+            createPopEffect(x, y) {
+                const effect = document.createElement('div');
+                effect.className = 'pop-effect';
+                effect.textContent = this.popEmojis[Math.floor(Math.random() * this.popEmojis.length)];
+                effect.style.left = (x - 20) + 'px';
+                effect.style.top = (y - 20) + 'px';
+                
+                this.container.appendChild(effect);
+                
+                setTimeout(() => effect.remove(), 800);
+            }
+
+            createSparkles(x, y) {
+                for (let i = 0; i < 8; i++) {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    
+                    const angle = (i / 8) * Math.PI * 2;
+                    const distance = 30 + Math.random() * 20;
+                    const sparkleX = x + Math.cos(angle) * distance;
+                    const sparkleY = y + Math.sin(angle) * distance;
+                    
+                    sparkle.style.left = sparkleX + 'px';
+                    sparkle.style.top = sparkleY + 'px';
+                    sparkle.style.animationDelay = (i * 0.1) + 's';
+                    
+                    this.container.appendChild(sparkle);
+                    
+                    setTimeout(() => sparkle.remove(), 1000);
+                }
+            }
+
+            createBubbles() {
+                // Criar bolhas iniciais
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => this.createBubble(), i * 1000);
+                }
+            }
+
+            startBubbleGeneration() {
+                setInterval(() => {
+                    if (this.bubbles.length < 6) {
+                        this.createBubble();
+                    }
+                }, 3000);
+            }
+        }
+
+        // Iniciar o jogo quando a página carregar
+        window.addEventListener('load', () => {
+            new BubbleGame();
+        });
+
+        // Redimensionar bolhas quando a tela mudar
+        window.addEventListener('resize', () => {
+            // Ajustar posições das bolhas existentes se necessário
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e941bde03d8b17',t:'MTc2MDQ2Nzc2OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
