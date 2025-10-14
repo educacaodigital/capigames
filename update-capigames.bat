@@ -22,5 +22,5 @@ echo      Atualização concluída! (%date% %time%)
 echo ============================================================
 echo.
 
-pause
 exit /b
+
