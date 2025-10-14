@@ -21,6 +21,7 @@ echo ============================================================
 echo      Atualização concluída! (%date% %time%)
 echo ============================================================
 echo.
-
+cscript //nologo "%~dp0generate-manifest.vbs"
 exit /b
+
 
