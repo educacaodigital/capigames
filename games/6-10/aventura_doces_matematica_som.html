@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventura na Loja de Doces</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100%;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100%;
+        }
+
+        .header {
+            text-align: center;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #5b4cd4, #8e7ef0);
+        }
+
+        .sound-control {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .sound-control:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .candy-shop {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 3px solid #ff6b6b;
+        }
+
+        .shop-title {
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .candy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .candy-item {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .candy-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: #ff6b6b;
+        }
+
+        .candy-emoji {
+            font-size: 3em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .candy-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .candy-price {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .quantity-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background: #ff5252;
+        }
+
+        .quantity-display {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 5px 10px;
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cart, .challenge, .stats {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .cart {
+            border: 3px solid #4ecdc4;
+        }
+
+        .challenge {
+            border: 3px solid #ffa726;
+        }
+
+        .stats {
+            border: 3px solid #ab47bc;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cart-title { color: #4ecdc4; }
+        .challenge-title { color: #ffa726; }
+        .stats-title { color: #ab47bc; }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-total {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #28a745;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .challenge-text {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffa726;
+            font-size: 1.1em;
+            line-height: 1.4;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #ffa726;
+        }
+
+        .check-btn {
+            width: 100%;
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .check-btn:hover {
+            background: #45b7aa;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #ab47bc;
+        }
+
+        .new-challenge-btn {
+            width: 100%;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .new-challenge-btn:hover {
+            background: #ff5252;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .candy-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .sound-control {
+                order: 2;
+            }
+            
+            .back-btn {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍭 Aventura na Loja de Doces 🍬</h1>
+            <p>Resolva problemas de matemática e compre seus doces favoritos!</p>
+            
+            <div class="header-controls">
+                <button class="back-btn" id="back-btn" onclick="goBack()">
+                    <span>⬅️</span> Voltar para a Plataforma
+                </button>
+                
+                <button class="sound-control" id="sound-toggle" title="Ativar/Desativar Som">🔇</button>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="candy-shop">
+                <div class="shop-title">
+                    🏪 Loja de Doces Mágica
+                </div>
+                
+                <div class="candy-grid">
+                    <div class="candy-item" data-candy="chocolate" data-price="3">
+                        <span class="candy-emoji">🍫</span>
+                        <div class="candy-name">Chocolate</div>
+                        <div class="candy-price">R$ 3,00</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity('chocolate', -1)">-</button>
+                            <div class="quantity-display" id="qty-chocolate">0</div>
+                            <button class="quantity-btn" onclick="changeQuantity('chocolate', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="candy-item" data-candy="bala" data-price="1">
+                        <span class="candy-emoji">🍬</span>
+                        <div class="candy-name">Bala</div>
+                        <div class="candy-price">R$ 1,00</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity('bala', -1)">-</button>
+                            <div class="quantity-display" id="qty-bala">0</div>
+                            <button class="quantity-btn" onclick="changeQuantity('bala', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="candy-item" data-candy="pirulito" data-price="2">
+                        <span class="candy-emoji">🍭</span>
+                        <div class="candy-name">Pirulito</div>
+                        <div class="candy-price">R$ 2,00</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity('pirulito', -1)">-</button>
+                            <div class="quantity-display" id="qty-pirulito">0</div>
+                            <button class="quantity-btn" onclick="changeQuantity('pirulito', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="candy-item" data-candy="mel" data-price="2">
+                        <span class="candy-emoji">🍯</span>
+                        <div class="candy-name">Mel</div>
+                        <div class="candy-price">R$ 2,00</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity('mel', -1)">-</button>
+                            <div class="quantity-display" id="qty-mel">0</div>
+                            <button class="quantity-btn" onclick="changeQuantity('mel', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="candy-item" data-candy="maca" data-price="4">
+                        <span class="candy-emoji">🍎</span>
+                        <div class="candy-name">Maçã</div>
+                        <div class="candy-price">R$ 4,00</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity('maca', -1)">-</button>
+                            <div class="quantity-display" id="qty-maca">0</div>
+                            <button class="quantity-btn" onclick="changeQuantity('maca', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="candy-item" data-candy="leite" data-price="1">
+                        <span class="candy-emoji">🥛</span>
+                        <div class="candy-name">Leite</div>
+                        <div class="candy-price">R$ 1,00</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity('leite', -1)">-</button>
+                            <div class="quantity-display" id="qty-leite">0</div>
+                            <button class="quantity-btn" onclick="changeQuantity('leite', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="candy-item" data-candy="banana" data-price="2">
+                        <span class="candy-emoji">🍌</span>
+                        <div class="candy-name">Banana</div>
+                        <div class="candy-price">R$ 2,00</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity('banana', -1)">-</button>
+                            <div class="quantity-display" id="qty-banana">0</div>
+                            <button class="quantity-btn" onclick="changeQuantity('banana', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="candy-item" data-candy="laranja" data-price="3">
+                        <span class="candy-emoji">🍊</span>
+                        <div class="candy-name">Laranja</div>
+                        <div class="candy-price">R$ 3,00</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity('laranja', -1)">-</button>
+                            <div class="quantity-display" id="qty-laranja">0</div>
+                            <button class="quantity-btn" onclick="changeQuantity('laranja', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="candy-item" data-candy="morango" data-price="5">
+                        <span class="candy-emoji">🍓</span>
+                        <div class="candy-name">Morango</div>
+                        <div class="candy-price">R$ 5,00</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity('morango', -1)">-</button>
+                            <div class="quantity-display" id="qty-morango">0</div>
+                            <button class="quantity-btn" onclick="changeQuantity('morango', 1)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="candy-item" data-candy="uva" data-price="4">
+                        <span class="candy-emoji">🍇</span>
+                        <div class="candy-name">Uva</div>
+                        <div class="candy-price">R$ 4,00</div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="changeQuantity('uva', -1)">-</button>
+                            <div class="quantity-display" id="qty-uva">0</div>
+                            <button class="quantity-btn" onclick="changeQuantity('uva', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="cart">
+                    <div class="section-title cart-title">
+                        🛒 Seu Carrinho
+                    </div>
+                    <div id="cart-items">
+                        <div style="text-align: center; color: #666; padding: 20px;">
+                            Seu carrinho está vazio
+                        </div>
+                    </div>
+                    <div class="cart-total" id="cart-total">
+                        Total: R$ 0,00
+                    </div>
+                </div>
+
+                <div class="challenge">
+                    <div class="section-title challenge-title">
+                        🧮 Desafio Matemático
+                    </div>
+                    <div class="challenge-text" id="challenge-text">
+                        Adicione alguns doces ao carrinho para começar um desafio!
+                    </div>
+                    <input type="number" class="answer-input" id="answer-input" placeholder="Digite sua resposta" style="display: none;">
+                    <button class="check-btn" id="check-btn" onclick="checkAnswer()" style="display: none;">Verificar Resposta</button>
+                    <button class="new-challenge-btn" onclick="generateChallenge()">Novo Desafio</button>
+                    <div class="feedback" id="feedback"></div>
+                </div>
+
+                <div class="stats">
+                    <div class="section-title stats-title">
+                        📊 Suas Estatísticas
+                    </div>
+                    <div class="stat-item">
+                        <span>Acertos:</span>
+                        <span class="stat-value" id="correct-count">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Tentativas:</span>
+                        <span class="stat-value" id="total-attempts">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Precisão:</span>
+                        <span class="stat-value" id="accuracy">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elemento de áudio para a música de fundo -->
+    <audio id="background-music" loop>
+        <source src="matematica_doces.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <script>
+        // Estado do jogo
+        let cart = {};
+        let currentChallenge = null;
+        let stats = {
+            correct: 0,
+            total: 0
+        };
+        
+        // Controle de som
+        let isSoundEnabled = false;
+        const backgroundMusic = document.getElementById('background-music');
+        const soundToggle = document.getElementById('sound-toggle');
+
+        const candies = {
+            chocolate: { name: 'Chocolate', price: 3, emoji: '🍫' },
+            bala: { name: 'Bala', price: 1, emoji: '🍬' },
+            pirulito: { name: 'Pirulito', price: 2, emoji: '🍭' },
+            mel: { name: 'Mel', price: 2, emoji: '🍯' },
+            maca: { name: 'Maçã', price: 4, emoji: '🍎' },
+            leite: { name: 'Leite', price: 1, emoji: '🥛' },
+            banana: { name: 'Banana', price: 2, emoji: '🍌' },
+            laranja: { name: 'Laranja', price: 3, emoji: '🍊' },
+            morango: { name: 'Morango', price: 5, emoji: '🍓' },
+            uva: { name: 'Uva', price: 4, emoji: '🍇' }
+        };
+
+        // Função para voltar para a plataforma
+        function goBack() {
+            // Verificar se há uma página anterior no histórico
+            if (document.referrer && document.referrer !== window.location.href) {
+                // Redirecionar para a página anterior
+                window.location.href = document.referrer;
+            } else {
+                // Se não houver referência, redirecionar para uma URL padrão
+                // Você pode alterar esta URL para a página principal da sua plataforma
+                window.location.href = 'index.html'; // ou 'plataforma.html', 'menu.html', etc.
+            }
+        }
+
+        // Função para alternar o som
+        function toggleSound() {
+            isSoundEnabled = !isSoundEnabled;
+            
+            if (isSoundEnabled) {
+                backgroundMusic.play();
+                soundToggle.textContent = '🔊';
+                soundToggle.title = 'Desativar Som';
+            } else {
+                backgroundMusic.pause();
+                soundToggle.textContent = '🔇';
+                soundToggle.title = 'Ativar Som';
+            }
+        }
+
+        // Adicionar evento de clique ao botão de som
+        soundToggle.addEventListener('click', toggleSound);
+
+        function changeQuantity(candyType, change) {
+            if (!cart[candyType]) {
+                cart[candyType] = 0;
+            }
+            
+            cart[candyType] += change;
+            
+            if (cart[candyType] < 0) {
+                cart[candyType] = 0;
+            }
+            
+            if (cart[candyType] === 0) {
+                delete cart[candyType];
+            }
+            
+            document.getElementById(`qty-${candyType}`).textContent = cart[candyType] || 0;
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            
+            if (Object.keys(cart).length === 0) {
+                cartItems.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Seu carrinho está vazio</div>';
+                cartTotal.textContent = 'Total: R$ 0,00';
+                return;
+            }
+            
+            let html = '';
+            let total = 0;
+            
+            for (const [candyType, quantity] of Object.entries(cart)) {
+                const candy = candies[candyType];
+                const subtotal = candy.price * quantity;
+                total += subtotal;
+                
+                html += `
+                    <div class="cart-item">
+                        <span>${candy.emoji} ${candy.name} x${quantity}</span>
+                        <span>R$ ${subtotal.toFixed(2)}</span>
+                    </div>
+                `;
+            }
+            
+            cartItems.innerHTML = html;
+            cartTotal.textContent = `Total: R$ ${total.toFixed(2)}`;
+        }
+
+        function generateChallenge() {
+            if (Object.keys(cart).length === 0) {
+                document.getElementById('challenge-text').textContent = 'Adicione alguns doces ao carrinho para começar um desafio!';
+                document.getElementById('answer-input').style.display = 'none';
+                document.getElementById('check-btn').style.display = 'none';
+                document.getElementById('feedback').textContent = '';
+                return;
+            }
+
+            const challengeTypes = ['total', 'change', 'quantity'];
+            const type = challengeTypes[Math.floor(Math.random() * challengeTypes.length)];
+            
+            let challengeText = '';
+            let correctAnswer = 0;
+            
+            const cartEntries = Object.entries(cart);
+            const totalValue = cartEntries.reduce((sum, [candyType, qty]) => sum + (candies[candyType].price * qty), 0);
+            
+            switch (type) {
+                case 'total':
+                    challengeText = 'Calcule o valor total da sua compra:';
+                    for (const [candyType, quantity] of cartEntries) {
+                        const candy = candies[candyType];
+                        challengeText += `\n${candy.emoji} ${quantity} ${candy.name}(s) × R$ ${candy.price.toFixed(2)} = ?`;
+                    }
+                    correctAnswer = totalValue;
+                    break;
+                    
+                case 'change':
+                    const payment = Math.ceil(totalValue / 5) * 5 + Math.floor(Math.random() * 3) * 5;
+                    challengeText = `Você pagou R$ ${payment.toFixed(2)} por uma compra de R$ ${totalValue.toFixed(2)}. Quanto você deve receber de troco?`;
+                    correctAnswer = payment - totalValue;
+                    break;
+                    
+                case 'quantity':
+                    const randomCandy = cartEntries[Math.floor(Math.random() * cartEntries.length)];
+                    const [candyType, quantity] = randomCandy;
+                    const candy = candies[candyType];
+                    const multiplier = Math.floor(Math.random() * 3) + 2;
+                    challengeText = `Se você comprar ${multiplier} vezes mais ${candy.name}s, quantos ${candy.name}s você terá no total? (Você já tem ${quantity})`;
+                    correctAnswer = quantity * multiplier;
+                    break;
+            }
+            
+            currentChallenge = {
+                type: type,
+                answer: correctAnswer,
+                text: challengeText
+            };
+            
+            document.getElementById('challenge-text').textContent = challengeText;
+            document.getElementById('answer-input').style.display = 'block';
+            document.getElementById('check-btn').style.display = 'block';
+            document.getElementById('answer-input').value = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('answer-input').focus();
+        }
+
+        function checkAnswer() {
+            if (!currentChallenge) return;
+            
+            const userAnswer = parseFloat(document.getElementById('answer-input').value);
+            const feedback = document.getElementById('feedback');
+            
+            stats.total++;
+            
+            if (Math.abs(userAnswer - currentChallenge.answer) < 0.01) {
+                stats.correct++;
+                feedback.textContent = '🎉 Parabéns! Resposta correta!';
+                feedback.className = 'feedback correct';
+                
+                // Gerar novo desafio automaticamente após 2 segundos
+                setTimeout(() => {
+                    generateChallenge();
+                }, 2000);
+            } else {
+                feedback.textContent = `❌ Ops! A resposta correta é R$ ${currentChallenge.answer.toFixed(2)}. Tente novamente!`;
+                feedback.className = 'feedback incorrect';
+            }
+            
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('correct-count').textContent = stats.correct;
+            document.getElementById('total-attempts').textContent = stats.total;
+            
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        // Permitir pressionar Enter para verificar resposta
+        document.getElementById('answer-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // Inicializar o jogo
+        updateCart();
+        updateStats();
+    </script>
+</body>
+</html>
