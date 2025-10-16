@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estacionamento Colorido</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 8px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            color: #FFFFFF;
+            text-shadow: 2px 2px 0px #2F4F4F;
+            margin: 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .instruction {
+            font-size: 1.1rem;
+            color: #2F4F4F;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            margin: 0;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            border: 2px solid #FFD700;
+        }
+
+        .parking-lot {
+            margin: 0 auto;
+            height: 400px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+            background: linear-gradient(45deg, #696969 0%, #808080 50%, #A9A9A9 100%);
+            border: 4px solid #2F4F4F;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .curved-road {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .curved-road svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .parking-space {
+            background: white;
+            border: 3px dashed #FFD700;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            width: 120px;
+            height: 80px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .parking-space.occupied {
+            border-color: #32CD32;
+            background: #F0FFF0;
+            box-shadow: inset 0 2px 8px rgba(50, 205, 50, 0.2);
+        }
+
+        .parking-space::before {
+            content: "";
+            display: none;
+        }
+
+        .car {
+            width: 80%;
+            height: 70%;
+            border-radius: 15px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: scale(0);
+            transition: all 0.8s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .car.parked {
+            transform: scale(1);
+            animation: carPark 1s ease-out;
+        }
+
+        @keyframes carPark {
+            0% {
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1) rotate(5deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .car-options {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0;
+            max-width: 100%;
+        }
+
+        .car-button {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: none;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            padding: 5px;
+        }
+
+        .car-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .car-button:active {
+            transform: scale(0.95);
+        }
+
+        .progress {
+            font-size: 1.1rem;
+            color: #2F4F4F;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 12px;
+            margin: 0;
+            border: 2px solid #FFD700;
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .celebration.show {
+            display: flex;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .celebration-text {
+            font-size: 4rem;
+            color: #2F4F4F;
+            text-shadow: 3px 3px 0px #FFD700;
+            margin-bottom: 30px;
+            animation: celebrate 1s infinite;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .restart-button {
+            font-size: 1.5rem;
+            background: #2F4F4F;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .restart-button:hover {
+            background: #4F6F6F;
+            transform: translateY(-2px);
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #FFD700;
+            border-radius: 50%;
+            animation: sparkle 1s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .parking-lot {
+                height: 280px;
+                width: 95%;
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: 1fr 1fr 30px 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.3rem;
+            }
+            
+            .parking-lot {
+                height: 350px;
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, 1fr) 25px repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Áudios em looping -->
+    <audio id="carroAudio" loop>
+        <source src="carro.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+    
+    <audio id="carrosAudio" loop>
+        <source src="carros.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+    
+    <div class="game-container">
+        <div style="position: absolute; top: 20px; left: 20px;">
+            <button onclick="window.history.back()" style="
+                background: #2F4F4F;
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-size: 1.2rem;
+                font-family: 'Comic Sans MS', cursive;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
+            " onmouseover="this.style.background='#4F6F6F'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#2F4F4F'; this.style.transform='translateY(0)'">
+                ← VOLTAR
+            </button>
+        </div>
+        
+        <h1 class="title">🚗 ESTACIONAMENTO COLORIDO 🅿️</h1>
+        
+        <div class="instruction" id="instruction">
+            ESTACIONE O CARRO: <span id="target-color">VERMELHO</span>
+        </div>
+        
+        <div class="progress" id="progress">
+            CARROS: 0/8 🚗
+        </div>
+        
+        <div class="parking-lot" id="parking-lot">
+            <!-- Rua curva será criada dinamicamente -->
+            <div class="curved-road">
+                <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Rua principal curva -->
+                    <path d="M 50 200 Q 200 100 400 200 Q 600 300 750 200" 
+                          stroke="#2F2F2F" 
+                          stroke-width="60" 
+                          fill="none" 
+                          stroke-linecap="round"/>
+                    
+                    <!-- Linha amarela tracejada -->
+                    <path d="M 50 200 Q 200 100 400 200 Q 600 300 750 200" 
+                          stroke="#FFFF00" 
+                          stroke-width="3" 
+                          fill="none" 
+                          stroke-dasharray="15,10"
+                          stroke-linecap="round"/>
+                </svg>
+            </div>
+            
+            <!-- Vagas de estacionamento serão criadas dinamicamente -->
+        </div>
+        
+        <div class="car-options" id="car-options">
+            <!-- Carros serão gerados dinamicamente -->
+        </div>
+    </div>
+    
+    <div class="celebration" id="celebration">
+        <div class="celebration-text">🎉 ESTACIONAMENTO COMPLETO! 🎉</div>
+        <div style="font-size: 2rem; color: #2F4F4F; margin-bottom: 30px;">
+            TODOS OS CARROS ESTÃO ESTACIONADOS!
+        </div>
+        <button class="restart-button" onclick="restartGame()">
+            🔄 NOVO ESTACIONAMENTO
+        </button>
+    </div>
+
+    <script>
+        const carColors = [
+            { name: 'VERMELHO', value: '#FF0000' },
+            { name: 'AZUL', value: '#0066FF' },
+            { name: 'AMARELO', value: '#FFD700' },
+            { name: 'VERDE', value: '#32CD32' },
+            { name: 'LARANJA', value: '#FF7F00' },
+            { name: 'ROXO', value: '#8A2BE2' },
+            { name: 'ROSA', value: '#FF69B4' },
+            { name: 'MARROM', value: '#8B4513' }
+        ];
+
+        let currentLevel = 0;
+        let parkedCars = 0;
+        let targetColor = null;
+        let gameColors = [];
+        let parkingSpaces = [];
+
+        function initGame() {
+            parkedCars = 0;
+            currentLevel = 0;
+            
+            createParkingSpaces();
+            updateProgress();
+            nextLevel();
+            
+            // Inicia os áudios em looping
+            startAudio();
+        }
+
+        function startAudio() {
+            // Inicia os áudios em looping
+            const carroAudio = document.getElementById('carroAudio');
+            const carrosAudio = document.getElementById('carrosAudio');
+            
+            // Tenta reproduzir os áudios
+            carroAudio.play().catch(e => {
+                console.log('Reprodução automática bloqueada para carro.mp3:', e);
+            });
+            
+            carrosAudio.play().catch(e => {
+                console.log('Reprodução automática bloqueada para carros.mp3:', e);
+            });
+            
+            // Adiciona evento de clique para desbloquear áudio
+            document.body.addEventListener('click', function unlockAudio() {
+                carroAudio.play().catch(e => console.log('Erro ao reproduzir carro.mp3:', e));
+                carrosAudio.play().catch(e => console.log('Erro ao reproduzir carros.mp3:', e));
+                document.body.removeEventListener('click', unlockAudio);
+            });
+        }
+
+        function createParkingSpaces() {
+            const parkingLot = document.getElementById('parking-lot');
+            
+            // Remove vagas existentes
+            const existingSpaces = parkingLot.querySelectorAll('.parking-space');
+            existingSpaces.forEach(space => space.remove());
+            
+            parkingSpaces = [];
+            
+            // Calcula o espaço disponível e centraliza as vagas
+            const lotWidth = 770; // Largura útil do estacionamento
+            const lotHeight = 370; // Altura útil do estacionamento
+            const spaceWidth = 120;
+            const spaceHeight = 80;
+            const spacesPerRow = 4;
+            
+            // Calcula espaçamento para centralizar as 4 vagas horizontalmente
+            const totalSpacesWidth = spacesPerRow * spaceWidth;
+            const horizontalGap = (lotWidth - totalSpacesWidth) / (spacesPerRow + 1);
+            
+            const spacePositions = [
+                // Lado superior (4 vagas centralizadas horizontalmente)
+                { x: horizontalGap, y: 20, rotation: 0 },
+                { x: horizontalGap + spaceWidth + horizontalGap, y: 20, rotation: 0 },
+                { x: horizontalGap + 2 * (spaceWidth + horizontalGap), y: 20, rotation: 0 },
+                { x: horizontalGap + 3 * (spaceWidth + horizontalGap), y: 20, rotation: 0 },
+                
+                // Lado inferior (4 vagas centralizadas horizontalmente - bem na borda inferior)
+                { x: horizontalGap, y: lotHeight - spaceHeight + 10, rotation: 0 },
+                { x: horizontalGap + spaceWidth + horizontalGap, y: lotHeight - spaceHeight + 10, rotation: 0 },
+                { x: horizontalGap + 2 * (spaceWidth + horizontalGap), y: lotHeight - spaceHeight + 10, rotation: 0 },
+                { x: horizontalGap + 3 * (spaceWidth + horizontalGap), y: lotHeight - spaceHeight + 10, rotation: 0 }
+            ];
+            
+            // Cria as 8 vagas posicionadas nas bordas
+            for (let i = 0; i < 8; i++) {
+                const space = document.createElement('div');
+                space.className = 'parking-space';
+                space.id = `space-${i}`;
+                space.setAttribute('data-color', carColors[i].name);
+                space.style.background = `linear-gradient(135deg, ${carColors[i].value}22 0%, ${carColors[i].value}11 100%)`;
+                
+                // Posiciona a vaga
+                const pos = spacePositions[i];
+                space.style.left = pos.x + 'px';
+                space.style.top = pos.y + 'px';
+                space.style.transform = `rotate(${pos.rotation}deg)`;
+                
+                parkingLot.appendChild(space);
+                parkingSpaces.push({
+                    element: space,
+                    color: carColors[i],
+                    occupied: false
+                });
+            }
+        }
+
+        function nextLevel() {
+            if (parkedCars >= 8) {
+                showCelebration();
+                return;
+            }
+
+            // A cor alvo é sempre a próxima cor em ordem
+            targetColor = carColors[parkedCars];
+            
+            // Cria array com a cor correta e 2-3 cores incorretas
+            gameColors = [targetColor];
+            while (gameColors.length < Math.min(4, carColors.length)) {
+                const randomColor = carColors[Math.floor(Math.random() * carColors.length)];
+                if (!gameColors.find(c => c.name === randomColor.name)) {
+                    gameColors.push(randomColor);
+                }
+            }
+            
+            // Embaralha as cores
+            gameColors.sort(() => Math.random() - 0.5);
+            
+            updateInstruction();
+            createCarButtons();
+        }
+
+        function updateInstruction() {
+            document.getElementById('instruction').innerHTML = 
+                `ESTACIONE O CARRO: <span style="color: ${targetColor.value}; font-weight: bold;">${targetColor.name}</span>`;
+        }
+
+        function updateProgress() {
+            document.getElementById('progress').textContent = `CARROS: ${parkedCars}/8 🚗`;
+        }
+
+        function createCarButtons() {
+            const container = document.getElementById('car-options');
+            container.innerHTML = '';
+            
+            gameColors.forEach(color => {
+                const button = document.createElement('div');
+                button.className = 'car-button';
+                button.onclick = () => selectCar(color);
+                
+                // Cria SVG de carro
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('viewBox', '0 0 120 60');
+                svg.setAttribute('width', '90');
+                svg.setAttribute('height', '45');
+                
+                const carBody = color.value;
+                const strokeColor = '#000000';
+                
+                svg.innerHTML = `
+                    <!-- Sombra do carro -->
+                    <ellipse cx="60" cy="55" rx="45" ry="8" fill="#00000020"/>
+                    
+                    <!-- Corpo principal do carro -->
+                    <rect x="20" y="25" width="80" height="20" rx="10" ry="10" fill="${carBody}" stroke="${strokeColor}" stroke-width="2"/>
+                    
+                    <!-- Teto do carro -->
+                    <rect x="35" y="15" width="50" height="15" rx="8" ry="8" fill="${carBody}" stroke="${strokeColor}" stroke-width="2"/>
+                    
+                    <!-- Para-brisas -->
+                    <rect x="38" y="18" width="20" height="10" rx="3" ry="3" fill="#87CEEB" opacity="0.7"/>
+                    <rect x="62" y="18" width="20" height="10" rx="3" ry="3" fill="#87CEEB" opacity="0.7"/>
+                    
+                    <!-- Rodas -->
+                    <circle cx="35" cy="45" r="8" fill="#2F2F2F" stroke="#000" stroke-width="2"/>
+                    <circle cx="85" cy="45" r="8" fill="#2F2F2F" stroke="#000" stroke-width="2"/>
+                    
+                    <!-- Aros das rodas -->
+                    <circle cx="35" cy="45" r="5" fill="#C0C0C0"/>
+                    <circle cx="85" cy="45" r="5" fill="#C0C0C0"/>
+                    
+                    <!-- Faróis -->
+                    <circle cx="105" cy="30" r="4" fill="#FFFACD" stroke="#FFD700" stroke-width="1"/>
+                    <circle cx="105" cy="38" r="4" fill="#FFFACD" stroke="#FFD700" stroke-width="1"/>
+                    
+                    <!-- Lanternas traseiras -->
+                    <circle cx="15" cy="30" r="3" fill="#FF4500"/>
+                    <circle cx="15" cy="38" r="3" fill="#FF4500"/>
+                    
+                    <!-- Reflexos no carro -->
+                    <rect x="25" y="28" width="60" height="3" rx="2" ry="2" fill="#FFFFFF" opacity="0.4"/>
+                    <rect x="40" y="18" width="35" height="2" rx="1" ry="1" fill="#FFFFFF" opacity="0.3"/>
+                    
+                    <!-- Maçanetas -->
+                    <rect x="45" y="32" width="3" height="2" rx="1" ry="1" fill="${strokeColor}"/>
+                    <rect x="72" y="32" width="3" height="2" rx="1" ry="1" fill="${strokeColor}"/>
+                `;
+                
+                button.appendChild(svg);
+                container.appendChild(button);
+            });
+        }
+
+        function selectCar(selectedColor) {
+            if (selectedColor.name === targetColor.name) {
+                // Resposta correta!
+                parkCar(selectedColor);
+                createSparkles(event.target);
+                parkedCars++;
+                updateProgress();
+                
+                setTimeout(() => {
+                    nextLevel();
+                }, 1500);
+            } else {
+                // Resposta incorreta - feedback visual
+                const button = event.target.closest('.car-button');
+                button.style.animation = 'none';
+                button.style.transform = 'scale(0.8)';
+                button.style.filter = 'grayscale(50%)';
+                
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                    button.style.filter = 'none';
+                }, 300);
+            }
+        }
+
+        function parkCar(color) {
+            const targetSpace = parkingSpaces.find(space => 
+                space.color.name === color.name && !space.occupied
+            );
+            
+            if (targetSpace) {
+                targetSpace.occupied = true;
+                targetSpace.element.classList.add('occupied');
+                
+                // Cria o carro na vaga
+                const car = document.createElement('div');
+                car.className = 'car';
+                
+                const carBody = color.value;
+                const strokeColor = '#000000';
+                
+                car.innerHTML = `
+                    <svg viewBox="0 0 120 60" width="100%" height="100%">
+                        <!-- Corpo principal do carro -->
+                        <rect x="20" y="25" width="80" height="20" rx="10" ry="10" fill="${carBody}" stroke="${strokeColor}" stroke-width="2"/>
+                        
+                        <!-- Teto do carro -->
+                        <rect x="35" y="15" width="50" height="15" rx="8" ry="8" fill="${carBody}" stroke="${strokeColor}" stroke-width="2"/>
+                        
+                        <!-- Para-brisas -->
+                        <rect x="38" y="18" width="20" height="10" rx="3" ry="3" fill="#87CEEB" opacity="0.7"/>
+                        <rect x="62" y="18" width="20" height="10" rx="3" ry="3" fill="#87CEEB" opacity="0.7"/>
+                        
+                        <!-- Rodas -->
+                        <circle cx="35" cy="45" r="8" fill="#2F2F2F" stroke="#000" stroke-width="2"/>
+                        <circle cx="85" cy="45" r="8" fill="#2F2F2F" stroke="#000" stroke-width="2"/>
+                        
+                        <!-- Aros das rodas -->
+                        <circle cx="35" cy="45" r="5" fill="#C0C0C0"/>
+                        <circle cx="85" cy="45" r="5" fill="#C0C0C0"/>
+                        
+                        <!-- Faróis -->
+                        <circle cx="105" cy="30" r="4" fill="#FFFACD" stroke="#FFD700" stroke-width="1"/>
+                        <circle cx="105" cy="38" r="4" fill="#FFFACD" stroke="#FFD700" stroke-width="1"/>
+                        
+                        <!-- Lanternas traseiras -->
+                        <circle cx="15" cy="30" r="3" fill="#FF4500"/>
+                        <circle cx="15" cy="38" r="3" fill="#FF4500"/>
+                        
+                        <!-- Reflexos no carro -->
+                        <rect x="25" y="28" width="60" height="3" rx="2" ry="2" fill="#FFFFFF" opacity="0.4"/>
+                        <rect x="40" y="18" width="35" height="2" rx="1" ry="1" fill="#FFFFFF" opacity="0.3"/>
+                    </svg>
+                `;
+                
+                targetSpace.element.appendChild(car);
+                
+                // Anima o carro estacionando
+                setTimeout(() => {
+                    car.classList.add('parked');
+                }, 100);
+            }
+        }
+
+        function createSparkles(element) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 8; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = centerX + (Math.random() - 0.5) * 120 + 'px';
+                sparkle.style.top = centerY + (Math.random() - 0.5) * 120 + 'px';
+                sparkle.style.background = carColors[Math.floor(Math.random() * carColors.length)].value;
+                document.body.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 1000);
+            }
+        }
+
+        function showCelebration() {
+            // Anima todos os carros estacionados saindo
+            const allCars = document.querySelectorAll('.car');
+            allCars.forEach((car, index) => {
+                const space = car.parentElement;
+                const spaceRect = space.getBoundingClientRect();
+                const lotRect = document.getElementById('parking-lot').getBoundingClientRect();
+                
+                // Determina se é linha superior (y < 200) ou inferior (y >= 200)
+                const isTopRow = parseInt(space.style.top) < 200;
+                
+                setTimeout(() => {
+                    car.style.transition = 'transform 2s ease-in-out';
+                    car.style.zIndex = '10';
+                    
+                    if (isTopRow) {
+                        // Carros da linha superior saem pela esquerda
+                        car.style.transform = 'translateX(-1000px) scale(1)';
+                    } else {
+                        // Carros da linha inferior saem pela direita
+                        car.style.transform = 'translateX(1000px) scale(1)';
+                    }
+                }, index * 300);
+            });
+            
+            setTimeout(() => {
+                document.getElementById('celebration').classList.add('show');
+            }, 3500);
+        }
+
+        function restartGame() {
+            document.getElementById('celebration').classList.remove('show');
+            
+            // Remove a animação de todos os carros
+            const allCars = document.querySelectorAll('.car');
+            allCars.forEach(car => {
+                car.style.animation = 'none';
+            });
+            
+            initGame();
+        }
+
+        // Inicia o jogo
+        initGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e7ff4043af8b17',t:'MTc2MDQ1NDU1OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
