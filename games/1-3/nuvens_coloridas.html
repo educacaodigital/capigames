@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuvens de Cores - Jogo Infantil</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #98D8E8 25%, #B0E0E6 50%, #E0F6FF 75%, #F0F8FF 100%);
+            min-height: 100vh;
+            color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animação do céu */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 30%),
+                radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 25%),
+                radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.25) 0%, transparent 35%);
+            animation: skyMove 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes skyMove {
+            0%, 100% { transform: translateX(0px) translateY(0px); }
+            25% { transform: translateX(10px) translateY(-5px); }
+            50% { transform: translateX(-5px) translateY(10px); }
+            75% { transform: translateX(-10px) translateY(-5px); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(240,248,255,0.95) 100%);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            border: 3px solid;
+            border-image: linear-gradient(45deg, #FFB6C1, #87CEEB, #98FB98, #DDA0DD) 1;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #4682B4;
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
+            animation: titleBounce 3s ease-in-out infinite;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        @keyframes titleBounce {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-8px) scale(1.02); }
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #FFE4E1 0%, #FFF0F5 100%);
+            padding: 25px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #4682B4;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
+            animation: instructionsPulse 2s ease-in-out infinite;
+            border: 3px solid #FFB6C1;
+        }
+
+        @keyframes instructionsPulse {
+            0% { transform: scale(1); box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3); }
+            50% { transform: scale(1.02); box-shadow: 0 15px 40px rgba(255, 182, 193, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3); }
+        }
+
+        .clouds-area {
+            position: relative;
+            min-height: 500px;
+            background: linear-gradient(135deg, rgba(135, 206, 235, 0.1) 0%, rgba(176, 224, 230, 0.1) 100%);
+            border-radius: 25px;
+            margin-bottom: 30px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: cloudFloat 6s ease-in-out infinite, cloudMove 15s linear infinite;
+            user-select: none;
+            font-size: 6rem;
+            filter: drop-shadow(0 8px 25px rgba(0,0,0,0.2)) hue-rotate(0deg) saturate(1.8) brightness(1.2);
+        }
+
+        .cloud:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 8px 25px rgba(0,0,0,0.2));
+        }
+
+        .cloud:active {
+            transform: scale(1.3);
+            animation: cloudPop 0.3s ease-in-out;
+        }
+
+        @keyframes cloudFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(2deg); }
+            50% { transform: translateY(-10px) rotate(0deg); }
+            75% { transform: translateY(-25px) rotate(-2deg); }
+        }
+
+        @keyframes cloudMove {
+            0% { 
+                transform: translateX(0px);
+                filter: drop-shadow(0 8px 25px rgba(0,0,0,0.2)) hue-rotate(0deg) saturate(1.8) brightness(1.2);
+            }
+            25% { 
+                transform: translateX(50px);
+                filter: drop-shadow(0 8px 25px rgba(0,0,0,0.2)) hue-rotate(90deg) saturate(2) brightness(1.3);
+            }
+            50% { 
+                transform: translateX(0px);
+                filter: drop-shadow(0 8px 25px rgba(0,0,0,0.2)) hue-rotate(180deg) saturate(1.8) brightness(1.2);
+            }
+            75% { 
+                transform: translateX(-50px);
+                filter: drop-shadow(0 8px 25px rgba(0,0,0,0.2)) hue-rotate(270deg) saturate(2) brightness(1.3);
+            }
+            100% { 
+                transform: translateX(0px);
+                filter: drop-shadow(0 8px 25px rgba(0,0,0,0.2)) hue-rotate(360deg) saturate(1.8) brightness(1.2);
+            }
+        }
+
+        @keyframes cloudPop {
+            0% { transform: scale(1.2); }
+            50% { transform: scale(1.4) rotate(5deg); }
+            100% { transform: scale(1.3); }
+        }
+
+        .cloud.clicked {
+            animation: colorChange 0.8s ease-in-out;
+        }
+
+        @keyframes colorChange {
+            0% { transform: scale(1.3); }
+            25% { transform: scale(1.5) rotate(10deg); }
+            50% { transform: scale(1.4) rotate(-5deg); }
+            75% { transform: scale(1.6) rotate(8deg); }
+            100% { transform: scale(1.3) rotate(0deg); }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-button {
+            background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+            color: white;
+            border: none;
+            padding: 20px 35px;
+            border-radius: 30px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .control-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 105, 180, 0.6);
+        }
+
+        .control-button:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.4);
+        }
+
+        .back-button:hover {
+            box-shadow: 0 15px 40px rgba(78, 205, 196, 0.6);
+        }
+
+        .reset-button {
+            background: linear-gradient(135deg, #FFA726 0%, #FF7043 100%);
+            box-shadow: 0 10px 30px rgba(255, 167, 38, 0.4);
+        }
+
+        .reset-button:hover {
+            box-shadow: 0 15px 40px rgba(255, 167, 38, 0.6);
+        }
+
+        .sound-wave {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border: 4px solid;
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .sound-wave.active {
+            animation: soundWaveAnimation 1s ease-out;
+        }
+
+        @keyframes soundWaveAnimation {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(4);
+                opacity: 0;
+            }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .star {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0;
+            animation: starTwinkle 1.5s ease-out;
+        }
+
+        @keyframes starTwinkle {
+            0% { 
+                opacity: 0; 
+                transform: scale(0) rotate(0deg); 
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.2) rotate(180deg); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: scale(0) rotate(360deg); 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .instructions {
+                font-size: 1.3rem;
+                padding: 20px;
+            }
+            
+            .cloud {
+                font-size: 4.5rem;
+            }
+            
+            .control-button {
+                padding: 15px 25px;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .instructions {
+                font-size: 1.1rem;
+            }
+            
+            .cloud {
+                font-size: 3.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>☁️ NUVENS DE CORES ☁️</h1>
+        </header>
+
+        <div class="instructions">
+            🌈 CLIQUE NAS NUVENS PARA MUDAR AS CORES! 🎵
+        </div>
+
+        <div class="clouds-area" id="cloudsArea">
+            <!-- As nuvens serão geradas pelo JavaScript -->
+        </div>
+
+        <div class="controls">
+            <button class="control-button back-button" id="backBtn">⬅️ VOLTAR</button>
+            <button class="control-button reset-button" id="resetBtn">🔄 NOVAS NUVENS</button>
+        </div>
+    </div>
+
+    <div class="sound-wave" id="soundWave"></div>
+    <div class="stars" id="stars"></div>
+
+    <script>
+        // Configurações do jogo
+        const cloudColors = [
+            '#FF1493', // Rosa vibrante
+            '#00BFFF', // Azul céu vibrante
+            '#00FF7F', // Verde primavera
+            '#DA70D6', // Orquídea
+            '#FFD700', // Dourado
+            '#FF6347', // Tomate
+            '#00CED1', // Turquesa escuro
+            '#FFA500', // Laranja
+            '#9370DB', // Violeta médio
+            '#32CD32', // Verde lima
+            '#FF69B4', // Rosa quente
+            '#1E90FF', // Azul dodger
+            '#FF4500', // Vermelho laranja
+            '#7FFF00', // Verde chartreuse
+            '#FF00FF', // Magenta
+            '#00FFFF'  // Ciano
+        ];
+
+        const musicalNotes = [
+            261.63, // Dó
+            293.66, // Ré
+            329.63, // Mi
+            349.23, // Fá
+            392.00, // Sol
+            440.00, // Lá
+            493.88, // Si
+            523.25  // Dó (oitava)
+        ];
+
+        // Elementos DOM
+        const cloudsArea = document.getElementById('cloudsArea');
+        const soundWave = document.getElementById('soundWave');
+        const stars = document.getElementById('stars');
+        const backBtn = document.getElementById('backBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Variáveis do jogo
+        let audioContext;
+        let clouds = [];
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            createClouds();
+            initAudioContext();
+        });
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            backBtn.addEventListener('click', goBack);
+            resetBtn.addEventListener('click', resetClouds);
+            
+            // Inicializar contexto de áudio na primeira interação
+            document.addEventListener('click', initAudioContext, { once: true });
+            document.addEventListener('touchstart', initAudioContext, { once: true });
+        }
+
+        // Inicializar contexto de áudio
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // Criar nuvens
+        function createClouds() {
+            cloudsArea.innerHTML = '';
+            clouds = [];
+            
+            const numberOfClouds = window.innerWidth < 768 ? 8 : 12;
+            
+            for (let i = 0; i < numberOfClouds; i++) {
+                createCloud(i);
+            }
+        }
+
+        // Criar uma nuvem individual
+        function createCloud(index) {
+            const cloud = document.createElement('div');
+            cloud.className = 'cloud';
+            cloud.innerHTML = '☁️';
+            cloud.dataset.index = index;
+            
+            // Posição aleatória
+            const maxX = cloudsArea.offsetWidth - 100;
+            const maxY = cloudsArea.offsetHeight - 100;
+            const x = Math.random() * Math.max(maxX, 100);
+            const y = Math.random() * Math.max(maxY, 100);
+            
+            cloud.style.left = x + 'px';
+            cloud.style.top = y + 'px';
+            
+            // Delay de animação aleatório
+            cloud.style.animationDelay = (Math.random() * 3) + 's';
+            
+            // Event listeners
+            cloud.addEventListener('click', function() {
+                changeCloudColor(this);
+            });
+            
+            cloud.addEventListener('mouseenter', function() {
+                if (window.innerWidth > 768) { // Apenas em desktop
+                    changeCloudColor(this);
+                }
+            });
+            
+            // Suporte para touch em dispositivos móveis
+            cloud.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                changeCloudColor(this);
+            });
+            
+            cloudsArea.appendChild(cloud);
+            clouds.push(cloud);
+        }
+
+        // Mudar cor da nuvem
+        function changeCloudColor(cloudElement) {
+            const index = parseInt(cloudElement.dataset.index);
+            const randomColor = cloudColors[Math.floor(Math.random() * cloudColors.length)];
+            const randomNote = musicalNotes[Math.floor(Math.random() * musicalNotes.length)];
+            
+            // Mudar cor com efeito mais vibrante
+            const hueRotation = Math.random() * 360;
+            cloudElement.style.filter = `drop-shadow(0 15px 35px ${randomColor}80) hue-rotate(${hueRotation}deg) saturate(2.5) brightness(1.4) contrast(1.2)`;
+            
+            // Adicionar brilho extra temporário
+            cloudElement.style.textShadow = `0 0 20px ${randomColor}, 0 0 40px ${randomColor}, 0 0 60px ${randomColor}`;
+            
+            // Adicionar classe de animação
+            cloudElement.classList.add('clicked');
+            
+            // Tocar nota musical
+            playNote(randomNote, randomColor);
+            
+            // Mostrar efeito visual
+            showSoundWave(randomColor);
+            createStars(cloudElement, randomColor);
+            
+            // Vibração (se disponível)
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+            
+            // Remover efeitos temporários
+            setTimeout(() => {
+                cloudElement.classList.remove('clicked');
+                cloudElement.style.textShadow = '';
+            }, 800);
+        }
+
+        // Tocar nota musical
+        function playNote(frequency, color) {
+            if (!audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                // Configurar oscilador
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                
+                // Configurar filtro para som mais suave
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, audioContext.currentTime);
+                
+                // Configurar envelope de volume
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
+                
+                // Conectar nós
+                oscillator.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Tocar som
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 1);
+                
+            } catch (error) {
+                console.log('Erro ao tocar som:', error);
+            }
+        }
+
+        // Mostrar onda sonora
+        function showSoundWave(color) {
+            soundWave.style.borderColor = color;
+            soundWave.classList.add('active');
+            
+            setTimeout(() => {
+                soundWave.classList.remove('active');
+            }, 1000);
+        }
+
+        // Criar estrelas
+        function createStars(cloudElement, color) {
+            const rect = cloudElement.getBoundingClientRect();
+            const containerRect = cloudsArea.getBoundingClientRect();
+            
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.innerHTML = '⭐';
+                star.style.color = color;
+                
+                const x = (rect.left - containerRect.left) + (Math.random() * 100 - 50);
+                const y = (rect.top - containerRect.top) + (Math.random() * 100 - 50);
+                
+                star.style.left = x + 'px';
+                star.style.top = y + 'px';
+                star.style.animationDelay = (i * 0.1) + 's';
+                
+                stars.appendChild(star);
+                
+                // Remover estrela após animação
+                setTimeout(() => {
+                    if (star.parentNode) {
+                        star.parentNode.removeChild(star);
+                    }
+                }, 1500);
+            }
+        }
+
+        // Resetar nuvens
+        function resetClouds() {
+            // Animação de saída
+            clouds.forEach((cloud, index) => {
+                setTimeout(() => {
+                    cloud.style.animation = 'cloudPop 0.5s ease-in-out';
+                    setTimeout(() => {
+                        if (cloud.parentNode) {
+                            cloud.parentNode.removeChild(cloud);
+                        }
+                    }, 500);
+                }, index * 100);
+            });
+            
+            // Criar novas nuvens após um delay
+            setTimeout(() => {
+                createClouds();
+            }, clouds.length * 100 + 500);
+        }
+
+        // Voltar para página anterior
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.close();
+            }
+        }
+
+        // Interação por teclado para acessibilidade
+        document.addEventListener('keydown', function(event) {
+            const key = event.key.toLowerCase();
+            
+            switch(key) {
+                case ' ': // Espaço para resetar
+                    event.preventDefault();
+                    resetClouds();
+                    break;
+                case 'enter': // Enter para clicar em nuvem aleatória
+                    event.preventDefault();
+                    if (clouds.length > 0) {
+                        const randomCloud = clouds[Math.floor(Math.random() * clouds.length)];
+                        changeCloudColor(randomCloud);
+                    }
+                    break;
+                case 'escape': // ESC para voltar
+                    goBack();
+                    break;
+            }
+        });
+
+        // Redimensionar nuvens quando a janela muda de tamanho
+        window.addEventListener('resize', function() {
+            setTimeout(createClouds, 300);
+        });
+
+        // Adicionar suporte a gestos para dispositivos móveis
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', function(e) {
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            
+            // Gesto para cima - resetar nuvens
+            if (diff > 50) {
+                resetClouds();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98ffb791f57f8b1b',t:'MTc2MDcwMzI4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
