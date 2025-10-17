@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧩Quebra-Cabeça de Silhuetas - Jogo Infantil</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 10px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #FFE5B4 0%, #FFCCCB 25%, #E6E6FA 50%, #F0FFF0 75%, #FFF8DC 100%);
+            height: 100vh;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animação do fundo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(255, 182, 193, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 85% 15%, rgba(173, 216, 230, 0.3) 0%, transparent 35%),
+                radial-gradient(circle at 50% 80%, rgba(144, 238, 144, 0.3) 0%, transparent 45%);
+            animation: backgroundFloat 25s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes backgroundFloat {
+            0%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+            33% { transform: translateX(15px) translateY(-10px) rotate(1deg); }
+            66% { transform: translateX(-10px) translateY(15px) rotate(-1deg); }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.98) 100%);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.8);
+            backdrop-filter: blur(15px);
+            border: 4px solid;
+            border-image: linear-gradient(45deg, #FF69B4, #87CEEB, #98FB98, #DDA0DD, #FFD700) 1;
+            position: relative;
+            height: calc(100vh - 20px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 8px rgba(255, 140, 0, 0.8), 0 0 20px rgba(255, 140, 0, 0.6);
+            animation: titleWiggle 4s ease-in-out infinite;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            filter: drop-shadow(2px 2px 4px rgba(255, 140, 0, 0.4));
+            background: linear-gradient(135deg, #FF8C00 0%, #FF4500 25%, #FFD700 50%, #FF6347 75%, #FFA500 100%);
+            -webkit-background-clip: border-box;
+            background-clip: border-box;
+            padding: 15px;
+            border-radius: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes titleWiggle {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(1deg) scale(1.02); }
+            50% { transform: rotate(0deg) scale(1); }
+            75% { transform: rotate(-1deg) scale(1.02); }
+        }
+
+        @keyframes colorShift {
+            0% { 
+                background: linear-gradient(135deg, #FF8C00 0%, #FF4500 25%, #FFD700 50%, #FF6347 75%, #FFA500 100%);
+            }
+            33% { 
+                background: linear-gradient(135deg, #FFA500 0%, #FF8C00 25%, #FF4500 50%, #FFD700 75%, #FF6347 100%);
+            }
+            66% { 
+                background: linear-gradient(135deg, #FF6347 0%, #FFA500 25%, #FF8C00 50%, #FF4500 75%, #FFD700 100%);
+            }
+            100% { 
+                background: linear-gradient(135deg, #FF8C00 0%, #FF4500 25%, #FFD700 50%, #FF6347 75%, #FFA500 100%);
+            }
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #FFE4E1 0%, #F0F8FF 100%);
+            padding: 15px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #FF6347;
+            text-transform: uppercase;
+            box-shadow: 0 12px 35px rgba(255, 99, 71, 0.3);
+            animation: instructionsBounce 3s ease-in-out infinite;
+            border: 3px solid #FFB6C1;
+        }
+
+        @keyframes instructionsBounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .game-area {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .objects-left {
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        .objects-right {
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        .silhouettes-section {
+            background: linear-gradient(135deg, #E6E6FA 0%, #F0F8FF 100%);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 15px 40px rgba(230, 230, 250, 0.4);
+            border: 3px solid #DDA0DD;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .objects-section {
+            position: relative;
+            padding: 15px;
+            flex: 0.6;
+            min-height: 160px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            color: #4682B4;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .silhouettes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            height: 100%;
+        }
+
+        .objects-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 25px;
+            height: 100%;
+            padding: 15px;
+            min-height: 140px;
+        }
+
+        .silhouette-slot {
+            background: rgba(0,0,0,0.2);
+            border: 3px dashed #666;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 100px;
+        }
+
+        .silhouette-slot.drag-over {
+            background: rgba(144, 238, 144, 0.3);
+            border-color: #32CD32;
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(50, 205, 50, 0.4);
+        }
+
+        .silhouette-slot.filled {
+            background: linear-gradient(135deg, #98FB98 0%, #90EE90 100%);
+            border-color: #32CD32;
+            border-style: solid;
+            animation: successPulse 1s ease-in-out;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .draggable-object {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border: 3px solid #FF8C00;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+            min-height: 90px;
+            width: 90px;
+            max-width: 90px;
+            max-height: 90px;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+            flex-shrink: 0;
+        }
+
+        .draggable-object:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6);
+        }
+
+        .draggable-object:active {
+            cursor: grabbing;
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .draggable-object.dragging {
+            opacity: 0.8;
+            transform: scale(1.2) rotate(10deg);
+            z-index: 1000;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .draggable-object.placed {
+            cursor: default;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-button {
+            background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .control-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 105, 180, 0.6);
+        }
+
+        .control-button:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.4);
+        }
+
+        .back-button:hover {
+            box-shadow: 0 15px 40px rgba(78, 205, 196, 0.6);
+        }
+
+        .reset-button {
+            background: linear-gradient(135deg, #FFA726 0%, #FF7043 100%);
+            box-shadow: 0 10px 30px rgba(255, 167, 38, 0.4);
+        }
+
+        .reset-button:hover {
+            box-shadow: 0 15px 40px rgba(255, 167, 38, 0.6);
+        }
+
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #32CD32 0%, #228B22 100%);
+            color: white;
+            padding: 30px 50px;
+            border-radius: 25px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 20px 60px rgba(50, 205, 50, 0.5);
+            z-index: 2000;
+            display: none;
+            pointer-events: none;
+        }
+
+        @keyframes successShow {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        .celebration-stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1500;
+        }
+
+        .celebration-star {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0;
+            animation: starCelebration 2s ease-out;
+        }
+
+        @keyframes starCelebration {
+            0% { 
+                opacity: 0; 
+                transform: scale(0) rotate(0deg); 
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.5) rotate(180deg); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: scale(0) rotate(360deg); 
+            }
+        }
+
+
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .instructions {
+                font-size: 1.4rem;
+                padding: 20px;
+            }
+            
+            .game-area {
+                gap: 15px;
+                flex-direction: column;
+            }
+            
+            .objects-left,
+            .objects-right {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                order: 2;
+            }
+            
+            .silhouettes-section {
+                order: 1;
+            }
+            
+            .silhouettes-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .draggable-object,
+            .silhouette-slot {
+                font-size: 3.5rem;
+                min-height: 120px;
+            }
+            
+            .control-button {
+                padding: 15px 25px;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .instructions {
+                font-size: 1.2rem;
+            }
+            
+            .silhouettes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .objects-left,
+            .objects-right {
+                gap: 10px;
+            }
+            
+            .draggable-object,
+            .silhouette-slot {
+                font-size: 3rem;
+                min-height: 100px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🧩 QUEBRA-CABEÇA DE SILHUETAS 🧩</h1>
+        </header>
+
+        <div class="instructions">
+            🎯 ARRASTE OS OBJETOS PARA AS SILHUETAS CERTAS!
+        </div>
+
+        <div class="game-area">
+            <div class="objects-left" id="objectsLeft">
+                <!-- Objetos da esquerda serão gerados pelo JavaScript -->
+            </div>
+
+            <div class="silhouettes-section">
+                <div class="section-title">👆 ARRASTE AQUI</div>
+                <div class="silhouettes-grid" id="silhouettesGrid">
+                    <!-- As silhuetas serão geradas pelo JavaScript -->
+                </div>
+            </div>
+
+            <div class="objects-right" id="objectsRight">
+                <!-- Objetos da direita serão gerados pelo JavaScript -->
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-button back-button" id="backBtn">⬅️ VOLTAR</button>
+            <button class="control-button reset-button" id="resetBtn">🔄 NOVO JOGO</button>
+        </div>
+    </div>
+
+    <div class="success-message" id="successMessage">
+        🎉 PARABÉNS! VOCÊ CONSEGUIU! 🎉
+    </div>
+
+    <div class="celebration-stars" id="celebrationStars"></div>
+
+    <script>
+        // Configuração dos objetos e suas silhuetas - 40 cards variados
+        const allPuzzlePieces = [
+            // Animais (15 cards)
+            { emoji: '🐱', id: 'cat', category: 'animal' },
+            { emoji: '🐶', id: 'dog', category: 'animal' },
+            { emoji: '🐸', id: 'frog', category: 'animal' },
+            { emoji: '🐰', id: 'rabbit', category: 'animal' },
+            { emoji: '🐻', id: 'bear', category: 'animal' },
+            { emoji: '🦊', id: 'fox', category: 'animal' },
+            { emoji: '🐯', id: 'tiger', category: 'animal' },
+            { emoji: '🐨', id: 'koala', category: 'animal' },
+            { emoji: '🐼', id: 'panda', category: 'animal' },
+            { emoji: '🐵', id: 'monkey', category: 'animal' },
+            { emoji: '🦁', id: 'lion', category: 'animal' },
+            { emoji: '🐘', id: 'elephant', category: 'animal' },
+            { emoji: '🦒', id: 'giraffe', category: 'animal' },
+            { emoji: '🐧', id: 'penguin', category: 'animal' },
+            { emoji: '🦋', id: 'butterfly', category: 'animal' },
+            
+            // Frutas (13 cards)
+            { emoji: '🍎', id: 'apple', category: 'fruit' },
+            { emoji: '🍌', id: 'banana', category: 'fruit' },
+            { emoji: '🍊', id: 'orange', category: 'fruit' },
+            { emoji: '🍇', id: 'grapes', category: 'fruit' },
+            { emoji: '🍓', id: 'strawberry', category: 'fruit' },
+            { emoji: '🥝', id: 'kiwi', category: 'fruit' },
+            { emoji: '🍑', id: 'cherry', category: 'fruit' },
+            { emoji: '🍒', id: 'cherries', category: 'fruit' },
+            { emoji: '🥭', id: 'mango', category: 'fruit' },
+            { emoji: '🍍', id: 'pineapple', category: 'fruit' },
+            { emoji: '🥥', id: 'coconut', category: 'fruit' },
+            { emoji: '🍉', id: 'watermelon', category: 'fruit' },
+            { emoji: '🍈', id: 'melon', category: 'fruit' },
+            
+            // Formas Geométricas (12 cards)
+            { emoji: '🔴', id: 'red_circle', category: 'shape' },
+            { emoji: '🟠', id: 'orange_circle', category: 'shape' },
+            { emoji: '🟡', id: 'yellow_circle', category: 'shape' },
+            { emoji: '🟢', id: 'green_circle', category: 'shape' },
+            { emoji: '🔵', id: 'blue_circle', category: 'shape' },
+            { emoji: '🟣', id: 'purple_circle', category: 'shape' },
+            { emoji: '🟥', id: 'red_square', category: 'shape' },
+            { emoji: '🟧', id: 'orange_square', category: 'shape' },
+            { emoji: '🟨', id: 'yellow_square', category: 'shape' },
+            { emoji: '🟩', id: 'green_square', category: 'shape' },
+            { emoji: '🟦', id: 'blue_square', category: 'shape' },
+            { emoji: '🟪', id: 'purple_square', category: 'shape' }
+        ];
+
+        let puzzlePieces = [];
+
+        // Elementos DOM
+        const silhouettesGrid = document.getElementById('silhouettesGrid');
+        const objectsLeft = document.getElementById('objectsLeft');
+        const objectsRight = document.getElementById('objectsRight');
+        const successMessage = document.getElementById('successMessage');
+        const celebrationStars = document.getElementById('celebrationStars');
+        const backBtn = document.getElementById('backBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Variáveis do jogo
+        let audioContext;
+        let completedPieces = 0;
+        let draggedElement = null;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            initializeGame();
+            initAudioContext();
+        });
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            backBtn.addEventListener('click', goBack);
+            resetBtn.addEventListener('click', resetGame);
+            
+            // Inicializar contexto de áudio na primeira interação
+            document.addEventListener('click', initAudioContext, { once: true });
+            document.addEventListener('touchstart', initAudioContext, { once: true });
+        }
+
+
+
+        // Inicializar contexto de áudio
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // Selecionar 6 cards aleatórios de diferentes categorias
+        function selectRandomPieces() {
+            const shuffled = [...allPuzzlePieces].sort(() => Math.random() - 0.5);
+            const selected = [];
+            const categories = ['animal', 'fruit', 'shape'];
+            let categoryIndex = 0;
+            
+            // Garantir variedade de categorias
+            for (let i = 0; i < shuffled.length && selected.length < 6; i++) {
+                const piece = shuffled[i];
+                const targetCategory = categories[categoryIndex % categories.length];
+                
+                if (piece.category === targetCategory || selected.length >= 3) {
+                    selected.push(piece);
+                    categoryIndex++;
+                }
+            }
+            
+            // Se não conseguiu 6, preencher com qualquer um
+            while (selected.length < 6) {
+                const remaining = shuffled.filter(p => !selected.includes(p));
+                if (remaining.length > 0) {
+                    selected.push(remaining[0]);
+                }
+            }
+            
+            return selected.slice(0, 6);
+        }
+
+        // Inicializar o jogo
+        function initializeGame() {
+            completedPieces = 0;
+            puzzlePieces = selectRandomPieces();
+            createSilhouettes();
+            createObjects();
+        }
+
+        // Criar silhuetas
+        function createSilhouettes() {
+            silhouettesGrid.innerHTML = '';
+            
+            puzzlePieces.forEach(piece => {
+                const silhouette = document.createElement('div');
+                silhouette.className = 'silhouette-slot';
+                silhouette.dataset.id = piece.id;
+                silhouette.innerHTML = piece.emoji;
+                
+                // Event listeners para drag and drop
+                silhouette.addEventListener('dragover', handleDragOver);
+                silhouette.addEventListener('drop', handleDrop);
+                silhouette.addEventListener('dragleave', handleDragLeave);
+                
+                silhouettesGrid.appendChild(silhouette);
+            });
+        }
+
+        // Criar objetos arrastáveis
+        function createObjects() {
+            objectsLeft.innerHTML = '';
+            objectsRight.innerHTML = '';
+            
+            // Embaralhar os objetos
+            const shuffledPieces = [...puzzlePieces].sort(() => Math.random() - 0.5);
+            
+            shuffledPieces.forEach((piece, index) => {
+                const object = document.createElement('div');
+                object.className = 'draggable-object';
+                object.draggable = true;
+                object.dataset.id = piece.id;
+                object.innerHTML = piece.emoji;
+                
+                // Event listeners para drag and drop
+                object.addEventListener('dragstart', handleDragStart);
+                object.addEventListener('dragend', handleDragEnd);
+                
+                // Suporte para touch em dispositivos móveis
+                object.addEventListener('touchstart', handleTouchStart);
+                object.addEventListener('touchmove', handleTouchMove);
+                object.addEventListener('touchend', handleTouchEnd);
+                
+                // Distribuir objetos entre esquerda e direita
+                if (index % 2 === 0) {
+                    objectsLeft.appendChild(object);
+                } else {
+                    objectsRight.appendChild(object);
+                }
+            });
+        }
+
+        // Manipuladores de drag and drop
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.outerHTML);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            draggedElement = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            if (draggedElement && draggedElement.dataset.id === this.dataset.id && !this.classList.contains('filled')) {
+                // Encaixe correto!
+                this.classList.add('filled');
+                draggedElement.classList.add('placed');
+                
+                completedPieces++;
+                playSuccessSound();
+                
+                // Vibração (se disponível)
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+                
+                // Verificar se o jogo foi completado
+                if (completedPieces === puzzlePieces.length) {
+                    setTimeout(showVictory, 500);
+                }
+            } else {
+                // Encaixe incorreto
+                playErrorSound();
+                
+                // Vibração de erro (se disponível)
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+            }
+        }
+
+        // Suporte para touch (dispositivos móveis)
+        let touchOffset = { x: 0, y: 0 };
+        let touchElement = null;
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            touchElement = this;
+            this.classList.add('dragging');
+            
+            const touch = e.touches[0];
+            const rect = this.getBoundingClientRect();
+            touchOffset.x = touch.clientX - rect.left;
+            touchOffset.y = touch.clientY - rect.top;
+            
+            // Criar elemento fantasma para arrastar
+            this.style.position = 'fixed';
+            this.style.zIndex = '1000';
+            this.style.pointerEvents = 'none';
+        }
+
+        function handleTouchMove(e) {
+            if (!touchElement) return;
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            touchElement.style.left = (touch.clientX - touchOffset.x) + 'px';
+            touchElement.style.top = (touch.clientY - touchOffset.y) + 'px';
+            
+            // Verificar se está sobre uma silhueta
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            const silhouette = elementBelow?.closest('.silhouette-slot');
+            
+            // Remover highlight de todas as silhuetas
+            document.querySelectorAll('.silhouette-slot').forEach(slot => {
+                slot.classList.remove('drag-over');
+            });
+            
+            // Adicionar highlight na silhueta atual
+            if (silhouette) {
+                silhouette.classList.add('drag-over');
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchElement) return;
+            e.preventDefault();
+            
+            const touch = e.changedTouches[0];
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            const silhouette = elementBelow?.closest('.silhouette-slot');
+            
+            // Resetar posição do elemento
+            touchElement.style.position = '';
+            touchElement.style.zIndex = '';
+            touchElement.style.left = '';
+            touchElement.style.top = '';
+            touchElement.style.pointerEvents = '';
+            touchElement.classList.remove('dragging');
+            
+            // Remover highlight de todas as silhuetas
+            document.querySelectorAll('.silhouette-slot').forEach(slot => {
+                slot.classList.remove('drag-over');
+            });
+            
+            // Verificar encaixe
+            if (silhouette && touchElement.dataset.id === silhouette.dataset.id && !silhouette.classList.contains('filled')) {
+                // Encaixe correto!
+                silhouette.classList.add('filled');
+                touchElement.classList.add('placed');
+                
+                completedPieces++;
+                playSuccessSound();
+                
+                // Vibração (se disponível)
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+                
+                // Verificar se o jogo foi completado
+                if (completedPieces === puzzlePieces.length) {
+                    setTimeout(showVictory, 500);
+                }
+            } else if (silhouette) {
+                // Encaixe incorreto
+                playErrorSound();
+                
+                // Vibração de erro (se disponível)
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+            }
+            
+            touchElement = null;
+        }
+
+        // Tocar som de sucesso
+        function playSuccessSound() {
+            if (!audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // Dó
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // Mi
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // Sol
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+                
+            } catch (error) {
+                console.log('Erro ao tocar som de sucesso:', error);
+            }
+        }
+
+        // Tocar som de erro
+        function playErrorSound() {
+            if (!audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+                
+            } catch (error) {
+                console.log('Erro ao tocar som de erro:', error);
+            }
+        }
+
+        // Mostrar vitória
+        function showVictory() {
+            successMessage.innerHTML = '🎉 PARABÉNS! VOCÊ CONSEGUIU! 🎉<br><small style="font-size: 1.2rem; margin-top: 10px; display: block;">Novos desafios chegando em 3 segundos...</small>';
+            successMessage.style.display = 'block';
+            successMessage.style.animation = 'successShow 5s ease-in-out';
+            createCelebrationStars();
+            playVictorySound();
+            
+            // Vibração de vitória (se disponível)
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200, 100, 200]);
+            }
+            
+            // Iniciar novo jogo automaticamente após 3 segundos
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+                successMessage.style.animation = '';
+                successMessage.innerHTML = '🎉 PARABÉNS! VOCÊ CONSEGUIU! 🎉';
+                resetGame();
+            }, 3000);
+        }
+
+        // Tocar som de vitória
+        function playVictorySound() {
+            if (!audioContext) return;
+            
+            try {
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // Dó, Mi, Sol, Dó
+                
+                notes.forEach((frequency, index) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime + index * 0.2);
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime + index * 0.2);
+                    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + index * 0.2 + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + index * 0.2 + 0.4);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.start(audioContext.currentTime + index * 0.2);
+                    oscillator.stop(audioContext.currentTime + index * 0.2 + 0.4);
+                });
+                
+            } catch (error) {
+                console.log('Erro ao tocar som de vitória:', error);
+            }
+        }
+
+        // Criar estrelas de celebração
+        function createCelebrationStars() {
+            for (let i = 0; i < 20; i++) {
+                const star = document.createElement('div');
+                star.className = 'celebration-star';
+                star.innerHTML = ['⭐', '🌟', '✨', '💫'][Math.floor(Math.random() * 4)];
+                
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = (Math.random() * 2) + 's';
+                
+                celebrationStars.appendChild(star);
+                
+                // Remover estrela após animação
+                setTimeout(() => {
+                    if (star.parentNode) {
+                        star.parentNode.removeChild(star);
+                    }
+                }, 3000);
+            }
+        }
+
+        // Resetar jogo
+        function resetGame() {
+            // Limpar celebração
+            celebrationStars.innerHTML = '';
+            successMessage.style.display = 'none';
+            successMessage.style.animation = '';
+            
+            // Resetar todas as silhuetas e objetos
+            document.querySelectorAll('.silhouette-slot').forEach(slot => {
+                slot.classList.remove('filled', 'drag-over');
+            });
+            
+            document.querySelectorAll('.draggable-object').forEach(obj => {
+                obj.classList.remove('placed', 'dragging');
+            });
+            
+            // Reinicializar jogo
+            setTimeout(() => {
+                initializeGame();
+            }, 300);
+        }
+
+        // Voltar para página anterior
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.close();
+            }
+        }
+
+        // Interação por teclado para acessibilidade
+        document.addEventListener('keydown', function(event) {
+            const key = event.key.toLowerCase();
+            
+            switch(key) {
+                case ' ': // Espaço para resetar
+                    event.preventDefault();
+                    resetGame();
+                    break;
+                case 'escape': // ESC para voltar
+                    goBack();
+                    break;
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98fffc0fb15c8b1b',t:'MTc2MDcwNjA4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
