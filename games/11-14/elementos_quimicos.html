@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 LABORATÓRIO DE QUÍMICA</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3b82f6 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            min-height: calc(100vh - 20px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .lab-area {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #cbd5e1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lab-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .lab-header h2 {
+            color: #1e40af;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .experiment-area {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px dashed #94a3b8;
+            position: relative;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .beaker {
+            width: 120px;
+            height: 150px;
+            background: linear-gradient(to bottom, transparent 0%, transparent 20%, #e0f2fe 20%, #b3e5fc 100%);
+            border: 4px solid #0277bd;
+            border-radius: 0 0 60px 60px;
+            position: relative;
+            margin: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .beaker::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -20px;
+            right: -20px;
+            height: 20px;
+            background: #0277bd;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .beaker.reacting {
+            animation: bubbling 0.5s infinite;
+        }
+
+        .beaker.extreme-danger {
+            animation: violent-reaction 0.3s infinite;
+            background: linear-gradient(to bottom, transparent 0%, transparent 20%, #ff4444 20%, #cc0000 100%);
+            border-color: #ff0000;
+        }
+
+        @keyframes bubbling {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes violent-reaction {
+            0%, 100% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-8px) scale(1.1); }
+            50% { transform: translateY(-15px) scale(1.2); }
+            75% { transform: translateY(-8px) scale(1.1); }
+        }
+
+        .reaction-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-safe {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+
+        .result-danger {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            color: #dc2626;
+            border: 2px solid #ef4444;
+            animation: explosion 0.8s ease-out;
+        }
+
+        .result-extreme {
+            background: linear-gradient(135deg, #4c1d95 0%, #7c2d12 100%);
+            color: #fbbf24;
+            border: 3px solid #dc2626;
+            animation: catastrophic-explosion 1.2s ease-out;
+            box-shadow: 0 0 30px rgba(220, 38, 38, 0.8);
+        }
+
+        @keyframes explosion {
+            0% { transform: scale(0.8); background: #ff4444; }
+            50% { transform: scale(1.2); background: #ff8888; }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes catastrophic-explosion {
+            0% { transform: scale(0.5); background: #ff0000; box-shadow: 0 0 50px #ff0000; }
+            25% { transform: scale(1.3); background: #ff4400; box-shadow: 0 0 80px #ff4400; }
+            50% { transform: scale(1.5); background: #ff8800; box-shadow: 0 0 100px #ff8800; }
+            75% { transform: scale(1.2); background: #ffaa00; box-shadow: 0 0 60px #ffaa00; }
+            100% { transform: scale(1); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid #cbd5e1;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            color: #1e40af;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .elements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .element-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .element-card.danger-high {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+
+        .element-card.danger-extreme {
+            border-color: #dc2626;
+            background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+            color: #fbbf24;
+            animation: danger-pulse 2s infinite;
+        }
+
+        @keyframes danger-pulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(220, 38, 38, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.8); }
+        }
+
+        .element-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #3b82f6;
+        }
+
+        .element-symbol {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 3px;
+        }
+
+        .element-card.danger-extreme .element-symbol {
+            color: #fbbf24;
+        }
+
+        .element-name {
+            font-size: 0.6rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .element-card.danger-extreme .element-name {
+            color: #fcd34d;
+        }
+
+        .element-number {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.55rem;
+            color: #94a3b8;
+        }
+
+        .element-card.danger-extreme .element-number {
+            color: #fcd34d;
+        }
+
+        .selected-elements {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .selected-elements h3 {
+            margin: 0 0 8px 0;
+            color: #1e40af;
+            font-size: 1rem;
+        }
+
+        .selected-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-height: 35px;
+            align-items: center;
+        }
+
+        .selected-element {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid #3b82f6;
+            position: relative;
+        }
+
+        .selected-element .remove {
+            margin-left: 5px;
+            cursor: pointer;
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .experiment-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .experiment-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .experiment-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .element-info-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #cbd5e1;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .element-info-card.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .element-info-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .element-info-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .element-symbol-large {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .element-name-large {
+            color: #1e40af;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .element-number-large {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .element-properties {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .property-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .property-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .property-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .property-value {
+            font-size: 1.2rem;
+            color: #1e40af;
+            font-weight: bold;
+        }
+
+        .curiosities-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #f59e0b;
+            margin-bottom: 15px;
+        }
+
+        .curiosities-section h4 {
+            margin: 0 0 12px 0;
+            color: #92400e;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .curiosities-section p {
+            margin: 0;
+            color: #78350f;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .applications-section {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #22c55e;
+            margin-bottom: 15px;
+        }
+
+        .applications-section h4 {
+            margin: 0 0 12px 0;
+            color: #166534;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .applications-section ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #166534;
+        }
+
+        .applications-section li {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .safety-section {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #ef4444;
+        }
+
+        .safety-section h4 {
+            margin: 0 0 12px 0;
+            color: #dc2626;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .safety-section p {
+            margin: 0;
+            color: #991b1b;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .safety-warning {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .safety-warning h3 {
+            color: #dc2626;
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+        }
+
+        .safety-warning p {
+            color: #991b1b;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .extreme-warning {
+            background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+            border: 2px solid #dc2626;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            animation: warning-pulse 2s infinite;
+        }
+
+        .extreme-warning h3 {
+            color: #fbbf24;
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .extreme-warning p {
+            color: #fcd34d;
+            margin: 0;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        @keyframes warning-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(220, 38, 38, 0.9); }
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .sidebar {
+                order: -1;
+                max-height: 400px;
+            }
+            
+            .elements-grid {
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .elements-grid {
+                grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+                gap: 5px;
+            }
+            
+            .element-card {
+                padding: 5px;
+            }
+            
+            .element-symbol {
+                font-size: 1.2rem;
+            }
+            
+            .element-name {
+                font-size: 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <button class="back-button" onclick="goBack()">
+                <span>⬅️</span>
+                <span>Voltar</span>
+            </button>
+            <h1>🧪 Laboratório Químico Virtual</h1>
+            <p>Explore elementos, realize experimentos e aprenda sobre segurança química!</p>
+        </header>
+
+        <div class="main-content">
+            <div class="left-column">
+                <div class="lab-area">
+                    <div class="lab-header">
+                        <h2>🔬 Área de Experimentos</h2>
+                    </div>
+                    
+                    <div class="experiment-area" id="experimentArea">
+                        <div class="beaker" id="beaker"></div>
+                        <div class="reaction-result" id="reactionResult">
+                            Selecione elementos e clique em "Realizar Experimento" para começar!
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="control-btn clear-btn" onclick="clearExperiment()">🧹 Limpar Laboratório</button>
+                    </div>
+
+                    <div class="extreme-warning">
+                        <h3>☢️⚠️ AVISO CRÍTICO DE SEGURANÇA ⚠️☢️</h3>
+                        <p>Elementos com borda pulsante são EXTREMAMENTE PERIGOSOS!<br>
+                        Podem causar explosões, radiação mortal ou envenenamento fatal!</p>
+                    </div>
+                </div>
+
+                <div class="element-info-card" id="elementInfoCard">
+                    <!-- Informações detalhadas do elemento aparecerão aqui -->
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <h2>📋 Elementos Químicos</h2>
+                
+                <div class="selected-elements">
+                    <h3>Elementos Selecionados:</h3>
+                    <div class="selected-list" id="selectedList">
+                        <span style="color: #64748b; font-style: italic;">Nenhum elemento selecionado</span>
+                    </div>
+                </div>
+
+                <button class="experiment-btn" id="experimentBtn" onclick="performExperiment()" disabled>
+                    🧪 Realizar Experimento
+                </button>
+
+                <div class="elements-grid" id="elementsGrid">
+                    <!-- Elementos serão gerados pelo JavaScript -->
+                </div>
+
+                <div style="background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%); padding: 12px; border-radius: 8px; margin-top: 12px; border: 2px solid #0277bd;">
+                    <h4 style="margin: 0 0 8px 0; color: #01579b; font-size: 0.95rem;">🎯 Dicas de Uso:</h4>
+                    <ul style="margin: 0; padding-left: 16px; color: #0277bd; font-size: 0.8rem;">
+                        <li><strong>Clique:</strong> Seleciona elemento</li>
+                        <li><strong>Duplo clique:</strong> Ver informações</li>
+                        <li><strong>2 elementos:</strong> Reações químicas</li>
+                        <li><strong>⚠️ Pulsantes:</strong> PERIGOSOS!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elementos de áudio -->
+    <audio id="alertaAudio">
+        <source src="alerta.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+    
+    <audio id="explosaoAudio">
+        <source src="explosao.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+    
+    <audio id="falhaAudio">
+        <source src="falha.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <script>
+        // Elementos de áudio
+        const alertaAudio = document.getElementById('alertaAudio');
+        const explosaoAudio = document.getElementById('explosaoAudio');
+        const falhaAudio = document.getElementById('falhaAudio');
+
+        // Base de dados dos elementos químicos (baseada em fontes científicas confiáveis)
+        const elements = {
+            'H': {
+                name: 'Hidrogênio',
+                number: 1,
+                mass: '1.008',
+                category: 'Não-metal',
+                state: 'Gás',
+                meltingPoint: '-259.1°C',
+                boilingPoint: '-252.9°C',
+                density: '0.0899 g/L',
+                discoverer: 'Henry Cavendish (1766)',
+                curiosities: 'É o elemento mais abundante do universo, constituindo cerca de 75% de toda a matéria normal. Uma estrela como o Sol converte 600 milhões de toneladas de hidrogênio em hélio a cada segundo através da fusão nuclear.',
+                applications: [
+                    'Combustível para foguetes espaciais',
+                    'Produção de amônia para fertilizantes',
+                    'Refinamento de petróleo',
+                    'Células de combustível para energia limpa',
+                    'Soldagem e corte de metais'
+                ],
+                safety: 'Gás altamente inflamável. Pode formar misturas explosivas com o ar. Deve ser manuseado com extremo cuidado, longe de fontes de ignição.',
+                danger: 'medium'
+            },
+            'He': {
+                name: 'Hélio',
+                number: 2,
+                mass: '4.003',
+                category: 'Gás nobre',
+                state: 'Gás',
+                meltingPoint: '-272.2°C',
+                boilingPoint: '-268.9°C',
+                density: '0.1785 g/L',
+                discoverer: 'Pierre Janssen e Norman Lockyer (1868)',
+                curiosities: 'Foi descoberto primeiro no Sol antes de ser encontrado na Terra! É o segundo elemento mais abundante no universo. Não forma compostos químicos em condições normais e é completamente inerte.',
+                applications: [
+                    'Balões meteorológicos e dirigíveis',
+                    'Resfriamento de ímãs supercondutores em ressonância magnética',
+                    'Atmosfera protetora para soldagem',
+                    'Mergulho em águas profundas (misturado com oxigênio)',
+                    'Detecção de vazamentos'
+                ],
+                safety: 'Gás inerte e não tóxico, mas pode causar asfixia por deslocamento do oxigênio. Nunca inalar diretamente de cilindros pressurizados.',
+                danger: 'low'
+            },
+            'Li': {
+                name: 'Lítio',
+                number: 3,
+                mass: '6.94',
+                category: 'Metal alcalino',
+                state: 'Sólido',
+                meltingPoint: '180.5°C',
+                boilingPoint: '1342°C',
+                density: '0.534 g/cm³',
+                discoverer: 'Johan August Arfwedson (1817)',
+                curiosities: 'É o metal mais leve que existe! Flutua na água (antes de reagir com ela). O lítio é essencial para o funcionamento do cérebro humano e é usado no tratamento de transtorno bipolar.',
+                applications: [
+                    'Baterias de íon-lítio para celulares e carros elétricos',
+                    'Medicamentos para transtorno bipolar',
+                    'Lubrificantes especiais para altas temperaturas',
+                    'Ligas metálicas leves para aeronaves',
+                    'Vidros e cerâmicas especiais'
+                ],
+                safety: 'Metal altamente reativo. Reage violentamente com água, produzindo hidrogênio inflamável. Deve ser armazenado em óleo mineral.',
+                danger: 'high'
+            },
+            'Be': {
+                name: 'Berílio',
+                number: 4,
+                mass: '9.012',
+                category: 'Metal alcalino-terroso',
+                state: 'Sólido',
+                meltingPoint: '1287°C',
+                boilingPoint: '2469°C',
+                density: '1.85 g/cm³',
+                discoverer: 'Louis-Nicolas Vauquelin (1798)',
+                curiosities: 'Metal mais leve depois do lítio! Transparente aos raios-X. Extremamente tóxico - o pó causa doença pulmonar fatal chamada beriliose.',
+                applications: [
+                    'Ligas aeroespaciais ultra-leves',
+                    'Janelas de raios-X em equipamentos médicos',
+                    'Moderador em reatores nucleares',
+                    'Instrumentos de precisão',
+                    'Molas especiais que não fazem faíscas'
+                ],
+                safety: 'EXTREMAMENTE TÓXICO! Pó de berílio causa beriliose (doença pulmonar fatal). Cancerígeno classe A. Nunca inalar ou tocar sem proteção total.',
+                danger: 'extreme'
+            },
+            'C': {
+                name: 'Carbono',
+                number: 6,
+                mass: '12.01',
+                category: 'Não-metal',
+                state: 'Sólido',
+                meltingPoint: '3550°C',
+                boilingPoint: '4827°C',
+                density: '2.267 g/cm³ (grafite)',
+                discoverer: 'Conhecido desde a antiguidade',
+                curiosities: 'Base de toda vida na Terra! Pode formar mais compostos que qualquer outro elemento. O diamante e o grafite são ambos carbono puro, mas com estruturas completamente diferentes.',
+                applications: [
+                    'Diamantes industriais para corte e perfuração',
+                    'Grafite em lápis e lubrificantes',
+                    'Fibra de carbono em materiais compostos',
+                    'Carvão ativado para filtração',
+                    'Nanotubos de carbono em eletrônicos'
+                ],
+                safety: 'Geralmente seguro em formas comuns. Nanopartículas de carbono podem ser perigosas se inaladas.',
+                danger: 'low'
+            },
+            'N': {
+                name: 'Nitrogênio',
+                number: 7,
+                mass: '14.01',
+                category: 'Não-metal',
+                state: 'Gás',
+                meltingPoint: '-210.0°C',
+                boilingPoint: '-195.8°C',
+                density: '1.251 g/L',
+                discoverer: 'Daniel Rutherford (1772)',
+                curiosities: 'Compõe 78% da atmosfera terrestre! É essencial para a vida, fazendo parte de proteínas e DNA. Apesar de abundante no ar, as plantas não conseguem usá-lo diretamente.',
+                applications: [
+                    'Fertilizantes (após conversão em amônia)',
+                    'Explosivos e propelentes',
+                    'Atmosfera inerte para conservação de alimentos',
+                    'Resfriamento criogênico',
+                    'Produção de aço inoxidável'
+                ],
+                safety: 'Gás inerte em condições normais, mas pode causar asfixia por deslocamento do oxigênio em espaços confinados.',
+                danger: 'low'
+            },
+            'O': {
+                name: 'Oxigênio',
+                number: 8,
+                mass: '15.99',
+                category: 'Não-metal',
+                state: 'Gás',
+                meltingPoint: '-218.8°C',
+                boilingPoint: '-183.0°C',
+                density: '1.429 g/L',
+                discoverer: 'Joseph Priestley e Carl Wilhelm Scheele (1774)',
+                curiosities: 'Essencial para a respiração de quase todos os seres vivos! Compõe 21% do ar e 89% da massa da água. O oxigênio líquido é azul claro e magnético.',
+                applications: [
+                    'Respiração médica e mergulho',
+                    'Soldagem e corte de metais',
+                    'Tratamento de águas residuais',
+                    'Combustível para foguetes',
+                    'Produção de aço'
+                ],
+                safety: 'Suporta combustão vigorosamente. Concentrações altas podem ser tóxicas. Oxigênio puro sob pressão é extremamente perigoso.',
+                danger: 'medium'
+            },
+            'F': {
+                name: 'Flúor',
+                number: 9,
+                mass: '18.99',
+                category: 'Halogênio',
+                state: 'Gás',
+                meltingPoint: '-219.7°C',
+                boilingPoint: '-188.1°C',
+                density: '1.696 g/L',
+                discoverer: 'Henri Moissan (1886)',
+                curiosities: 'O elemento mais reativo da tabela periódica! Ataca quase tudo, incluindo vidro e metais nobres. Está no creme dental para prevenir cáries.',
+                applications: [
+                    'Pasta de dente (fluoreto para prevenir cáries)',
+                    'Refrigerantes (freons, sendo eliminados)',
+                    'Teflon e outros polímeros',
+                    'Enriquecimento de urânio',
+                    'Medicamentos (muitos contêm flúor)'
+                ],
+                safety: 'EXTREMAMENTE PERIGOSO! Gás mais corrosivo conhecido. Queima pele, ossos e pulmões. Mortal em pequenas quantidades.',
+                danger: 'extreme'
+            },
+            'Ne': {
+                name: 'Neônio',
+                number: 10,
+                mass: '20.18',
+                category: 'Gás nobre',
+                state: 'Gás',
+                meltingPoint: '-248.6°C',
+                boilingPoint: '-246.1°C',
+                density: '0.9002 g/L',
+                discoverer: 'William Ramsay e Morris Travers (1898)',
+                curiosities: 'Faz as luzes de neônio brilharem! Produz uma luz laranja-avermelhada característica quando eletrificado. É o segundo gás nobre mais leve.',
+                applications: [
+                    'Letreiros luminosos (luzes de neônio)',
+                    'Indicadores de alta voltagem',
+                    'Lasers de hélio-neônio',
+                    'Refrigeração criogênica',
+                    'Atmosfera inerte para soldagem'
+                ],
+                safety: 'Gás inerte e completamente seguro. Pode causar asfixia apenas por deslocamento do oxigênio.',
+                danger: 'low'
+            },
+            'Na': {
+                name: 'Sódio',
+                number: 11,
+                mass: '22.99',
+                category: 'Metal alcalino',
+                state: 'Sólido',
+                meltingPoint: '97.8°C',
+                boilingPoint: '883°C',
+                density: '0.968 g/cm³',
+                discoverer: 'Humphry Davy (1807)',
+                curiosities: 'Está no sal de cozinha! É tão reativo que explode na água. Nosso corpo precisa dele para funcionar, mas o metal puro é mortal.',
+                applications: [
+                    'Sal de cozinha (cloreto de sódio)',
+                    'Lâmpadas de vapor de sódio',
+                    'Refrigerante em reatores nucleares',
+                    'Produção de outros metais',
+                    'Sabões e detergentes'
+                ],
+                safety: 'MUITO PERIGOSO! Explode violentamente em contato com água. Queima pele instantaneamente. Deve ser armazenado em óleo.',
+                danger: 'extreme'
+            },
+            'Mg': {
+                name: 'Magnésio',
+                number: 12,
+                mass: '24.31',
+                category: 'Metal alcalino-terroso',
+                state: 'Sólido',
+                meltingPoint: '650°C',
+                boilingPoint: '1090°C',
+                density: '1.738 g/cm³',
+                discoverer: 'Joseph Black (1755)',
+                curiosities: 'Queima com uma luz branca muito brilhante! Está presente na clorofila das plantas verdes. É essencial para mais de 300 reações no corpo humano.',
+                applications: [
+                    'Fogos de artifício (luz branca intensa)',
+                    'Ligas leves para automóveis e aviões',
+                    'Suplementos nutricionais',
+                    'Desoxidante na produção de metais',
+                    'Flashes fotográficos antigos'
+                ],
+                safety: 'Pó de magnésio é altamente inflamável. Não olhe diretamente para a chama - pode causar danos permanentes aos olhos.',
+                danger: 'medium'
+            },
+            'Al': {
+                name: 'Alumínio',
+                number: 13,
+                mass: '26.98',
+                category: 'Metal',
+                state: 'Sólido',
+                meltingPoint: '660.3°C',
+                boilingPoint: '2519°C',
+                density: '2.70 g/cm³',
+                discoverer: 'Hans Christian Ørsted (1825)',
+                curiosities: 'Usado em latas de refrigerante! É leve, resistente e não enferruja. É o metal mais abundante na crosta terrestre, mas foi mais caro que ouro até 1886.',
+                applications: [
+                    'Latas de bebidas e embalagens',
+                    'Estruturas de aviões e carros',
+                    'Fios elétricos (substituto do cobre)',
+                    'Utensílios domésticos',
+                    'Papel alumínio'
+                ],
+                safety: 'Geralmente seguro. Pó fino pode ser explosivo. Possível ligação com Alzheimer ainda em estudo.',
+                danger: 'low'
+            },
+            'Si': {
+                name: 'Silício',
+                number: 14,
+                mass: '28.09',
+                category: 'Semimetal',
+                state: 'Sólido',
+                meltingPoint: '1414°C',
+                boilingPoint: '3265°C',
+                density: '2.3296 g/cm³',
+                discoverer: 'Jöns Jacob Berzelius (1824)',
+                curiosities: 'Usado para fazer chips de computador! Está na areia das praias. É essencial para a tecnologia moderna e segundo elemento mais abundante na Terra.',
+                applications: [
+                    'Microprocessadores e chips',
+                    'Painéis solares',
+                    'Vidro e cerâmica',
+                    'Implantes médicos',
+                    'Borracha de silicone'
+                ],
+                safety: 'Cristais são seguros. Pó fino (sílica) causa silicose pulmonar se inalado cronicamente.',
+                danger: 'low'
+            },
+            'P': {
+                name: 'Fósforo',
+                number: 15,
+                mass: '30.97',
+                category: 'Não-metal',
+                state: 'Sólido',
+                meltingPoint: '44.2°C (branco)',
+                boilingPoint: '280.5°C',
+                density: '1.823 g/cm³',
+                discoverer: 'Hennig Brand (1669)',
+                curiosities: 'Brilha no escuro (fósforo branco)! Está nos palitos de fósforo e é essencial para nossos ossos, dentes e DNA. Descoberto na urina humana!',
+                applications: [
+                    'Fertilizantes (essencial para plantas)',
+                    'Palitos de fósforo',
+                    'Detergentes',
+                    'Refrigerantes (ácido fosfórico)',
+                    'Fogos de artifício'
+                ],
+                safety: 'Fósforo branco é EXTREMAMENTE TÓXICO e inflama espontaneamente no ar. Fósforo vermelho é mais seguro.',
+                danger: 'extreme'
+            },
+            'S': {
+                name: 'Enxofre',
+                number: 16,
+                mass: '32.07',
+                category: 'Não-metal',
+                state: 'Sólido',
+                meltingPoint: '115.2°C',
+                boilingPoint: '444.6°C',
+                density: '2.067 g/cm³',
+                discoverer: 'Conhecido desde a antiguidade',
+                curiosities: 'Tem cheiro de ovo podre quando combinado! Usado em fogos de artifício. Está presente em algumas proteínas do nosso corpo e em vulcões.',
+                applications: [
+                    'Ácido sulfúrico (químico mais produzido)',
+                    'Vulcanização da borracha',
+                    'Fungicidas agrícolas',
+                    'Pólvora e fogos de artifício',
+                    'Medicamentos'
+                ],
+                safety: 'Relativamente seguro em forma pura. Compostos podem ser tóxicos. Dióxido de enxofre é irritante respiratório.',
+                danger: 'medium'
+            },
+            'Cl': {
+                name: 'Cloro',
+                number: 17,
+                mass: '35.45',
+                category: 'Halogênio',
+                state: 'Gás',
+                meltingPoint: '-101.5°C',
+                boilingPoint: '-34.0°C',
+                density: '3.214 g/L',
+                discoverer: 'Carl Wilhelm Scheele (1774)',
+                curiosities: 'Usado para limpar piscinas! Mata bactérias na água. Forma o sal quando combinado com sódio. Foi usado como arma química na Primeira Guerra.',
+                applications: [
+                    'Desinfecção de água potável e piscinas',
+                    'Produção de PVC (plástico)',
+                    'Alvejantes e produtos de limpeza',
+                    'Papel e celulose',
+                    'Medicamentos'
+                ],
+                safety: 'MUITO TÓXICO! Gás irritante que queima pulmões. Pode ser fatal em concentrações altas. Nunca misturar com amônia.',
+                danger: 'extreme'
+            },
+            'K': {
+                name: 'Potássio',
+                number: 19,
+                mass: '39.10',
+                category: 'Metal alcalino',
+                state: 'Sólido',
+                meltingPoint: '63.4°C',
+                boilingPoint: '759°C',
+                density: '0.89 g/cm³',
+                discoverer: 'Humphry Davy (1807)',
+                curiosities: 'Abundante nas bananas! Essencial para o funcionamento dos músculos e nervos. Reage ainda mais violentamente com água que o sódio.',
+                applications: [
+                    'Fertilizantes (essencial para plantas)',
+                    'Suplementos nutricionais',
+                    'Sabões especiais',
+                    'Vidros resistentes ao calor',
+                    'Células fotoelétricas'
+                ],
+                safety: 'EXTREMAMENTE PERIGOSO! Mais reativo que sódio. Explode violentamente com água. Pode inflamar espontaneamente no ar úmido.',
+                danger: 'extreme'
+            },
+            'Ca': {
+                name: 'Cálcio',
+                number: 20,
+                mass: '40.08',
+                category: 'Metal alcalino-terroso',
+                state: 'Sólido',
+                meltingPoint: '842°C',
+                boilingPoint: '1484°C',
+                density: '1.54 g/cm³',
+                discoverer: 'Humphry Davy (1808)',
+                curiosities: 'Fortalece ossos e dentes! Está no leite e queijo. Faz o giz e o mármore serem brancos. Essencial para contração muscular.',
+                applications: [
+                    'Suplementos nutricionais',
+                    'Cimento e construção civil',
+                    'Metalurgia (desoxidante)',
+                    'Giz escolar',
+                    'Antiácidos'
+                ],
+                safety: 'Metal puro reage com água, mas compostos são geralmente seguros. Excesso pode causar pedras nos rins.',
+                danger: 'low'
+            },
+            'Fe': {
+                name: 'Ferro',
+                number: 26,
+                mass: '55.85',
+                category: 'Metal de transição',
+                state: 'Sólido',
+                meltingPoint: '1538°C',
+                boilingPoint: '2861°C',
+                density: '7.874 g/cm³',
+                discoverer: 'Conhecido desde a antiguidade',
+                curiosities: 'Usado para fazer aço! Está no nosso sangue (hemoglobina) transportando oxigênio. É atraído por ímãs e essencial para a vida.',
+                applications: [
+                    'Aço para construção e automóveis',
+                    'Suplementos para anemia',
+                    'Ímãs permanentes',
+                    'Catalisadores industriais',
+                    'Pigmentos (óxido de ferro)'
+                ],
+                safety: 'Geralmente seguro. Pó fino pode ser explosivo. Excesso no corpo causa hemocromatose.',
+                danger: 'low'
+            },
+            'Cu': {
+                name: 'Cobre',
+                number: 29,
+                mass: '63.55',
+                category: 'Metal de transição',
+                state: 'Sólido',
+                meltingPoint: '1085°C',
+                boilingPoint: '2562°C',
+                density: '8.933 g/cm³',
+                discoverer: 'Conhecido desde a antiguidade',
+                curiosities: 'Conduz muito bem a eletricidade! Usado em fios elétricos. Fica verde quando oxida (Estátua da Liberdade). Mata bactérias naturalmente.',
+                applications: [
+                    'Fios e cabos elétricos',
+                    'Encanamentos (antimicrobiano natural)',
+                    'Moedas e decoração',
+                    'Ligas (bronze, latão)',
+                    'Equipamentos eletrônicos'
+                ],
+                safety: 'Seguro em quantidades normais. Excesso pode causar toxicidade (doença de Wilson).',
+                danger: 'low'
+            },
+            'Zn': {
+                name: 'Zinco',
+                number: 30,
+                mass: '65.38',
+                category: 'Metal de transição',
+                state: 'Sólido',
+                meltingPoint: '419.5°C',
+                boilingPoint: '907°C',
+                density: '7.134 g/cm³',
+                discoverer: 'Andreas Sigismund Marggraf (1746)',
+                curiosities: 'Protege o ferro da ferrugem (galvanização)! Essencial para o sistema imunológico. Usado em pilhas comuns.',
+                applications: [
+                    'Galvanização (proteção contra ferrugem)',
+                    'Pilhas e baterias',
+                    'Suplementos nutricionais',
+                    'Ligas (latão)',
+                    'Protetores solares (óxido de zinco)'
+                ],
+                safety: 'Seguro em doses adequadas. Excesso pode causar náuseas e interferir na absorção de cobre.',
+                danger: 'low'
+            },
+            'Cs': {
+                name: 'Césio',
+                number: 55,
+                mass: '132.91',
+                category: 'Metal alcalino',
+                state: 'Sólido',
+                meltingPoint: '28.4°C',
+                boilingPoint: '671°C',
+                density: '1.873 g/cm³',
+                discoverer: 'Robert Bunsen e Gustav Kirchhoff (1860)',
+                curiosities: 'O metal mais reativo de todos! Explode violentamente apenas com vapor de água no ar. Derrete na sua mão (28°C). É usado em relógios atômicos ultra-precisos.',
+                applications: [
+                    'Relógios atômicos (padrão de tempo mundial)',
+                    'Células fotoelétricas',
+                    'Catalisadores em química orgânica',
+                    'Fluidos de perfuração de petróleo',
+                    'Pesquisa em física quântica'
+                ],
+                safety: 'EXTREMAMENTE PERIGOSO! Explode espontaneamente com umidade do ar. Deve ser armazenado em ampolas seladas sob argônio.',
+                danger: 'extreme'
+            },
+            'Rb': {
+                name: 'Rubídio',
+                number: 37,
+                mass: '85.47',
+                category: 'Metal alcalino',
+                state: 'Sólido',
+                meltingPoint: '39.3°C',
+                boilingPoint: '688°C',
+                density: '1.532 g/cm³',
+                discoverer: 'Robert Bunsen e Gustav Kirchhoff (1861)',
+                curiosities: 'Quase tão reativo quanto o césio! Inflama espontaneamente no ar. Foi descoberto através da espectroscopia - sua chama é vermelha intensa.',
+                applications: [
+                    'Pesquisa em condensados de Bose-Einstein',
+                    'Células fotoelétricas especiais',
+                    'Vidros especiais',
+                    'Catalisadores',
+                    'Medicina nuclear (isótopos)'
+                ],
+                safety: 'MUITO PERIGOSO! Reação violenta com água e ar. Pode causar incêndios espontâneos.',
+                danger: 'extreme'
+            },
+            'Fr': {
+                name: 'Frâncio',
+                number: 87,
+                mass: '223',
+                category: 'Metal alcalino',
+                state: 'Sólido',
+                meltingPoint: '27°C',
+                boilingPoint: '677°C',
+                density: '2.48 g/cm³',
+                discoverer: 'Marguerite Perey (1939)',
+                curiosities: 'O elemento mais raro e radioativo da natureza! Apenas 30 gramas existem na Terra inteira. Seria o mais reativo de todos, mas decai em minutos.',
+                applications: [
+                    'Pesquisa científica apenas',
+                    'Estudos de radioatividade',
+                    'Nenhuma aplicação prática devido à raridade'
+                ],
+                safety: 'RADIOATIVO E EXPLOSIVO! Extremamente perigoso por radioatividade e reatividade química.',
+                danger: 'extreme'
+            },
+            'Br': {
+                name: 'Bromo',
+                number: 35,
+                mass: '79.90',
+                category: 'Halogênio',
+                state: 'Líquido',
+                meltingPoint: '-7.2°C',
+                boilingPoint: '58.8°C',
+                density: '3.1028 g/cm³',
+                discoverer: 'Antoine Jérôme Balard (1826)',
+                curiosities: 'Um dos únicos dois elementos líquidos à temperatura ambiente! Seus vapores são vermelhos e extremamente tóxicos. O nome vem do grego "bromos" (fedor).',
+                applications: [
+                    'Retardantes de chama',
+                    'Pesticidas e fumigantes',
+                    'Medicamentos (sedativos antigos)',
+                    'Fotografia (brometo de prata)',
+                    'Fluidos de perfuração'
+                ],
+                safety: 'MUITO TÓXICO! Vapores causam queimaduras graves nos pulmões. Líquido queima pele instantaneamente.',
+                danger: 'extreme'
+            },
+            'I': {
+                name: 'Iodo',
+                number: 53,
+                mass: '126.90',
+                category: 'Halogênio',
+                state: 'Sólido',
+                meltingPoint: '113.7°C',
+                boilingPoint: '184.4°C',
+                density: '4.933 g/cm³',
+                discoverer: 'Bernard Courtois (1811)',
+                curiosities: 'Sublima diretamente para vapor roxo! Essencial para a tireoide humana. Descoberto acidentalmente ao limpar tanques de algas marinhas.',
+                applications: [
+                    'Desinfetante (tintura de iodo)',
+                    'Suplementos nutricionais',
+                    'Contrastes para raios-X',
+                    'Catalisadores',
+                    'Sal iodado (prevenção de bócio)'
+                ],
+                safety: 'Tóxico em grandes quantidades. Vapores irritam mucosas. Pode causar queimaduras na pele.',
+                danger: 'medium'
+            },
+            'Ra': {
+                name: 'Rádio',
+                number: 88,
+                mass: '226',
+                category: 'Metal alcalino-terroso',
+                state: 'Sólido',
+                meltingPoint: '700°C',
+                boilingPoint: '1737°C',
+                density: '5.5 g/cm³',
+                discoverer: 'Marie e Pierre Curie (1898)',
+                curiosities: 'Brilha no escuro! Marie Curie descobriu a radioatividade estudando este elemento. Era usado em tintas luminosas até descobrirem que mata.',
+                applications: [
+                    'Pesquisa histórica sobre radioatividade',
+                    'Tratamento de câncer (histórico)',
+                    'Tintas luminosas (banido)',
+                    'Estudos científicos apenas'
+                ],
+                safety: 'ALTAMENTE RADIOATIVO! Causa câncer e morte por radiação. Banido para uso comercial.',
+                danger: 'extreme'
+            }
+        };
+
+        // Reações químicas possíveis (incluindo muitas explosivas!)
+        const reactions = {
+            'H+O': {
+                result: 'H₂O (Água)',
+                type: 'safe',
+                description: 'Formação de água! Uma das reações mais importantes da natureza.',
+                safety: 'Reação segura quando controlada, mas pode ser explosiva em grandes quantidades.'
+            },
+            'H+H': {
+                result: 'H₂ (Gás Hidrogênio)',
+                type: 'safe',
+                description: 'Formação de gás hidrogênio molecular.',
+                safety: 'Gás inflamável - mantenha longe de chamas!'
+            },
+            'Na+Cl': {
+                result: 'NaCl (Sal de Cozinha)',
+                type: 'safe',
+                description: 'Formação do sal comum que usamos na comida!',
+                safety: 'Reação muito exotérmica, mas o produto é seguro para consumo.'
+            },
+            'Na+O': {
+                result: '💥 EXPLOSÃO!',
+                type: 'danger',
+                description: 'Sódio reage violentamente com oxigênio!',
+                safety: 'PERIGO! Sódio metálico nunca deve ser exposto ao ar ou água sem proteção adequada.'
+            },
+            'K+O': {
+                result: '💥 EXPLOSÃO VIOLENTA!',
+                type: 'danger',
+                description: 'Potássio é ainda mais reativo que o sódio!',
+                safety: 'EXTREMO PERIGO! Potássio pode explodir espontaneamente em contato com o ar.'
+            },
+            'Li+O': {
+                result: '🔥 REAÇÃO INTENSA!',
+                type: 'danger',
+                description: 'Lítio queima com chama vermelha intensa!',
+                safety: 'CUIDADO! Metais alcalinos são muito reativos com oxigênio.'
+            },
+            'P+O': {
+                result: '🔥 COMBUSTÃO ESPONTÂNEA!',
+                type: 'danger',
+                description: 'Fósforo branco inflama espontaneamente no ar!',
+                safety: 'PERIGO EXTREMO! Fósforo branco é altamente tóxico e inflamável.'
+            },
+            'Mg+O': {
+                result: 'MgO + Luz Brilhante',
+                type: 'safe',
+                description: 'Magnésio queima com luz branca muito intensa!',
+                safety: 'Não olhe diretamente para a chama - pode causar danos aos olhos.'
+            },
+            'C+O': {
+                result: 'CO₂ (Dióxido de Carbono)',
+                type: 'safe',
+                description: 'Combustão do carbono produz CO₂.',
+                safety: 'Reação comum e relativamente segura, mas CO₂ em excesso pode ser perigoso.'
+            },
+            'Fe+O': {
+                result: 'Fe₂O₃ (Ferrugem)',
+                type: 'safe',
+                description: 'Ferro oxida lentamente formando ferrugem.',
+                safety: 'Processo natural e seguro, mas enfraquece estruturas metálicas.'
+            },
+            'H+Cl': {
+                result: 'HCl (Ácido Clorídrico)',
+                type: 'danger',
+                description: 'Formação de ácido forte!',
+                safety: 'CUIDADO! Ácido clorídrico é corrosivo e pode causar queimaduras.'
+            },
+            'Ca+O': {
+                result: 'CaO (Cal Viva)',
+                type: 'safe',
+                description: 'Formação de óxido de cálcio.',
+                safety: 'Cal viva reage violentamente com água - use proteção adequada.'
+            },
+            // NOVAS REAÇÕES EXPLOSIVAS EXTREMAS!
+            'Cs+O': {
+                result: '💥💥 EXPLOSÃO DEVASTADORA! 💥💥',
+                type: 'extreme',
+                description: 'Césio + Oxigênio = A reação mais violenta possível!',
+                safety: 'PERIGO EXTREMO! Césio explode apenas com umidade do ar. NUNCA manuseie sem equipamento especializado!'
+            },
+            'Cs+H': {
+                result: '🔥💥 EXPLOSÃO INSTANTÂNEA! 💥🔥',
+                type: 'extreme',
+                description: 'Césio reage explosivamente até com vapor de água!',
+                safety: 'CATASTRÓFICO! A reação mais perigosa da química!'
+            },
+            'Rb+O': {
+                result: '💥 EXPLOSÃO VIOLENTÍSSIMA! 💥',
+                type: 'extreme',
+                description: 'Rubídio inflama espontaneamente no ar!',
+                safety: 'EXTREMO PERIGO! Rubídio pode explodir apenas tocando o ar úmido!'
+            },
+            'Fr+O': {
+                result: '☢️💥 EXPLOSÃO RADIOATIVA! 💥☢️',
+                type: 'extreme',
+                description: 'Frâncio: radioativo E explosivo!',
+                safety: 'DUPLO PERIGO! Radioatividade mortal + explosão química!'
+            },
+            'Be+F': {
+                result: '☠️ NUVEM TÓXICA MORTAL! ☠️',
+                type: 'extreme',
+                description: 'Berílio + Flúor = Gases letais!',
+                safety: 'VENENO EXTREMO! Mata em minutos por inalação!'
+            },
+            'Br+K': {
+                result: '🔥💨 VAPORES TÓXICOS! 💨🔥',
+                type: 'extreme',
+                description: 'Bromo libera vapores vermelhos mortais!',
+                safety: 'MUITO TÓXICO! Vapores queimam pulmões instantaneamente!'
+            },
+            'Ra+O': {
+                result: '☢️🔥 RADIAÇÃO + FOGO! 🔥☢️',
+                type: 'extreme',
+                description: 'Rádio radioativo pega fogo sozinho!',
+                safety: 'RADIOATIVO! Causa câncer e queimaduras por radiação!'
+            },
+            'P+Cl': {
+                result: '💥 EXPLOSÃO QUÍMICA! 💥',
+                type: 'extreme',
+                description: 'Fósforo + Cloro = Reação violenta!',
+                safety: 'PERIGO! Forma gases tóxicos e explosivos!'
+            },
+            'Na+F': {
+                result: '🔥💥 REAÇÃO FURIOSA! 💥🔥',
+                type: 'extreme',
+                description: 'Sódio + Flúor = Explosão com chamas!',
+                safety: 'MUITO PERIGOSO! Libera calor extremo e gases tóxicos!'
+            },
+            'K+Cl': {
+                result: '💥 EXPLOSÃO COM FAÍSCAS! 💥',
+                type: 'extreme',
+                description: 'Potássio reage violentamente com cloro!',
+                safety: 'CUIDADO EXTREMO! Pode causar incêndios e explosões!'
+            },
+            'Li+F': {
+                result: '🔥 CHAMAS INTENSAS! 🔥',
+                type: 'extreme',
+                description: 'Lítio + Flúor = Combustão violenta!',
+                safety: 'PERIGOSO! Chamas de alta temperatura e gases tóxicos!'
+            },
+            'Cs+Cl': {
+                result: '💥⚡ DETONAÇÃO INSTANTÂNEA! ⚡💥',
+                type: 'extreme',
+                description: 'Césio + Cloro = Explosão mais violenta que dinamite!',
+                safety: 'APOCALÍPTICO! Reação mais perigosa conhecida pela ciência!'
+            },
+            'Rb+F': {
+                result: '🔥💥 INFERNO QUÍMICO! 💥🔥',
+                type: 'extreme',
+                description: 'Rubídio + Flúor = Chamas de 2000°C!',
+                safety: 'LETAL! Temperatura suficiente para derreter aço!'
+            },
+            'Fr+Cl': {
+                result: '☢️💥⚡ CATÁSTROFE RADIOATIVA! ⚡💥☢️',
+                type: 'extreme',
+                description: 'Frâncio + Cloro = Explosão + Radiação mortal!',
+                safety: 'FIM DO MUNDO! Combinação mais perigosa possível!'
+            }
+        };
+
+        // Variáveis do jogo
+        let selectedElements = [];
+        let currentExperiment = null;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            generateElementsGrid();
+        });
+
+        // Gerar grade de elementos
+        function generateElementsGrid() {
+            const grid = document.getElementById('elementsGrid');
+            
+            Object.keys(elements).forEach(symbol => {
+                const element = elements[symbol];
+                const card = document.createElement('div');
+                card.className = 'element-card';
+                
+                // Adicionar classes de perigo
+                if (element.danger === 'high') {
+                    card.classList.add('danger-high');
+                } else if (element.danger === 'extreme') {
+                    card.classList.add('danger-extreme');
+                }
+                
+                card.onclick = () => toggleElement(symbol);
+                
+                card.innerHTML = `
+                    <div class="element-number">${element.number}</div>
+                    <div class="element-symbol">${symbol}</div>
+                    <div class="element-name">${element.name}</div>
+                `;
+                
+                // Adicionar evento para mostrar informações (clique direito ou duplo clique)
+                card.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    showElementInfo(symbol);
+                });
+                
+                card.addEventListener('dblclick', () => {
+                    showElementInfo(symbol);
+                });
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Alternar seleção de elemento e mostrar informações
+        function toggleElement(symbol) {
+            // Sempre mostrar informações do elemento clicado
+            showElementInfo(symbol);
+            
+            const index = selectedElements.indexOf(symbol);
+            
+            if (index === -1) {
+                if (selectedElements.length < 2) {
+                    selectedElements.push(symbol);
+                } else {
+                    // Substituir o primeiro elemento se já tiver 2
+                    selectedElements[0] = selectedElements[1];
+                    selectedElements[1] = symbol;
+                }
+            } else {
+                selectedElements.splice(index, 1);
+            }
+            
+            updateSelectedList();
+            updateExperimentButton();
+        }
+
+        // Atualizar lista de elementos selecionados
+        function updateSelectedList() {
+            const list = document.getElementById('selectedList');
+            
+            if (selectedElements.length === 0) {
+                list.innerHTML = '<span style="color: #64748b; font-style: italic;">Nenhum elemento selecionado</span>';
+            } else {
+                list.innerHTML = selectedElements.map(symbol => 
+                    `<span class="selected-element">
+                        ${symbol} (${elements[symbol].name})
+                        <span class="remove" onclick="removeElement('${symbol}')">×</span>
+                    </span>`
+                ).join('');
+            }
+        }
+
+        // Remover elemento da seleção
+
+        function removeElement(symbol) {
+            const index = selectedElements.indexOf(symbol);
+            if (index !== -1) {
+                selectedElements.splice(index, 1);
+                updateSelectedList();
+                updateExperimentButton();
+            }
+        }
+
+        // Atualizar botão de experimento
+
+        function updateExperimentButton() {
+            const btn = document.getElementById('experimentBtn');
+            btn.disabled = selectedElements.length < 1;
+            
+            if (selectedElements.length === 0) {
+                btn.textContent = '🧪 Selecione elementos primeiro';
+            } else if (selectedElements.length === 1) {
+                btn.textContent = '🧪 Analisar elemento';
+            } else {
+                btn.textContent = '🧪 Realizar experimento';
+            }
+        }
+
+        // Realizar experimento
+
+        function performExperiment() {
+            if (selectedElements.length === 0) return;
+            
+            const beaker = document.getElementById('beaker');
+            const result = document.getElementById('reactionResult');
+            
+            // Animação do béquer
+            beaker.classList.add('reacting');
+            
+            setTimeout(() => {
+                beaker.classList.remove('reacting');
+                
+                if (selectedElements.length === 1) {
+                    // Análise de elemento único
+                    const element = elements[selectedElements[0]];
+                    result.className = 'reaction-result result-safe';
+                    result.innerHTML = `
+                        <div>
+                            <strong>Análise do ${element.name} (${selectedElements[0]})</strong><br>
+                            Estado: ${element.state} | Categoria: ${element.category}<br>
+                            Massa atômica: ${element.mass} u
+                        </div>
+                    `;
+                } else {
+                    // Reação entre dois elementos
+                    const reactionKey = selectedElements.sort().join('+');
+                    const reaction = reactions[reactionKey];
+                    
+                    if (reaction) {
+                        if (reaction.type === 'extreme') {
+                            result.className = 'reaction-result result-extreme';
+                            beaker.classList.add('extreme-danger');
+                            createCatastrophicExplosion();
+                            // Tocar áudio de explosão para reações extremas
+                            explosaoAudio.play();
+                        } else if (reaction.type === 'danger') {
+                            result.className = 'reaction-result result-danger';
+                            createExplosionEffect();
+                            // Tocar áudio de alerta para reações perigosas
+                            alertaAudio.play();
+                        } else {
+                            result.className = 'reaction-result result-safe';
+                        }
+                        
+                        result.innerHTML = `
+                            <div>
+                                <strong>${reaction.result}</strong><br>
+                                ${reaction.description}<br>
+                                <small style="margin-top: 10px; display: block; font-weight: normal;">
+                                    ⚠️ ${reaction.safety}
+                                </small>
+                            </div>
+                        `;
+                        
+                        // Vibração se disponível
+                        if (navigator.vibrate) {
+                            if (reaction.type === 'extreme') {
+                                navigator.vibrate([300, 100, 300, 100, 300, 100, 300]);
+                            } else if (reaction.type === 'danger') {
+                                navigator.vibrate([200, 100, 200, 100, 200]);
+                            }
+                        }
+                    } else {
+                        result.className = 'reaction-result result-safe';
+                        result.innerHTML = `
+                            <div>
+                                <strong>Sem reação conhecida</strong><br>
+                                ${selectedElements.join(' + ')} não reagem nas condições normais<br>
+                                <small style="margin-top: 10px; display: block; font-weight: normal;">
+                                    Nem todos os elementos reagem entre si facilmente.
+                                </small>
+                            </div>
+                        `;
+                        // Tocar áudio de falha para reações sem resultado
+                        falhaAudio.play();
+                    }
+                }
+            }, 1000);
+        }
+
+        // Criar efeito de explosão normal
+
+        function createExplosionEffect() {
+            const experimentArea = document.getElementById('experimentArea');
+            
+            // Criar partículas de explosão
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '10px';
+                particle.style.height = '10px';
+                particle.style.background = ['#ff4444', '#ff8800', '#ffaa00'][Math.floor(Math.random() * 3)];
+                particle.style.borderRadius = '50%';
+                particle.style.left = '50%';
+                particle.style.top = '40%';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '1000';
+                
+                experimentArea.appendChild(particle);
+                
+                // Animar partícula
+                const angle = (Math.PI * 2 * i) / 15;
+                const distance = 50 + Math.random() * 100;
+                const duration = 800 + Math.random() * 400;
+                
+                particle.animate([
+                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                    { 
+                        transform: `translate(${Math.cos(angle) * distance - 50}%, ${Math.sin(angle) * distance - 50}%) scale(0)`, 
+                        opacity: 0 
+                    }
+                ], {
+                    duration: duration,
+                    easing: 'ease-out'
+                }).onfinish = () => {
+                    particle.remove();
+                };
+            }
+        }
+
+        // Criar efeito de explosão catastrófica
+
+        function createCatastrophicExplosion() {
+            const experimentArea = document.getElementById('experimentArea');
+            
+            // Criar muitas partículas para explosão extrema
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 20 + 10 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.background = ['#ff0000', '#ff4400', '#ff8800', '#ffaa00', '#ffffff'][Math.floor(Math.random() * 5)];
+                particle.style.borderRadius = '50%';
+                particle.style.left = '50%';
+                particle.style.top = '40%';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '1000';
+                particle.style.boxShadow = '0 0 20px currentColor';
+                
+                experimentArea.appendChild(particle);
+                
+                // Animar partícula com movimento mais violento
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 100 + Math.random() * 200;
+                const duration = 1200 + Math.random() * 800;
+                
+                particle.animate([
+                    { transform: 'translate(-50%, -50%) scale(0)', opacity: 1 },
+                    { transform: 'translate(-50%, -50%) scale(2)', opacity: 1, offset: 0.1 },
+                    { 
+                        transform: `translate(${Math.cos(angle) * distance - 50}%, ${Math.sin(angle) * distance - 50}%) scale(0)`, 
+                        opacity: 0 
+                    }
+                ], {
+                    duration: duration,
+                    easing: 'ease-out'
+                }).onfinish = () => {
+                    particle.remove();
+                };
+            }
+            
+            // Efeito de flash
+            const flash = document.createElement('div');
+            flash.style.position = 'fixed';
+            flash.style.top = '0';
+            flash.style.left = '0';
+            flash.style.width = '100%';
+            flash.style.height = '100%';
+            flash.style.background = 'rgba(255, 255, 255, 0.8)';
+            flash.style.pointerEvents = 'none';
+            flash.style.zIndex = '9999';
+            
+            document.body.appendChild(flash);
+            
+            flash.animate([
+                { opacity: 0 },
+                { opacity: 1, offset: 0.1 },
+                { opacity: 0 }
+            ], {
+                duration: 500,
+                easing: 'ease-out'
+            }).onfinish = () => {
+                flash.remove();
+            };
+        }
+
+        // Mostrar informações do elemento
+
+        function showElementInfo(symbol) {
+            const element = elements[symbol];
+            const card = document.getElementById('elementInfoCard');
+            
+            let dangerIcon = '';
+            let dangerClass = '';
+            
+            if (element.danger === 'extreme') {
+                dangerIcon = '☢️⚠️';
+                dangerClass = 'extreme-warning';
+            } else if (element.danger === 'high') {
+                dangerIcon = '⚠️';
+                dangerClass = 'safety-warning';
+            }
+            
+            card.innerHTML = `
+                <div class="element-info-header">
+                    <div class="element-info-title">
+                        <div class="element-symbol-large">${symbol}</div>
+                        <h1 class="element-name-large">${element.name}</h1>
+                    </div>
+                    <div class="element-number-large">Nº ${element.number}</div>
+                </div>
+                
+                <div class="element-properties">
+                    <div class="property-card">
+                        <div class="property-label">Massa Atômica</div>
+                        <div class="property-value">${element.mass} u</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-label">Estado</div>
+                        <div class="property-value">${element.state}</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-label">Categoria</div>
+                        <div class="property-value">${element.category}</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-label">Densidade</div>
+                        <div class="property-value">${element.density || 'N/A'}</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-label">Ponto de Fusão</div>
+                        <div class="property-value">${element.meltingPoint || 'N/A'}</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-label">Descobridor</div>
+                        <div class="property-value" style="font-size: 0.9rem;">${element.discoverer || 'Desconhecido'}</div>
+                    </div>
+                </div>
+                
+                <div class="curiosities-section">
+                    <h4>🤔 Curiosidades Científicas</h4>
+                    <p>${element.curiosities}</p>
+                </div>
+                
+                <div class="applications-section">
+                    <h4>🔧 Aplicações Práticas</h4>
+                    <ul>
+                        ${element.applications ? element.applications.map(app => `<li>${app}</li>`).join('') : '<li>Informações não disponíveis</li>'}
+                    </ul>
+                </div>
+                
+                <div class="${element.danger === 'extreme' ? 'extreme-warning' : 'safety-section'}">
+                    <h4>${dangerIcon} Segurança e Manuseio</h4>
+                    <p>${element.safety}</p>
+                </div>
+            `;
+            
+            card.classList.add('active');
+            
+            // Rolar suavemente para o card de informações
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Limpar experimento
+
+        function clearExperiment() {
+            selectedElements = [];
+            updateSelectedList();
+            updateExperimentButton();
+            
+            const result = document.getElementById('reactionResult');
+            result.className = 'reaction-result';
+            result.innerHTML = 'Selecione elementos e clique em "Realizar Experimento" para começar!';
+            
+            const beaker = document.getElementById('beaker');
+            beaker.classList.remove('extreme-danger');
+            
+            const card = document.getElementById('elementInfoCard');
+            card.classList.remove('active');
+        }
+
+        // Função para voltar à página anterior
+        function goBack() {
+            // Usar history.back() para voltar à página anterior
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, tentar fechar a aba/janela
+                window.close();
+            }
+        }
+
+        // Atalhos de teclado
+        document.addEventListener('keydown', function(event) {
+            switch(event.key.toLowerCase()) {
+                case ' ':
+                    event.preventDefault();
+                    if (!document.getElementById('experimentBtn').disabled) {
+                        performExperiment();
+                    }
+                    break;
+                case 'escape':
+                    clearExperiment();
+                    break;
+                case 'c':
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        clearExperiment();
+                    }
+                    break;
+            }
+        });
+
+        // Adicionar tooltips informativos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tooltip para elementos
+            const elementCards = document.querySelectorAll('.element-card');
+            elementCards.forEach(card => {
+                card.title = 'Clique para selecionar | Duplo clique para ver informações';
+            });
+        });
+    </script>
+</body>
+</html>
