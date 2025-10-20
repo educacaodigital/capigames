@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espelho Virtual - Descobrindo Meu Rosto</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 15px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fad0c4 100%);
+            min-height: 100%;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .title {
+            font-size: 28px;
+            margin: 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .game-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .mirror-container {
+            position: relative;
+            display: inline-block;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border: 5px solid #fff;
+            background: #f0f0f0;
+        }
+
+        #videoElement {
+            width: 640px;
+            height: 480px;
+            max-width: 100%;
+            display: block;
+            transform: scaleX(-1); /* Efeito espelho */
+        }
+
+        .photo-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            border: 4px solid #4ecdc4;
+            background: #f8f9fa;
+            display: none;
+            flex-shrink: 0;
+        }
+
+        #capturedPhoto {
+            width: 300px;
+            height: 225px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-title {
+            background: #4ecdc4;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            color: #fff;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            z-index: 10;
+            animation: countdown-pulse 1s ease-in-out;
+        }
+
+        @keyframes countdown-pulse {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .face-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .face-guide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 350px;
+            border: 4px solid #4ecdc4;
+            border-radius: 50%;
+            background: rgba(78, 205, 196, 0.1);
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+            animation: guide-pulse 2s infinite;
+            z-index: 5;
+        }
+
+        .face-guide::before {
+            content: "👤 Posicione seu rosto aqui";
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(78, 205, 196, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        @keyframes guide-pulse {
+            0%, 100% { 
+                border-color: #4ecdc4; 
+                box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+            }
+            50% { 
+                border-color: #2ecc71; 
+                box-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
+            }
+        }
+
+        .face-guide.ready {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.2);
+            animation: guide-ready 1s infinite;
+        }
+
+        .face-guide.ready::before {
+            content: "✅ Perfeito! Preparando foto...";
+            background: rgba(46, 204, 113, 0.9);
+        }
+
+        .face-guide.no-face {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            animation: guide-warning 1.5s infinite;
+        }
+
+        .face-guide.no-face::before {
+            content: "❌ Nenhum rosto detectado";
+            background: rgba(231, 76, 60, 0.9);
+        }
+
+        @keyframes guide-warning {
+            0%, 100% { 
+                border-color: #e74c3c; 
+                box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+            }
+            50% { 
+                border-color: #c0392b; 
+                box-shadow: 0 0 30px rgba(192, 57, 43, 0.5);
+            }
+        }
+
+        @keyframes guide-ready {
+            0%, 100% { 
+                border-color: #2ecc71; 
+                box-shadow: 0 0 25px rgba(46, 204, 113, 0.4);
+            }
+            50% { 
+                border-color: #27ae60; 
+                box-shadow: 0 0 35px rgba(39, 174, 96, 0.6);
+            }
+        }
+
+        .face-point {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            border: 3px solid #4ecdc4;
+            cursor: move;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            animation: pulse 2s infinite;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .face-point:hover {
+            background: rgba(78, 205, 196, 0.9);
+            transform: scale(1.2);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.5);
+        }
+
+        .face-point.clicked {
+            background: #2ecc71;
+            border-color: #27ae60;
+            animation: bounce-click 0.6s ease-in-out;
+        }
+
+        .face-point.dragging {
+            background: #f39c12;
+            border-color: #e67e22;
+            transform: scale(1.3);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
+            animation: none;
+            z-index: 20;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        @keyframes bounce-click {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #45b7d1 0%, #3498db 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(69, 183, 209, 0.4);
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(255, 234, 167, 0.3);
+        }
+
+        .instructions h3 {
+            margin: 0 0 10px 0;
+            color: #2d3436;
+            font-size: 20px;
+        }
+
+        .instructions p {
+            margin: 0;
+            color: #2d3436;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .feedback-message {
+            background: #2ecc71;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+            display: none;
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .error-message {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .sparkles {
+            position: absolute;
+            pointer-events: none;
+            font-size: 20px;
+            animation: sparkle 1s ease-out forwards;
+        }
+
+        @keyframes sparkle {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
+        }
+
+        .drawing-tip {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 2px dashed #4ecdc4;
+        }
+
+        .drawing-tip h4 {
+            margin: 0 0 8px 0;
+            color: #2d3436;
+            font-size: 18px;
+        }
+
+        .drawing-tip p {
+            margin: 0;
+            color: #2d3436;
+            font-size: 14px;
+        }
+
+        .drawing-area {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%);
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: 25px;
+            border: 3px solid #4ecdc4;
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.2);
+        }
+
+        .drawing-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .drawing-header h3 {
+            color: #2d3436;
+            font-size: 24px;
+            margin: 0 0 10px 0;
+        }
+
+        .drawing-header p {
+            color: #636e72;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .drawing-photos {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .reference-photo {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            border: 3px solid #2ecc71;
+            flex: 1;
+            min-width: 280px;
+            max-width: 350px;
+        }
+
+        .photo-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .reference-photo img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .drawing-instructions {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #e17055;
+            text-align: center;
+        }
+
+        .drawing-instructions h4 {
+            margin: 0 0 12px 0;
+            color: #2d3436;
+            font-size: 20px;
+        }
+
+        .drawing-instructions p {
+            margin: 0;
+            color: #2d3436;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .game-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            #videoElement {
+                width: 100%;
+                height: auto;
+            }
+            
+            #capturedPhoto {
+                width: 250px;
+                height: 188px;
+            }
+            
+            .face-point {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .countdown {
+                font-size: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header class="header">
+            <h1 class="title">🪞 Meu Espelho Mágico 🪞</h1>
+            <p class="subtitle">Descubra as partes do seu rosto e desenhe seu autorretrato!</p>
+        </header>
+
+        <div class="instructions">
+            <h3>🎨 Como brincar:</h3>
+            <p>1. Clique em "Ligar Câmera" para se ver no espelho<br>
+               2. Após tirar a foto, arraste os emojis para as partes corretas do seu rosto<br>
+               3. Clique nos emojis para ouvir os nomes das partes<br>
+               4. Use as fotos para desenhar seu autorretrato no papel!</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="startCamera">📹 Ligar Câmera</button>
+            <button class="btn" id="stopCamera" disabled>⏹️ Desligar Câmera</button>
+            <button class="btn" id="newPhoto" disabled>📸 Nova Foto</button>
+            <button class="btn" id="speakInstructions">🔊 Ouvir Instruções</button>
+            <button class="btn" id="goBack">⬅️ Voltar</button>
+        </div>
+
+        <div class="game-layout">
+            <div class="mirror-container" id="mirrorContainer" style="display: none;">
+                <video id="videoElement" autoplay muted playsinline></video>
+                <div class="face-guide" id="faceGuide"></div>
+                <div class="face-overlay" id="faceOverlay">
+                    <!-- Pontos do rosto serão adicionados aqui -->
+                </div>
+            </div>
+
+            <div class="photo-container" id="photoContainer">
+                <div class="photo-title">📸 Sua Foto</div>
+                <img id="capturedPhoto" alt="Sua foto capturada">
+                <div class="face-overlay" id="photoOverlay">
+                    <!-- Pontos do rosto na foto serão adicionados aqui -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de desenho com duas fotos lado a lado -->
+        <div class="drawing-area" id="drawingArea" style="display: none;">
+            <div class="drawing-header">
+                <h3>🎨 Agora é hora de desenhar!</h3>
+                <p>Use as duas fotos abaixo como referência para desenhar seu autorretrato no papel</p>
+            </div>
+            
+            <div class="drawing-photos">
+                <div class="reference-photo">
+                    <div class="photo-title">📍 Foto com pontos de referência</div>
+                    <div class="photo-wrapper">
+                        <img id="referencePhoto" alt="Foto com pontos de referência">
+                        <div class="face-overlay" id="referenceOverlay">
+                            <!-- Pontos do rosto na foto de referência -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reference-photo">
+                    <div class="photo-title">🖼️ Foto limpa para copiar</div>
+                    <div class="photo-wrapper">
+                        <img id="cleanPhoto" alt="Foto limpa para desenhar">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="drawing-instructions">
+                <h4>✏️ Como desenhar:</h4>
+                <p>1. Pegue uma folha de papel e um lápis<br>
+                   2. Use a foto com pontos para identificar cada parte do rosto<br>
+                   3. Use a foto limpa para ver as formas e proporções<br>
+                   4. Comece desenhando um círculo para o rosto e vá adicionando cada parte!</p>
+            </div>
+        </div>
+        </div>
+
+        <canvas id="photoCanvas" style="display: none;"></canvas>
+
+        <div class="feedback-message" id="feedbackMessage"></div>
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="drawing-tip">
+            <h4>✏️ Dica para desenhar:</h4>
+            <p>Pegue um papel e lápis! Olhe no espelho e desenhe cada parte que você descobrir. Comece com um círculo para o rosto e vá adicionando os olhos, nariz, boca e outras partes!</p>
+        </div>
+    </main>
+
+    <script>
+        let videoStream = null;
+        let isDetectionActive = false;
+        let faceDetectionInterval = null;
+        let faceInPosition = false;
+        let faceStableCount = 0;
+        let noFaceCount = 0;
+        let hasSpokenNoFaceWarning = false;
+
+        // Definir as partes do rosto e suas posições aproximadas (em porcentagem)
+        const facePoints = [
+            { name: 'olho esquerdo', label: '👁️', x: 45, y: 40, audio: 'olho' },
+            { name: 'olho direito', label: '👁️', x: 55, y: 40, audio: 'olho' },
+            { name: 'nariz', label: '👃', x: 50, y: 52, audio: 'nariz' },
+            { name: 'boca', label: '👄', x: 50, y: 62, audio: 'boca' },
+            { name: 'bochecha esquerda', label: '😊', x: 35, y: 52, audio: 'bochecha' },
+            { name: 'bochecha direita', label: '😊', x: 65, y: 52, audio: 'bochecha' },
+            { name: 'testa', label: '🧠', x: 50, y: 32, audio: 'testa' }
+        ];
+
+        function initGame() {
+            setupEventListeners();
+            speakWelcome();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('startCamera').addEventListener('click', startCamera);
+            document.getElementById('stopCamera').addEventListener('click', stopCamera);
+            document.getElementById('newPhoto').addEventListener('click', takeNewPhoto);
+            document.getElementById('speakInstructions').addEventListener('click', speakInstructions);
+            document.getElementById('goBack').addEventListener('click', goBack);
+        }
+
+        async function startCamera() {
+            try {
+                const constraints = {
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    }
+                };
+
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const videoElement = document.getElementById('videoElement');
+                videoElement.srcObject = videoStream;
+
+                // Mostrar o container do espelho
+                document.getElementById('mirrorContainer').style.display = 'block';
+                
+                // Atualizar botões
+                document.getElementById('startCamera').disabled = true;
+                document.getElementById('stopCamera').disabled = false;
+
+                // Mostrar mensagem de sucesso
+                showFeedback('📹 Câmera ligada! Olhe para a câmera, vamos tirar sua foto!');
+                
+                // Falar instrução e iniciar detecção de rosto
+                setTimeout(() => {
+                    speak('Olá! Posicione seu rosto dentro da moldura oval. Quando estiver na posição certa, eu vou tirar sua foto!');
+                    startFaceDetection();
+                }, 1000);
+
+            } catch (error) {
+                console.error('Erro ao acessar a câmera:', error);
+                showError('Não foi possível acessar a câmera. Verifique se você deu permissão para usar a câmera.');
+            }
+        }
+
+        function startFaceDetection() {
+            const video = document.getElementById('videoElement');
+            const faceGuide = document.getElementById('faceGuide');
+            
+            // Resetar contadores
+            faceStableCount = 0;
+            noFaceCount = 0;
+            hasSpokenNoFaceWarning = false;
+            let countdownStarted = false;
+            
+            console.log('Iniciando detecção de rosto...');
+            
+            // Simular detecção de rosto mais rigorosa
+            faceDetectionInterval = setInterval(() => {
+                // Simular detecção mais realista - começar sempre sem rosto detectado
+                // Depois de alguns segundos, simular detecção gradual
+                const timeElapsed = Date.now() - (window.detectionStartTime || (window.detectionStartTime = Date.now()));
+                const randomFactor = Math.random();
+                
+                // Primeiros 3 segundos: sem rosto ou rosto instável
+                if (timeElapsed < 3000) {
+                    if (randomFactor > 0.7) { // 30% chance de detectar rosto instável
+                        // Rosto detectado mas instável
+                        noFaceCount = 0;
+                        faceStableCount = Math.min(faceStableCount + 1, 3); // Não deixar passar de 3
+                        hasSpokenNoFaceWarning = false;
+                        
+                        faceGuide.classList.remove('no-face');
+                        showFeedback('📍 Rosto detectado! Mantenha-se parado na moldura oval...');
+                        
+                        console.log('Rosto instável detectado. Contador:', faceStableCount);
+                    } else {
+                        // Nenhum rosto detectado
+                        faceStableCount = 0;
+                        noFaceCount++;
+                        
+                        if (faceInPosition) {
+                            faceInPosition = false;
+                            countdownStarted = false;
+                            faceGuide.classList.remove('ready');
+                        }
+                        
+                        if (noFaceCount >= 5) { // Após 1.5 segundos sem rosto
+                            faceGuide.classList.add('no-face');
+                            
+                            if (!hasSpokenNoFaceWarning) {
+                                speak('Não consigo ver seu rosto! Posicione-se na frente da câmera, dentro da moldura oval.');
+                                showError('❌ Nenhum rosto detectado. Posicione-se na frente da câmera!');
+                                hasSpokenNoFaceWarning = true;
+                            }
+                        }
+                    }
+                } else {
+                    // Após 3 segundos: permitir detecção estável
+                    if (randomFactor > 0.2) { // 80% chance de detectar rosto estável
+                        // Rosto detectado e estável
+                        noFaceCount = 0;
+                        faceStableCount++;
+                        hasSpokenNoFaceWarning = false;
+                        
+                        console.log('Rosto estável detectado. Contador:', faceStableCount);
+                        
+                        // Remover classes de erro
+                        faceGuide.classList.remove('no-face');
+                        
+                        // Mostrar progresso visual
+                        if (faceStableCount >= 3 && faceStableCount < 7) {
+                            showFeedback(`📍 Rosto detectado! Mantenha-se parado... ${Math.floor((faceStableCount - 2) / 2)}s`);
+                        }
+                        
+                        // Precisa de 7 verificações consecutivas (2.1 segundos) para confirmar
+                        if (faceStableCount >= 7 && !faceInPosition && !countdownStarted) {
+                            faceInPosition = true;
+                            countdownStarted = true;
+                            faceGuide.classList.add('ready');
+                            speak('Perfeito! Seu rosto está na posição certa e parado!');
+                            showFeedback('✅ Rosto confirmado na posição! Preparando para tirar a foto...');
+                            
+                            console.log('Rosto confirmado após 2+ segundos estável, iniciando countdown...');
+                            
+                            // Iniciar contagem regressiva após 1 segundo
+                            setTimeout(() => {
+                                console.log('Executando countdown agora!');
+                                startPhotoCountdown();
+                            }, 1000);
+                        }
+                    } else {
+                        // Rosto perdido ou instável
+                        if (faceStableCount > 0) {
+                            faceStableCount = Math.max(0, faceStableCount - 2); // Penalizar instabilidade
+                            showFeedback('⚠️ Rosto instável! Mantenha-se parado na moldura...');
+                        }
+                        
+                        noFaceCount++;
+                        
+                        // Resetar estado se estava pronto
+                        if (faceInPosition) {
+                            faceInPosition = false;
+                            countdownStarted = false;
+                            faceGuide.classList.remove('ready');
+                            showFeedback('❌ Rosto perdido! Posicione-se novamente na moldura.');
+                        }
+                        
+                        // Mostrar aviso após perder o rosto por muito tempo
+                        if (noFaceCount >= 8) {
+                            faceGuide.classList.add('no-face');
+                            
+                            if (!hasSpokenNoFaceWarning) {
+                                speak('Não consigo mais ver seu rosto! Volte para dentro da moldura oval.');
+                                showError('❌ Rosto perdido. Posicione-se na frente da câmera!');
+                                hasSpokenNoFaceWarning = true;
+                            }
+                        }
+                    }
+                }
+            }, 300); // Verificar a cada 300ms
+        }
+
+        function startPhotoCountdown() {
+            console.log('Função startPhotoCountdown chamada');
+            
+            // Parar detecção de rosto
+            if (faceDetectionInterval) {
+                clearInterval(faceDetectionInterval);
+                faceDetectionInterval = null;
+                console.log('Detecção de rosto pausada para countdown');
+            }
+            
+            let count = 3;
+            const overlay = document.getElementById('faceOverlay');
+            
+            function showCountdown() {
+                console.log('Mostrando countdown:', count);
+                
+                // Limpar countdown anterior
+                const existingCountdown = overlay.querySelector('.countdown');
+                if (existingCountdown) {
+                    existingCountdown.remove();
+                }
+                
+                if (count > 0) {
+                    const countdownElement = document.createElement('div');
+                    countdownElement.className = 'countdown';
+                    countdownElement.textContent = count;
+                    overlay.appendChild(countdownElement);
+                    
+                    speak(count.toString());
+                    count--;
+                    
+                    setTimeout(showCountdown, 1000);
+                } else {
+                    console.log('Countdown finalizado, capturando foto');
+                    // Tirar a foto
+                    capturePhoto();
+                }
+            }
+            
+            showCountdown();
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('videoElement');
+            const canvas = document.getElementById('photoCanvas');
+            const photo = document.getElementById('capturedPhoto');
+            const photoContainer = document.getElementById('photoContainer');
+            
+            // Configurar canvas com as dimensões do vídeo
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Desenhar o frame atual do vídeo no canvas (sem espelhar)
+            ctx.save();
+            ctx.scale(-1, 1); // Espelhar horizontalmente
+            ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+            ctx.restore();
+            
+            // Converter para imagem e mostrar
+            const dataURL = canvas.toDataURL('image/png');
+            photo.src = dataURL;
+            photoContainer.style.display = 'block';
+            
+            // Limpar countdown
+            const countdown = document.getElementById('faceOverlay').querySelector('.countdown');
+            if (countdown) {
+                countdown.remove();
+            }
+            
+            // Criar pontos do rosto na foto
+            createPhotoFacePoints();
+            
+            // Habilitar botão de nova foto
+            document.getElementById('newPhoto').disabled = false;
+            
+            // Automaticamente preparar área de desenho
+            prepareForDrawing();
+            
+            // Falar confirmação
+            speak('Foto tirada! Agora você pode arrastar os emojis para as partes corretas do seu rosto. Depois use as duas fotos para desenhar!');
+            showFeedback('📸 Foto capturada! Arraste os emojis para as partes corretas do seu rosto e depois use as fotos para desenhar!');
+        }
+
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+
+            // Parar detecção de rosto
+            if (faceDetectionInterval) {
+                clearInterval(faceDetectionInterval);
+                faceDetectionInterval = null;
+            }
+
+            // Resetar variáveis
+            faceInPosition = false;
+            faceStableCount = 0;
+            noFaceCount = 0;
+            hasSpokenNoFaceWarning = false;
+
+            // Esconder o container do espelho
+            document.getElementById('mirrorContainer').style.display = 'none';
+            
+            // Esconder o container da foto
+            document.getElementById('photoContainer').style.display = 'none';
+            
+            // Atualizar botões
+            document.getElementById('startCamera').disabled = false;
+            document.getElementById('stopCamera').disabled = true;
+            document.getElementById('newPhoto').disabled = true;
+
+            showFeedback('📹 Câmera desligada. Clique em "Ligar Câmera" para brincar novamente!');
+        }
+
+        function createFacePoints() {
+            const overlay = document.getElementById('faceOverlay');
+            overlay.innerHTML = '';
+
+            facePoints.forEach((point, index) => {
+                const pointElement = document.createElement('div');
+                pointElement.className = 'face-point';
+                pointElement.style.left = `${point.x}%`;
+                pointElement.style.top = `${point.y}%`;
+                pointElement.style.transform = 'translate(-50%, -50%)';
+                pointElement.innerHTML = point.label;
+                pointElement.title = point.name;
+                
+                pointElement.addEventListener('click', () => handleFacePointClick(point, pointElement));
+                
+                overlay.appendChild(pointElement);
+            });
+        }
+
+        function createPhotoFacePoints() {
+            const overlay = document.getElementById('photoOverlay');
+            overlay.innerHTML = '';
+
+            facePoints.forEach((point, index) => {
+                const pointElement = document.createElement('div');
+                pointElement.className = 'face-point';
+                pointElement.style.left = `${point.x}%`;
+                pointElement.style.top = `${point.y}%`;
+                pointElement.style.transform = 'translate(-50%, -50%)';
+                pointElement.innerHTML = point.label;
+                pointElement.title = point.name;
+                pointElement.dataset.pointIndex = index;
+                
+                pointElement.addEventListener('click', () => handleFacePointClick(point, pointElement));
+                makeDraggable(pointElement, overlay);
+                
+                overlay.appendChild(pointElement);
+            });
+        }
+
+        function handleFacePointClick(point, element) {
+            // Adicionar classe de clique
+            element.classList.add('clicked');
+            
+            // Criar efeito de brilho
+            createSparkleEffect(element);
+            
+            // Falar o nome da parte do rosto
+            speak(point.audio);
+            
+            // Mostrar feedback
+            showFeedback(`✨ Você clicou no seu ${point.audio}! Que legal!`);
+            
+            // Remover classe após animação
+            setTimeout(() => {
+                element.classList.remove('clicked');
+            }, 600);
+        }
+
+        function createSparkleEffect(element) {
+            const rect = element.getBoundingClientRect();
+            const container = document.getElementById('faceOverlay');
+            
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkles';
+                    sparkle.innerHTML = '✨';
+                    sparkle.style.left = (Math.random() * 60 - 30) + 'px';
+                    sparkle.style.top = (Math.random() * 60 - 30) + 'px';
+                    sparkle.style.position = 'relative';
+                    
+                    element.appendChild(sparkle);
+                    
+                    setTimeout(() => {
+                        sparkle.remove();
+                    }, 1000);
+                }, i * 100);
+            }
+        }
+
+        function speak(text) {
+            // Parar qualquer fala anterior
+            speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.8;
+            utterance.pitch = 1.2; // Tom mais agudo para crianças
+            utterance.volume = 0.9;
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        function speakWelcome() {
+            setTimeout(() => {
+                speak('Olá! Bem-vindo ao seu espelho mágico! Aqui você vai descobrir as partes do seu rosto e pode desenhar seu autorretrato!');
+            }, 1000);
+        }
+
+        function takeNewPhoto() {
+            // Resetar estado para tirar nova foto
+            faceInPosition = false;
+            faceStableCount = 0;
+            noFaceCount = 0;
+            hasSpokenNoFaceWarning = false;
+            
+            // Resetar timer de detecção
+            window.detectionStartTime = null;
+            
+            // Limpar foto atual
+            document.getElementById('photoContainer').style.display = 'none';
+            document.getElementById('drawingArea').style.display = 'none';
+            
+            // Resetar guia de rosto
+            const faceGuide = document.getElementById('faceGuide');
+            faceGuide.classList.remove('ready', 'no-face');
+            
+            // Desabilitar botão
+            document.getElementById('newPhoto').disabled = true;
+            
+            // Falar instrução e reiniciar detecção
+            speak('Vamos tirar uma nova foto! Posicione seu rosto dentro da moldura oval e fique parado por 2 segundos.');
+            showFeedback('📹 Preparando para nova foto! Posicione-se na moldura oval e fique parado.');
+            
+            // Reiniciar detecção de rosto
+            startFaceDetection();
+        }
+
+        function prepareForDrawing() {
+            const capturedPhoto = document.getElementById('capturedPhoto');
+            const referencePhoto = document.getElementById('referencePhoto');
+            const cleanPhoto = document.getElementById('cleanPhoto');
+            const drawingArea = document.getElementById('drawingArea');
+            
+            // Copiar a foto capturada para as fotos de referência
+            referencePhoto.src = capturedPhoto.src;
+            cleanPhoto.src = capturedPhoto.src;
+            
+            // Criar pontos na foto de referência
+            createReferenceFacePoints();
+            
+            // Mostrar área de desenho
+            drawingArea.style.display = 'block';
+            
+            // Rolar para a área de desenho
+            drawingArea.scrollIntoView({ behavior: 'smooth' });
+            
+            // Falar instrução
+            speak('Perfeito! Agora você tem duas fotos para te ajudar a desenhar. Use a foto com pontos para identificar as partes do rosto e a foto limpa para ver as formas!');
+            showFeedback('🎨 Área de desenho preparada! Use as duas fotos como referência para desenhar no papel.');
+        }
+
+        function createReferenceFacePoints() {
+            const overlay = document.getElementById('referenceOverlay');
+            overlay.innerHTML = '';
+
+            facePoints.forEach((point, index) => {
+                const pointElement = document.createElement('div');
+                pointElement.className = 'face-point';
+                pointElement.style.left = `${point.x}%`;
+                pointElement.style.top = `${point.y}%`;
+                pointElement.style.transform = 'translate(-50%, -50%)';
+                pointElement.innerHTML = point.label;
+                pointElement.title = point.name;
+                pointElement.dataset.pointIndex = index;
+                
+                pointElement.addEventListener('click', () => handleFacePointClick(point, pointElement));
+                makeDraggable(pointElement, overlay);
+                
+                overlay.appendChild(pointElement);
+            });
+        }
+
+        function makeDraggable(element, container) {
+            let isDragging = false;
+            let dragStarted = false;
+
+            // Eventos para mouse
+            element.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+
+            // Eventos para touch (dispositivos móveis)
+            element.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('touchend', endDrag);
+
+            function startDrag(e) {
+                e.preventDefault();
+                isDragging = true;
+                dragStarted = false;
+                
+                element.style.transition = 'none';
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+                
+                // Só começar a arrastar se moveu pelo menos 3px
+                if (!dragStarted) {
+                    dragStarted = true;
+                    element.classList.add('dragging');
+                    speak('Arraste o emoji para a posição correta!');
+                }
+                
+                if (dragStarted) {
+                    const containerRect = container.getBoundingClientRect();
+                    
+                    // Posicionar o emoji exatamente onde está o cursor
+                    const cursorX = clientX - containerRect.left;
+                    const cursorY = clientY - containerRect.top;
+                    
+                    // Converter para porcentagem relativa ao container
+                    const newX = (cursorX / containerRect.width) * 100;
+                    const newY = (cursorY / containerRect.height) * 100;
+                    
+                    // Limitar dentro dos bounds do container (com margem para o emoji não sair)
+                    const clampedX = Math.max(8, Math.min(92, newX));
+                    const clampedY = Math.max(8, Math.min(92, newY));
+                    
+                    element.style.left = `${clampedX}%`;
+                    element.style.top = `${clampedY}%`;
+                }
+            }
+
+            function endDrag(e) {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                element.style.transition = 'all 0.3s ease';
+                
+                if (dragStarted) {
+                    element.classList.remove('dragging');
+                    
+                    // Atualizar posição no array facePoints
+                    const pointIndex = parseInt(element.dataset.pointIndex);
+                    if (!isNaN(pointIndex)) {
+                        const newX = parseFloat(element.style.left);
+                        const newY = parseFloat(element.style.top);
+                        facePoints[pointIndex].x = newX;
+                        facePoints[pointIndex].y = newY;
+                    }
+                    
+                    // Feedback positivo
+                    showFeedback('✨ Emoji reposicionado! Clique nele para ouvir o nome da parte do rosto!');
+                    createSparkleEffect(element);
+                    
+                    dragStarted = false;
+                } else {
+                    // Se não arrastou, tratar como clique
+                    const pointIndex = parseInt(element.dataset.pointIndex);
+                    if (!isNaN(pointIndex)) {
+                        handleFacePointClick(facePoints[pointIndex], element);
+                    }
+                }
+            }
+        }
+
+        function goBack() {
+            // Implementar navegação de volta
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, mostrar mensagem
+                showFeedback('👋 Obrigado por brincar com o Espelho Mágico! Até a próxima!');
+                speak('Obrigado por brincar comigo! Até a próxima!');
+            }
+        }
+
+        function speakInstructions() {
+            speak('Para brincar, primeiro clique em ligar câmera. Depois clique nas partes do seu rosto para aprender os nomes. Você pode desenhar no papel enquanto se olha no espelho!');
+        }
+
+        function showFeedback(message) {
+            const feedbackElement = document.getElementById('feedbackMessage');
+            feedbackElement.textContent = message;
+            feedbackElement.style.display = 'block';
+            
+            // Esconder mensagem de erro se estiver visível
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            setTimeout(() => {
+                feedbackElement.style.display = 'none';
+            }, 4000);
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            // Esconder mensagem de feedback se estiver visível
+            document.getElementById('feedbackMessage').style.display = 'none';
+            
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 6000);
+        }
+
+        // Limpar recursos quando a página for fechada
+        window.addEventListener('beforeunload', () => {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            if (faceDetectionInterval) {
+                clearInterval(faceDetectionInterval);
+            }
+        });
+
+        // Inicializar o jogo quando a página carregar
+        window.addEventListener('load', initGame);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'991a383b857f8b1b',t:'MTc2MDk4MTE4MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
