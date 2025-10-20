@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo das Palavras - Dislexia</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 10px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            color: #333;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.3);
+            border: 2px solid #fff;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .title {
+            font-size: 26px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .fun-decoration {
+            font-size: 24px;
+            animation: bounce-decoration 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce-decoration {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+            60% { transform: translateY(-4px); }
+        }
+
+        .game-area {
+            margin: 25px 0;
+        }
+
+        .image-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .emoji-display {
+            font-size: 90px;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin: 0 auto 15px auto;
+            border: 2px solid #fff;
+        }
+
+        .speak-btn {
+            background: #45b7d1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .speak-btn:hover {
+            background: #3498db;
+            transform: scale(1.05);
+        }
+
+        .word-area {
+            min-height: 70px;
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .word-area.drag-over {
+            border-color: #4ecdc4;
+            background: #e8f8f7;
+        }
+
+        .letter-slot {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .letter-slot.filled {
+            border-color: #4ecdc4;
+            background: #e8f8f7;
+            color: #2c3e50;
+        }
+
+        .letters-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .letter {
+            width: 50px;
+            height: 50px;
+            background: #ff9ff3;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .letter:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .letter:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .letter.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .success-message {
+            background: #2ecc71;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+            display: none;
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .next-btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+
+
+
+        .error-message {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0;
+            display: none;
+            animation: shake 0.6s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .try-again-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .try-again-btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .skip-btn {
+            background: #ffa726;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(255, 167, 38, 0.3);
+        }
+
+        .skip-btn:hover {
+            background: #ff9800;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 167, 38, 0.5);
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header class="header">
+            <button class="back-btn" onclick="goBack()">← Voltar</button>
+            <h1 class="title">🎯 Jogo das Palavras 🎯</h1>
+            <div class="fun-decoration">🌟✨🎈</div>
+        </header>
+
+        <div class="game-area">
+            <div class="image-container">
+                <div class="emoji-display" id="emojiDisplay">🐱</div>
+                <br>
+                <button class="speak-btn" onclick="speakWord()">🔊 Ouvir palavra</button>
+            </div>
+
+            <div class="word-area" id="wordArea"></div>
+
+            <div class="letters-container" id="lettersContainer"></div>
+            
+
+
+            <div class="success-message" id="successMessage">
+                🎉 Parabéns! Você formou a palavra corretamente! 🎉
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                😊 Tente novamente, você consegue!
+                <br>
+                <button class="try-again-btn" onclick="tryAgain()">🔄 Tentar Novamente</button>
+            </div>
+
+            <button class="next-btn" id="nextBtn" onclick="nextWord()">Próxima Palavra →</button>
+            
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px dashed #ddd;">
+                <button class="skip-btn" onclick="skipWord()">⏭️ Pular Palavra</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const words = [
+            // Animais
+            {
+                word: 'GATO',
+                image: 'gato',
+                emoji: '🐱'
+            },
+            {
+                word: 'CACHORRO',
+                image: 'cachorro',
+                emoji: '🐶'
+            },
+            {
+                word: 'PÁSSARO',
+                image: 'pássaro',
+                emoji: '🐦'
+            },
+            {
+                word: 'PEIXE',
+                image: 'peixe',
+                emoji: '🐠'
+            },
+            {
+                word: 'CAVALO',
+                image: 'cavalo',
+                emoji: '🐴'
+            },
+            {
+                word: 'VACA',
+                image: 'vaca',
+                emoji: '🐄'
+            },
+            {
+                word: 'PORCO',
+                image: 'porco',
+                emoji: '🐷'
+            },
+            {
+                word: 'COELHO',
+                image: 'coelho',
+                emoji: '🐰'
+            },
+            {
+                word: 'URSO',
+                image: 'urso',
+                emoji: '🐻'
+            },
+            {
+                word: 'LEÃO',
+                image: 'leão',
+                emoji: '🦁'
+            },
+            {
+                word: 'ELEFANTE',
+                image: 'elefante',
+                emoji: '🐘'
+            },
+            {
+                word: 'GIRAFA',
+                image: 'girafa',
+                emoji: '🦒'
+            },
+            {
+                word: 'ZEBRA',
+                image: 'zebra',
+                emoji: '🦓'
+            },
+            {
+                word: 'MACACO',
+                image: 'macaco',
+                emoji: '🐵'
+            },
+            {
+                word: 'TIGRE',
+                image: 'tigre',
+                emoji: '🐅'
+            },
+            {
+                word: 'LOBO',
+                image: 'lobo',
+                emoji: '🐺'
+            },
+            // Frutas
+            {
+                word: 'MAÇÃ',
+                image: 'maçã',
+                emoji: '🍎'
+            },
+            {
+                word: 'BANANA',
+                image: 'banana',
+                emoji: '🍌'
+            },
+            {
+                word: 'LARANJA',
+                image: 'laranja',
+                emoji: '🍊'
+            },
+            {
+                word: 'UVA',
+                image: 'uva',
+                emoji: '🍇'
+            },
+            {
+                word: 'MORANGO',
+                image: 'morango',
+                emoji: '🍓'
+            },
+            {
+                word: 'PÊRA',
+                image: 'pêra',
+                emoji: '🍐'
+            },
+            {
+                word: 'LIMÃO',
+                image: 'limão',
+                emoji: '🍋'
+            },
+            {
+                word: 'ABACAXI',
+                image: 'abacaxi',
+                emoji: '🍍'
+            },
+            {
+                word: 'MANGA',
+                image: 'manga',
+                emoji: '🥭'
+            },
+            {
+                word: 'KIWI',
+                image: 'kiwi',
+                emoji: '🥝'
+            },
+            {
+                word: 'MELANCIA',
+                image: 'melancia',
+                emoji: '🍉'
+            },
+            {
+                word: 'MELÃO',
+                image: 'melão',
+                emoji: '🍈'
+            },
+            {
+                word: 'PÊSSEGO',
+                image: 'pêssego',
+                emoji: '🍑'
+            },
+            {
+                word: 'CEREJA',
+                image: 'cereja',
+                emoji: '🍒'
+            },
+            {
+                word: 'COCO',
+                image: 'coco',
+                emoji: '🥥'
+            }
+        ];
+
+        let currentWordIndex = 0;
+        let currentWord = '';
+        let placedLetters = [];
+
+        function initGame() {
+            loadWord();
+            speakIntroduction();
+            setupDragAndDrop();
+        }
+
+        function setupDragAndDrop() {
+            // Configurar área para detectar quando arrastar para baixo
+            document.addEventListener('dragover', handleGlobalDragOver);
+            document.addEventListener('drop', handleGlobalDrop);
+        }
+
+        function handleGlobalDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleGlobalDrop(e) {
+            e.preventDefault();
+            
+            // Verificar se foi solto em um slot válido
+            const isValidSlot = e.target.classList.contains('letter-slot') && !e.target.textContent;
+            
+            if (!isValidSlot) {
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                
+                // Se a letra veio de um slot, devolvê-la para a área de letras
+                if (data.fromSlot !== null) {
+                    const slot = document.querySelector(`[data-position="${data.fromSlot}"]`);
+                    if (slot && slot.dataset.id === data.id) {
+                        // Limpar o slot
+                        slot.textContent = '';
+                        slot.classList.remove('filled');
+                        slot.draggable = false;
+                        slot.style.cursor = 'default';
+                        slot.dataset.id = '';
+                        placedLetters[parseInt(data.fromSlot)] = '';
+                        
+                        // Mostrar a letra original na área de letras
+                        const originalLetter = document.querySelector(`[data-id="${data.id}"]`);
+                        if (originalLetter) {
+                            originalLetter.style.display = 'flex';
+                            originalLetter.dataset.fromSlot = '';
+                        }
+                        
+                        // Esconder mensagens de erro se estiverem visíveis
+                        document.getElementById('errorMessage').style.display = 'none';
+                    }
+                }
+                // Se a letra veio da área de letras, ela já permanece lá automaticamente
+            }
+        }
+
+        function loadWord() {
+            const wordData = words[currentWordIndex];
+            currentWord = wordData.word;
+            placedLetters = new Array(currentWord.length).fill('');
+            
+            // Atualizar emoji
+            const emojiDisplay = document.getElementById('emojiDisplay');
+            emojiDisplay.textContent = wordData.emoji;
+            
+            // Criar slots para as letras
+            createWordSlots();
+            
+            // Criar letras embaralhadas
+            createShuffledLetters();
+            
+            // Esconder mensagens e botões
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function createWordSlots() {
+            const wordArea = document.getElementById('wordArea');
+            wordArea.innerHTML = '';
+            
+            for (let i = 0; i < currentWord.length; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'letter-slot';
+                slot.dataset.position = i;
+                slot.addEventListener('dragover', handleDragOver);
+                slot.addEventListener('drop', handleDrop);
+                wordArea.appendChild(slot);
+            }
+        }
+
+        function makeSlotDraggable(slot, position) {
+            if (slot.textContent) {
+                slot.draggable = true;
+                slot.dataset.letter = slot.textContent;
+                slot.dataset.fromSlot = position;
+                slot.addEventListener('dragstart', handleDragStart);
+                slot.addEventListener('dragend', handleDragEnd);
+                slot.style.cursor = 'grab';
+            }
+        }
+
+        function createShuffledLetters() {
+            const lettersContainer = document.getElementById('lettersContainer');
+            lettersContainer.innerHTML = '';
+            
+            const letters = currentWord.split('');
+            const shuffledLetters = [...letters].sort(() => Math.random() - 0.5);
+            
+            shuffledLetters.forEach((letter, index) => {
+                const letterDiv = document.createElement('div');
+                letterDiv.className = 'letter';
+                letterDiv.textContent = letter;
+                letterDiv.draggable = true;
+                letterDiv.dataset.letter = letter;
+                letterDiv.dataset.id = index;
+                letterDiv.addEventListener('dragstart', handleDragStart);
+                letterDiv.addEventListener('dragend', handleDragEnd);
+                lettersContainer.appendChild(letterDiv);
+            });
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                letter: e.target.dataset.letter,
+                id: e.target.dataset.id,
+                fromSlot: e.target.dataset.fromSlot || null
+            }));
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.target.closest('.word-area').classList.add('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.target.closest('.word-area').classList.remove('drag-over');
+            
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const position = parseInt(e.target.dataset.position);
+            const slot = e.target;
+            const draggedElement = document.querySelector(`[data-id="${data.id}"]`);
+            
+            // Se o slot já está ocupado, não fazer nada
+            if (slot.textContent) return;
+            
+            // Se a letra veio de um slot, limpar o slot anterior
+            if (data.fromSlot !== null) {
+                const previousSlot = document.querySelector(`[data-position="${data.fromSlot}"]`);
+                if (previousSlot && previousSlot.dataset.id === data.id) {
+                    previousSlot.textContent = '';
+                    previousSlot.classList.remove('filled');
+                    previousSlot.draggable = false;
+                    previousSlot.style.cursor = 'default';
+                    previousSlot.dataset.id = '';
+                    placedLetters[parseInt(data.fromSlot)] = '';
+                }
+            } else {
+                // Esconder a letra da área de letras (mas não remover)
+                if (draggedElement) {
+                    draggedElement.style.display = 'none';
+                    draggedElement.dataset.fromSlot = position;
+                }
+            }
+            
+            // Colocar a letra no slot
+            slot.textContent = data.letter;
+            slot.classList.add('filled');
+            slot.dataset.id = data.id; // Manter referência ao elemento original
+            placedLetters[position] = data.letter;
+            
+            // Tornar o slot arrastável
+            makeSlotDraggable(slot, position);
+            
+            // Verificar se a palavra está completa
+            checkWord();
+        }
+
+        function checkWord() {
+            const formedWord = placedLetters.join('');
+            
+            // Verificar se a palavra está completa
+            if (!placedLetters.includes('')) {
+                if (formedWord === currentWord) {
+                    // Palavra correta!
+                    
+                    // Esconder mensagem de erro se estiver visível
+                    document.getElementById('errorMessage').style.display = 'none';
+                    
+                    // Mostrar mensagem de sucesso
+                    const successMessage = document.getElementById('successMessage');
+                    successMessage.style.display = 'block';
+                    
+                    // Mostrar botão próximo
+                    document.getElementById('nextBtn').style.display = 'inline-block';
+                    
+                    // Falar a palavra novamente
+                    setTimeout(() => {
+                        speakSuccess();
+                    }, 500);
+                    
+                    // Criar confetes
+                    createConfetti();
+                } else {
+                    // Palavra incorreta!
+                    showErrorMessage();
+                }
+            }
+        }
+
+        function showErrorMessage() {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'block';
+            
+            // Falar mensagem de encorajamento
+            setTimeout(() => {
+                const utterance = new SpeechSynthesisUtterance('Tente novamente, você consegue!');
+                utterance.lang = 'pt-BR';
+                utterance.rate = 0.8;
+                speechSynthesis.speak(utterance);
+            }, 300);
+        }
+
+        function tryAgain() {
+            // Esconder mensagem de erro
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Limpar todos os slots e devolver as letras
+            const slots = document.querySelectorAll('.letter-slot');
+            
+            slots.forEach((slot, index) => {
+                if (slot.textContent && slot.dataset.id) {
+                    // Encontrar a letra original e torná-la visível novamente
+                    const originalLetter = document.querySelector(`[data-id="${slot.dataset.id}"]`);
+                    if (originalLetter) {
+                        originalLetter.style.display = 'flex';
+                        originalLetter.dataset.fromSlot = '';
+                    }
+                    
+                    // Limpar o slot
+                    slot.textContent = '';
+                    slot.classList.remove('filled');
+                    slot.draggable = false;
+                    slot.style.cursor = 'default';
+                    slot.dataset.id = '';
+                    
+                    // Remover event listeners do slot
+                    slot.removeEventListener('dragstart', handleDragStart);
+                    slot.removeEventListener('dragend', handleDragEnd);
+                }
+            });
+            
+            // Limpar array de letras colocadas
+            placedLetters = new Array(currentWord.length).fill('');
+        }
+
+        function speakWord() {
+            const wordData = words[currentWordIndex];
+            const utterance = new SpeechSynthesisUtterance(wordData.image);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+
+        function speakIntroduction() {
+            setTimeout(() => {
+                speakWord();
+            }, 1000);
+        }
+
+        function speakSuccess() {
+            const wordData = words[currentWordIndex];
+            const utterance = new SpeechSynthesisUtterance(`Parabéns! Você formou a palavra ${wordData.image} corretamente!`);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'][Math.floor(Math.random() * 5)];
+                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }, i * 100);
+            }
+        }
+
+        function nextWord() {
+            currentWordIndex = (currentWordIndex + 1) % words.length;
+            loadWord();
+            
+            setTimeout(() => {
+                speakWord();
+            }, 500);
+        }
+
+        function skipWord() {
+            // Limpar tudo e ir para próxima palavra
+            currentWordIndex = (currentWordIndex + 1) % words.length;
+            loadWord();
+            
+            // Falar mensagem de encorajamento
+            const utterance = new SpeechSynthesisUtterance('Vamos tentar uma nova palavra!');
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+            
+            setTimeout(() => {
+                speakWord();
+            }, 2000);
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, criar uma página de menu simples
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div style="text-align: center; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                            <h1 style="color: #4a4a4a; font-family: 'Comic Sans MS', cursive;">Menu Principal</h1>
+                            <p style="color: #666; font-size: 18px;">Você voltou ao menu principal!</p>
+                            <button onclick="location.reload()" style="background: #4ecdc4; color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 18px; cursor: pointer; margin-top: 20px;">Jogar Novamente</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Inicializar o jogo quando a página carregar
+        window.addEventListener('load', initGame);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99193db211c78b1b',t:'MTc2MDk3MDkxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
