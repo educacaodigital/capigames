@@ -1,0 +1,2844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌱CASA SUSTENTÁVEL - CONSTRUA ECOLOGICAMENTE</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            color: #333;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .title {
+            font-size: 32px;
+            margin: 0 0 10px 0;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .materials-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 3px solid #e9ecef;
+        }
+
+        .materials-section h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .material-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            padding: 15px;
+            min-height: 140px;
+            box-sizing: border-box;
+        }
+
+        .material-card:hover {
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        .material-card.selected {
+            border-color: #4CAF50;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .material-card.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #4CAF50;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        .material-image {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-right: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .material-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100px;
+            padding-right: 5px;
+        }
+
+        .material-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .material-description {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            flex-grow: 1;
+        }
+
+        .material-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .impact-badge {
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .impact-excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .impact-good {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .impact-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .impact-poor {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .carbon-value {
+            font-size: 11px;
+            font-weight: bold;
+            color: #666;
+            white-space: nowrap;
+        }
+
+
+
+        .energy-section, .insulation-section, .water-section, .heating-section, .landscaping-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: fit-content;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .energy-grid, .insulation-grid, .water-grid, .heating-grid, .landscaping-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .energy-card, .insulation-card, .water-card, .heating-card, .landscaping-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .energy-card:hover, .insulation-card:hover, .water-card:hover, .heating-card:hover, .landscaping-card:hover {
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        .energy-card.selected, .insulation-card.selected, .water-card.selected, .heating-card.selected, .landscaping-card.selected {
+            border-color: #4CAF50;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .energy-card.selected::before, .insulation-card.selected::before, .water-card.selected::before, .heating-card.selected::before, .landscaping-card.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #4CAF50;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        .energy-image, .insulation-image, .water-image, .heating-image, .landscaping-image {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-right: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .energy-info, .insulation-info, .water-info, .heating-info, .landscaping-info {
+            flex: 1;
+        }
+
+        .energy-name, .insulation-name, .water-name, .heating-name, .landscaping-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .energy-description, .insulation-description, .water-description, .heating-description, .landscaping-description {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .energy-stats, .insulation-stats, .water-stats, .heating-stats, .landscaping-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .material-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 4px 6px;
+            font-size: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin-left: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            box-shadow: 0 1px 4px rgba(76, 175, 80, 0.3);
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-width: 50px;
+        }
+
+        .info-btn:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 20px;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .modal-icon {
+            font-size: 48px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h4 {
+            color: #4CAF50;
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-section p {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .modal-section ul {
+            padding-left: 20px;
+            color: #555;
+        }
+
+        .modal-section li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .impact-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .impact-stat {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .impact-stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+
+        .impact-stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .curiosity-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .curiosity-box h4 {
+            color: white !important;
+            margin-bottom: 10px;
+        }
+
+        .results-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .results-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .sustainability-score {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .score-label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .rating {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .rating.excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .rating.good {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .rating.average {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .rating.poor {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 300px;
+            font-weight: 500;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .feedback.show {
+            transform: translateX(0);
+        }
+
+        .progress-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .progress-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .progress-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .progress-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .progress-item.incomplete {
+            border-color: rgba(255,255,255,0.3);
+            opacity: 0.7;
+        }
+
+        .progress-icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .progress-text {
+            flex: 1;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .progress-status {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .completion-message {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 15px;
+        }
+
+        .completion-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .completion-counter {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .materials-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+            
+            .left-column, .right-column {
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .left-column, .right-column {
+                gap: 15px;
+            }
+
+            .back-btn {
+                top: 15px;
+                left: 15px;
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header class="header">
+            <button class="back-btn" id="backBtn" onclick="window.history.back()">← Voltar</button>
+            <h1 class="title">🏠 Casa Sustentável</h1>
+            <p class="subtitle">Escolha materiais ecológicos e calcule o impacto ambiental da sua construção</p>
+        </header>
+
+        <div class="main-content">
+            <div class="left-column">
+                <section class="materials-section">
+                    <h3>🧱 Materiais de Construção</h3>
+                    <div class="materials-grid" id="materialsGrid">
+                        <!-- Materiais serão inseridos aqui pelo JavaScript -->
+                    </div>
+                </section>
+
+                <section class="energy-section">
+                    <h4 class="section-title">⚡ Sistema Energético</h4>
+                    <div class="energy-grid">
+                        <div class="energy-card" data-energy="grid">
+                            <div class="energy-image">⚡</div>
+                            <div class="energy-info">
+                                <div class="energy-name">Rede Elétrica</div>
+                                <div class="energy-description">Energia convencional da distribuidora</div>
+                                <div class="energy-stats">
+                                    <span class="impact-badge impact-poor">Alto Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">200 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showEnergyInfo('grid')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="energy-card" data-energy="solar">
+                            <div class="energy-image">☀️</div>
+                            <div class="energy-info">
+                                <div class="energy-name">Painéis Solares</div>
+                                <div class="energy-description">Energia limpa e renovável do sol</div>
+                                <div class="energy-stats">
+                                    <span class="impact-badge impact-excellent">Baixo Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">20 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showEnergyInfo('solar')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="energy-card" data-energy="wind">
+                            <div class="energy-image">💨</div>
+                            <div class="energy-info">
+                                <div class="energy-name">Energia Eólica</div>
+                                <div class="energy-description">Turbina de vento residencial</div>
+                                <div class="energy-stats">
+                                    <span class="impact-badge impact-excellent">Muito Baixo</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">15 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showEnergyInfo('wind')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="energy-card" data-energy="hybrid">
+                            <div class="energy-image">🔋</div>
+                            <div class="energy-info">
+                                <div class="energy-name">Sistema Híbrido</div>
+                                <div class="energy-description">Combinação solar + eólica</div>
+                                <div class="energy-stats">
+                                    <span class="impact-badge impact-good">Baixo Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">35 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showEnergyInfo('hybrid')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+            </div>
+
+            <div class="right-column">
+                <section class="insulation-section">
+                    <h4 class="section-title">🌡️ Isolamento Térmico</h4>
+                    <div class="insulation-grid">
+                        <div class="insulation-card" data-insulation="basic">
+                            <div class="insulation-image">🏠</div>
+                            <div class="insulation-info">
+                                <div class="insulation-name">Isolamento Básico</div>
+                                <div class="insulation-description">Proteção térmica mínima padrão</div>
+                                <div class="insulation-stats">
+                                    <span class="impact-badge impact-medium">Médio Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">30 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showInsulationInfo('basic')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="insulation-card" data-insulation="advanced">
+                            <div class="insulation-image">🏡</div>
+                            <div class="insulation-info">
+                                <div class="insulation-name">Isolamento Avançado</div>
+                                <div class="insulation-description">Alta eficiência energética</div>
+                                <div class="insulation-stats">
+                                    <span class="impact-badge impact-good">Baixo Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">15 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showInsulationInfo('advanced')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="insulation-card" data-insulation="natural">
+                            <div class="insulation-image">🌿</div>
+                            <div class="insulation-info">
+                                <div class="insulation-name">Isolamento Natural</div>
+                                <div class="insulation-description">Fibras naturais e cortiça ecológica</div>
+                                <div class="insulation-stats">
+                                    <span class="impact-badge impact-excellent">Muito Baixo</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">10 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showInsulationInfo('natural')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="water-section">
+                    <h4 class="section-title">💧 Sistema de Água</h4>
+                    <div class="water-grid">
+                        <div class="water-card" data-water="conventional">
+                            <div class="water-image">🚰</div>
+                            <div class="water-info">
+                                <div class="water-name">Sistema Convencional</div>
+                                <div class="water-description">Água da rede pública apenas</div>
+                                <div class="water-stats">
+                                    <span class="impact-badge impact-medium">Médio Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">25 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showWaterInfo('conventional')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="water-card" data-water="rainwater">
+                            <div class="water-image">🌧️</div>
+                            <div class="water-info">
+                                <div class="water-name">Captação de Chuva</div>
+                                <div class="water-description">Coleta e armazenamento de água pluvial</div>
+                                <div class="water-stats">
+                                    <span class="impact-badge impact-good">Baixo Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">10 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showWaterInfo('rainwater')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="water-card" data-water="greywater">
+                            <div class="water-image">♻️</div>
+                            <div class="water-info">
+                                <div class="water-name">Reuso de Águas Cinzas</div>
+                                <div class="water-description">Tratamento e reutilização de águas</div>
+                                <div class="water-stats">
+                                    <span class="impact-badge impact-excellent">Muito Baixo</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">8 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showWaterInfo('greywater')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="heating-section">
+                    <h4 class="section-title">🔥 Aquecimento</h4>
+                    <div class="heating-grid">
+                        <div class="heating-card" data-heating="gas">
+                            <div class="heating-image">🔥</div>
+                            <div class="heating-info">
+                                <div class="heating-name">Gás Natural</div>
+                                <div class="heating-description">Sistema convencional a gás</div>
+                                <div class="heating-stats">
+                                    <span class="impact-badge impact-poor">Alto Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">80 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showHeatingInfo('gas')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="heating-card" data-heating="electric">
+                            <div class="heating-image">⚡</div>
+                            <div class="heating-info">
+                                <div class="heating-name">Elétrico Eficiente</div>
+                                <div class="heating-description">Bomba de calor elétrica</div>
+                                <div class="heating-stats">
+                                    <span class="impact-badge impact-medium">Médio Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">40 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showHeatingInfo('electric')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="heating-card" data-heating="solar">
+                            <div class="heating-image">☀️</div>
+                            <div class="heating-info">
+                                <div class="heating-name">Aquecimento Solar</div>
+                                <div class="heating-description">Coletores solares térmicos</div>
+                                <div class="heating-stats">
+                                    <span class="impact-badge impact-excellent">Baixo Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">12 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showHeatingInfo('solar')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="landscaping-section">
+                    <h4 class="section-title">🌱 Paisagismo</h4>
+                    <div class="landscaping-grid">
+                        <div class="landscaping-card" data-landscaping="conventional">
+                            <div class="landscaping-image">🌿</div>
+                            <div class="landscaping-info">
+                                <div class="landscaping-name">Jardim Convencional</div>
+                                <div class="landscaping-description">Gramado e plantas ornamentais</div>
+                                <div class="landscaping-stats">
+                                    <span class="impact-badge impact-medium">Médio Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">20 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showLandscapingInfo('conventional')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="landscaping-card" data-landscaping="native">
+                            <div class="landscaping-image">🌳</div>
+                            <div class="landscaping-info">
+                                <div class="landscaping-name">Plantas Nativas</div>
+                                <div class="landscaping-description">Espécies locais adaptadas</div>
+                                <div class="landscaping-stats">
+                                    <span class="impact-badge impact-good">Baixo Impacto</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">5 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showLandscapingInfo('native')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="landscaping-card" data-landscaping="food">
+                            <div class="landscaping-image">🥬</div>
+                            <div class="landscaping-info">
+                                <div class="landscaping-name">Horta Orgânica</div>
+                                <div class="landscaping-description">Produção própria de alimentos</div>
+                                <div class="landscaping-stats">
+                                    <span class="impact-badge impact-excellent">Carbono Negativo</span>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="carbon-value">-15 kg CO₂</span>
+                                        <button class="info-btn" onclick="event.stopPropagation(); showLandscapingInfo('food')" title="Ver informações">INFORMAÇÕES</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <section class="results-panel" id="resultsPanel" style="display: none;">
+            <div class="results-title">📊 Análise de Sustentabilidade</div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="energyEfficiency">85%</div>
+                    <div class="stat-label">Eficiência Energética</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value" id="carbonFootprint">85</div>
+                    <div class="stat-label">kg CO₂/ano</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value" id="renewableEnergy">80%</div>
+                    <div class="stat-label">Energia Renovável</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value" id="sustainableMaterials">70%</div>
+                    <div class="stat-label">Materiais Sustentáveis</div>
+                </div>
+            </div>
+
+            <div class="sustainability-score">
+                <div class="score-value" id="overallScore">78</div>
+                <div class="score-label">Pontuação de Sustentabilidade</div>
+            </div>
+
+            <div class="rating excellent" id="overallRating">
+                🌟 Excelente! Casa Muito Sustentável
+            </div>
+        </section>
+
+        <section class="progress-panel" id="progressPanel">
+            <div class="progress-title">🏗️ Construindo sua Casa Sustentável</div>
+            <div class="progress-subtitle">Faça suas escolhas para cada categoria:</div>
+            
+            <div class="progress-grid">
+                <div class="progress-item incomplete" id="materialProgress">
+                    <div class="progress-icon">🧱</div>
+                    <div class="progress-text">Material de Construção</div>
+                    <div class="progress-status">⏳ Aguardando</div>
+                </div>
+                
+                <div class="progress-item incomplete" id="energyProgress">
+                    <div class="progress-icon">⚡</div>
+                    <div class="progress-text">Sistema Energético</div>
+                    <div class="progress-status">⏳ Aguardando</div>
+                </div>
+                
+                <div class="progress-item incomplete" id="insulationProgress">
+                    <div class="progress-icon">🌡️</div>
+                    <div class="progress-text">Isolamento Térmico</div>
+                    <div class="progress-status">⏳ Aguardando</div>
+                </div>
+                
+                <div class="progress-item incomplete" id="waterProgress">
+                    <div class="progress-icon">💧</div>
+                    <div class="progress-text">Sistema de Água</div>
+                    <div class="progress-status">⏳ Aguardando</div>
+                </div>
+                
+                <div class="progress-item incomplete" id="heatingProgress">
+                    <div class="progress-icon">🔥</div>
+                    <div class="progress-text">Aquecimento</div>
+                    <div class="progress-status">⏳ Aguardando</div>
+                </div>
+                
+                <div class="progress-item incomplete" id="landscapingProgress">
+                    <div class="progress-icon">🌱</div>
+                    <div class="progress-text">Paisagismo</div>
+                    <div class="progress-status">⏳ Aguardando</div>
+                </div>
+            </div>
+            
+            <div class="completion-message" id="completionMessage">
+                <div class="completion-text">Complete todas as escolhas para ver o resultado da sua casa sustentável!</div>
+                <div class="completion-counter" id="completionCounter">0 de 6 categorias selecionadas</div>
+            </div>
+        </section>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="recalculateBtn">🔄 Recalcular</button>
+            <button class="btn btn-secondary" id="resetBtn">🏠 Nova Casa</button>
+        </div>
+    </main>
+
+    <div class="feedback" id="feedback"></div>
+
+    <!-- Modal de Informações -->
+    <div class="modal" id="infoModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div class="modal-header">
+                <div class="modal-icon" id="modalIcon"></div>
+                <div>
+                    <h3 class="modal-title" id="modalTitle"></h3>
+                    <p class="modal-subtitle" id="modalSubtitle"></p>
+                </div>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        class SustainableHouse {
+            constructor() {
+                this.materials = [
+                    {
+                        id: 'concrete',
+                        name: 'Concreto Convencional',
+                        description: 'Material resistente, mas com alta pegada de carbono na produção',
+                        icon: '🏗️',
+                        carbon: 150,
+                        impact: 'poor',
+                        impactText: 'Alto Impacto',
+                        info: {
+                            description: 'O concreto é um dos materiais mais utilizados na construção mundial, composto por cimento, areia, brita e água.',
+                            advantages: [
+                                'Alta resistência e durabilidade',
+                                'Versatilidade de formas e aplicações',
+                                'Resistência ao fogo e intempéries',
+                                'Disponibilidade global'
+                            ],
+                            disadvantages: [
+                                'Alta emissão de CO₂ na produção do cimento',
+                                'Extração intensiva de recursos naturais',
+                                'Dificuldade de reciclagem',
+                                'Impermeabilidade afeta drenagem natural'
+                            ],
+                            curiosities: [
+                                'A produção de cimento é responsável por cerca de 8% das emissões globais de CO₂',
+                                'O Panteão em Roma, construído há quase 2000 anos, ainda usa concreto romano',
+                                'Existem pesquisas para criar concreto que absorve CO₂ da atmosfera'
+                            ],
+                            sustainability: 'Baixa - Alto impacto ambiental na produção',
+                            lifespan: '50-100 anos',
+                            recyclability: '30% - Pode ser triturado para agregado'
+                        }
+                    },
+                    {
+                        id: 'wood',
+                        name: 'Madeira Certificada',
+                        description: 'Renovável, absorve CO₂ durante crescimento, certificação FSC',
+                        icon: '🌳',
+                        carbon: 50,
+                        impact: 'good',
+                        impactText: 'Baixo Impacto',
+                        info: {
+                            description: 'Madeira proveniente de florestas manejadas de forma sustentável, com certificação FSC (Forest Stewardship Council).',
+                            advantages: [
+                                'Recurso renovável e biodegradável',
+                                'Absorve CO₂ durante o crescimento da árvore',
+                                'Excelente isolamento térmico natural',
+                                'Processamento com baixo consumo energético'
+                            ],
+                            disadvantages: [
+                                'Vulnerável a pragas e umidade',
+                                'Requer tratamentos químicos preventivos',
+                                'Variação de qualidade conforme espécie',
+                                'Tempo de crescimento das árvores'
+                            ],
+                            curiosities: [
+                                'Uma árvore pode absorver até 22kg de CO₂ por ano',
+                                'A madeira continua armazenando carbono mesmo após o corte',
+                                'Construções em madeira podem durar mais de 1000 anos (como templos japoneses)',
+                                'O bambu tecnicamente é uma grama, não madeira!'
+                            ],
+                            sustainability: 'Alta - Recurso renovável com manejo adequado',
+                            lifespan: '30-100+ anos (com manutenção)',
+                            recyclability: '90% - Reutilizável e compostável'
+                        }
+                    },
+                    {
+                        id: 'bamboo',
+                        name: 'Bambu',
+                        description: 'Crescimento rápido, alta resistência, muito sustentável',
+                        icon: '🎋',
+                        carbon: 30,
+                        impact: 'excellent',
+                        impactText: 'Muito Baixo',
+                        info: {
+                            description: 'O bambu é uma gramínea de crescimento extremamente rápido, considerada um dos materiais mais sustentáveis do mundo.',
+                            advantages: [
+                                'Crescimento até 1 metro por dia',
+                                'Resistência superior ao aço em tração',
+                                'Regeneração sem replantio (sistema radicular)',
+                                'Produz 35% mais oxigênio que árvores'
+                            ],
+                            disadvantages: [
+                                'Tratamento necessário contra insetos',
+                                'Variação de qualidade entre espécies',
+                                'Técnicas de construção ainda em desenvolvimento',
+                                'Disponibilidade limitada em algumas regiões'
+                            ],
+                            curiosities: [
+                                'Existem mais de 1400 espécies de bambu no mundo',
+                                'Pode ser colhido em 3-5 anos vs 25-50 anos das árvores',
+                                'Na China, há edifícios de bambu com mais de 20 andares',
+                                'O bambu pode crescer em praticamente qualquer clima'
+                            ],
+                            sustainability: 'Excelente - Crescimento rápido e carbono negativo',
+                            lifespan: '25-50 anos',
+                            recyclability: '95% - Totalmente biodegradável'
+                        }
+                    },
+                    {
+                        id: 'recycled',
+                        name: 'Materiais Reciclados',
+                        description: 'Reutilização de recursos, reduz desperdício industrial',
+                        icon: '♻️',
+                        carbon: 40,
+                        impact: 'good',
+                        impactText: 'Baixo Impacto',
+                        info: {
+                            description: 'Materiais de construção produzidos a partir da reciclagem de resíduos industriais e urbanos, como aço, plástico e vidro.',
+                            advantages: [
+                                'Reduz drasticamente o desperdício',
+                                'Menor consumo de recursos naturais',
+                                'Economia de energia na produção',
+                                'Custo geralmente mais baixo'
+                            ],
+                            disadvantages: [
+                                'Qualidade pode variar conforme origem',
+                                'Limitações em algumas aplicações estruturais',
+                                'Necessidade de processos de limpeza',
+                                'Disponibilidade dependente da coleta seletiva'
+                            ],
+                            curiosities: [
+                                'Reciclar 1 tonelada de aço economiza 1,1 tonelada de minério de ferro',
+                                'Garrafas PET podem virar isolamento térmico',
+                                'Pneus velhos são usados em fundações e muros de contenção',
+                                'Vidro pode ser reciclado infinitas vezes sem perder qualidade'
+                            ],
+                            sustainability: 'Alta - Economia circular e redução de resíduos',
+                            lifespan: '20-80 anos (varia por material)',
+                            recyclability: '85% - Maioria pode ser reciclada novamente'
+                        }
+                    },
+                    {
+                        id: 'adobe',
+                        name: 'Adobe',
+                        description: 'Terra crua natural, baixíssimo impacto ambiental',
+                        icon: '🏺',
+                        carbon: 25,
+                        impact: 'excellent',
+                        impactText: 'Muito Baixo',
+                        info: {
+                            description: 'Mistura de terra argilosa, areia, água e fibras naturais, moldada em blocos e seca ao sol. Uma das técnicas mais antigas do mundo.',
+                            advantages: [
+                                'Material abundante e local',
+                                'Excelente isolamento térmico',
+                                'Regulação natural da umidade',
+                                'Processamento sem energia industrial'
+                            ],
+                            disadvantages: [
+                                'Vulnerável à chuva intensa',
+                                'Requer manutenção regular',
+                                'Limitações em climas muito úmidos',
+                                'Processo de construção mais lento'
+                            ],
+                            curiosities: [
+                                'Construções de adobe existem há mais de 9000 anos',
+                                'A Grande Muralha da China tem seções feitas de adobe',
+                                'Adobe regula temperatura: fresco no verão, quente no inverno',
+                                'Pode ser totalmente reciclado: basta adicionar água!'
+                            ],
+                            sustainability: 'Excelente - Material natural e local',
+                            lifespan: '50-200+ anos (com manutenção)',
+                            recyclability: '100% - Retorna à terra naturalmente'
+                        }
+                    },
+                    {
+                        id: 'hemp',
+                        name: 'Cânhamo Industrial',
+                        description: 'Fibra natural, absorve mais CO₂ que produz',
+                        icon: '🌿',
+                        carbon: 20,
+                        impact: 'excellent',
+                        impactText: 'Carbono Negativo',
+                        info: {
+                            description: 'Fibra da planta Cannabis sativa (sem THC), usada para criar blocos de construção misturados com cal.',
+                            advantages: [
+                                'Absorve CO₂ durante crescimento e cura',
+                                'Resistente a pragas naturalmente',
+                                'Excelente isolamento térmico e acústico',
+                                'Crescimento rápido (120 dias)'
+                            ],
+                            disadvantages: [
+                                'Regulamentação restritiva em alguns países',
+                                'Técnica de construção especializada',
+                                'Custo inicial mais elevado',
+                                'Disponibilidade limitada no mercado'
+                            ],
+                            curiosities: [
+                                'Uma hectare de cânhamo absorve 15 toneladas de CO₂',
+                                'O cânhamo foi usado na construção por mais de 1500 anos',
+                                'É naturalmente resistente a fogo, pragas e mofo',
+                                'A planta melhora a qualidade do solo onde cresce'
+                            ],
+                            sustainability: 'Excelente - Carbono negativo e regenerativo',
+                            lifespan: '60-100+ anos',
+                            recyclability: '100% - Biodegradável e compostável'
+                        }
+                    },
+                    {
+                        id: 'straw',
+                        name: 'Fardos de Palha',
+                        description: 'Resíduo agrícola reutilizado, excelente isolante',
+                        icon: '🌾',
+                        carbon: 15,
+                        impact: 'excellent',
+                        impactText: 'Muito Baixo',
+                        info: {
+                            description: 'Fardos compactados de palha de trigo, arroz ou outros cereais, usados como material estrutural e isolante.',
+                            advantages: [
+                                'Reutiliza resíduo que seria queimado',
+                                'Isolamento térmico excepcional',
+                                'Custo muito baixo',
+                                'Disponibilidade em regiões agrícolas'
+                            ],
+                            disadvantages: [
+                                'Requer proteção contra umidade',
+                                'Risco de incêndio se mal instalado',
+                                'Pode atrair roedores se não protegido',
+                                'Técnica construtiva específica necessária'
+                            ],
+                            curiosities: [
+                                'Casas de palha podem durar mais de 100 anos',
+                                'A palha é naturalmente resistente ao fogo quando compactada',
+                                'Nebraska (EUA) tem centenas de casas de palha históricas',
+                                'Um fardo pode substituir vários sacos de isolante sintético'
+                            ],
+                            sustainability: 'Excelente - Reutiliza resíduo agrícola',
+                            lifespan: '50-100+ anos (com proteção adequada)',
+                            recyclability: '100% - Biodegradável e compostável'
+                        }
+                    },
+                    {
+                        id: 'cork',
+                        name: 'Cortiça',
+                        description: 'Renovável sem matar árvores, naturalmente isolante',
+                        icon: '🍃',
+                        carbon: 35,
+                        impact: 'good',
+                        impactText: 'Baixo Impacto',
+                        info: {
+                            description: 'Casca do sobreiro (Quercus suber) que se regenera naturalmente, tradicionalmente usada em rolhas e agora na construção.',
+                            advantages: [
+                                'Extração não prejudica a árvore',
+                                'Excelente isolamento térmico e acústico',
+                                'Naturalmente impermeável e antifúngico',
+                                'Leve e flexível'
+                            ],
+                            disadvantages: [
+                                'Disponibilidade limitada geograficamente',
+                                'Custo mais elevado',
+                                'Processo de extração artesanal',
+                                'Tempo de regeneração de 9 anos'
+                            ],
+                            curiosities: [
+                                'Sobreiros podem viver mais de 200 anos',
+                                'Portugal produz 50% da cortiça mundial',
+                                'A cortiça é naturalmente antialérgica',
+                                'Uma árvore pode ser "descascada" 15-20 vezes na vida'
+                            ],
+                            sustainability: 'Alta - Renovável sem dano à árvore',
+                            lifespan: '30-50 anos',
+                            recyclability: '90% - Biodegradável e reutilizável'
+                        }
+                    }
+                ];
+
+                this.energySources = {
+                    'grid': { 
+                        carbon: 200,
+                        name: 'Rede Elétrica',
+                        icon: '⚡',
+                        description: 'Energia convencional fornecida pela distribuidora local, geralmente baseada em fontes mistas.',
+                        info: {
+                            description: 'A energia da rede elétrica é fornecida pelas distribuidoras e pode vir de diversas fontes: hidrelétricas, termelétricas, nucleares e renováveis.',
+                            advantages: [
+                                'Disponibilidade constante e confiável',
+                                'Infraestrutura já estabelecida',
+                                'Não requer investimento inicial em equipamentos',
+                                'Manutenção por parte da distribuidora'
+                            ],
+                            disadvantages: [
+                                'Alta pegada de carbono (matriz energética mista)',
+                                'Dependência de fontes não renováveis',
+                                'Custos mensais contínuos',
+                                'Vulnerável a apagões e falhas na rede'
+                            ],
+                            curiosities: [
+                                'No Brasil, cerca de 60% da energia vem de hidrelétricas',
+                                'A rede elétrica brasileira é uma das maiores do mundo',
+                                'Horário de pico (18h-21h) tem tarifa mais cara',
+                                'Energia elétrica não pode ser armazenada em grande escala'
+                            ],
+                            sustainability: 'Baixa - Depende da matriz energética nacional',
+                            efficiency: '85% - Perdas na transmissão',
+                            cost: 'Médio - Tarifa mensal contínua'
+                        }
+                    },
+                    'solar': { 
+                        carbon: 20,
+                        name: 'Painéis Solares',
+                        icon: '☀️',
+                        description: 'Sistema fotovoltaico que converte luz solar diretamente em energia elétrica.',
+                        info: {
+                            description: 'Painéis fotovoltaicos captam a radiação solar e a convertem em energia elétrica através do efeito fotovoltaico.',
+                            advantages: [
+                                'Energia limpa e renovável',
+                                'Redução drástica na conta de luz',
+                                'Baixa manutenção após instalação',
+                                'Valorização do imóvel'
+                            ],
+                            disadvantages: [
+                                'Alto investimento inicial',
+                                'Dependente de condições climáticas',
+                                'Produção reduzida em dias nublados',
+                                'Necessita de espaço adequado no telhado'
+                            ],
+                            curiosities: [
+                                'Painéis solares funcionam mesmo em dias nublados',
+                                'Vida útil de 25-30 anos com garantia',
+                                'Brasil tem uma das melhores radiações solares do mundo',
+                                'Payback do investimento entre 4-7 anos'
+                            ],
+                            sustainability: 'Excelente - Energia 100% renovável',
+                            efficiency: '95% - Conversão direta da luz',
+                            cost: 'Alto inicial, baixo operacional'
+                        }
+                    },
+                    'wind': { 
+                        carbon: 15,
+                        name: 'Energia Eólica',
+                        icon: '💨',
+                        description: 'Turbina de vento residencial que gera energia através da força dos ventos.',
+                        info: {
+                            description: 'Pequenas turbinas eólicas residenciais captam a energia cinética do vento e a convertem em eletricidade.',
+                            advantages: [
+                                'Energia limpa e renovável',
+                                'Funciona 24 horas (com vento)',
+                                'Complementa energia solar',
+                                'Baixo impacto visual (modelos pequenos)'
+                            ],
+                            disadvantages: [
+                                'Dependente de ventos constantes',
+                                'Pode gerar ruído',
+                                'Investimento inicial elevado',
+                                'Requer análise prévia dos ventos locais'
+                            ],
+                            curiosities: [
+                                'Ventos de 3-4 m/s já geram energia',
+                                'Turbinas residenciais têm 1-10 kW de potência',
+                                'Funcionam melhor em áreas rurais ou costeiras',
+                                'Podem ser combinadas com painéis solares'
+                            ],
+                            sustainability: 'Excelente - Zero emissões na operação',
+                            efficiency: '90% - Aproveitamento do vento',
+                            cost: 'Alto inicial, baixíssimo operacional'
+                        }
+                    },
+                    'hybrid': { 
+                        carbon: 35,
+                        name: 'Sistema Híbrido',
+                        icon: '🔋',
+                        description: 'Combinação de energia solar e eólica com sistema de armazenamento em baterias.',
+                        info: {
+                            description: 'Sistema que combina painéis solares, turbinas eólicas e baterias para garantir fornecimento contínuo de energia limpa.',
+                            advantages: [
+                                'Fornecimento de energia mais estável',
+                                'Complementaridade entre fontes',
+                                'Independência energética',
+                                'Backup para emergências'
+                            ],
+                            disadvantages: [
+                                'Investimento inicial muito alto',
+                                'Sistema mais complexo',
+                                'Manutenção de múltiplos equipamentos',
+                                'Baterias precisam ser substituídas'
+                            ],
+                            curiosities: [
+                                'Sol e vento se complementam: vento à noite, sol de dia',
+                                'Baterias de lítio duram 10-15 anos',
+                                'Sistema pode vender energia excedente',
+                                'Ideal para locais remotos sem rede elétrica'
+                            ],
+                            sustainability: 'Excelente - Múltiplas fontes renováveis',
+                            efficiency: '92% - Sistema otimizado',
+                            cost: 'Muito alto inicial, baixíssimo operacional'
+                        }
+                    }
+                };
+
+                this.insulationTypes = {
+                    'basic': { 
+                        carbon: 30,
+                        name: 'Isolamento Básico',
+                        icon: '🏠',
+                        description: 'Proteção térmica mínima conforme normas básicas de construção.',
+                        info: {
+                            description: 'Isolamento térmico padrão usando materiais convencionais como lã de vidro ou poliestireno expandido.',
+                            advantages: [
+                                'Custo inicial baixo',
+                                'Fácil instalação',
+                                'Disponibilidade no mercado',
+                                'Atende normas mínimas'
+                            ],
+                            disadvantages: [
+                                'Eficiência térmica limitada',
+                                'Maior consumo de energia para climatização',
+                                'Possíveis pontes térmicas',
+                                'Durabilidade menor'
+                            ],
+                            curiosities: [
+                                'Isolamento básico pode reduzir 30% do consumo energético',
+                                'Lã de vidro é feita com 60% de vidro reciclado',
+                                'Espessura padrão varia de 5-10cm',
+                                'Investimento se paga em 2-3 anos'
+                            ],
+                            sustainability: 'Média - Materiais convencionais',
+                            efficiency: '70% - Proteção básica',
+                            cost: 'Baixo - Solução econômica'
+                        }
+                    },
+                    'advanced': { 
+                        carbon: 15,
+                        name: 'Isolamento Avançado',
+                        icon: '🏡',
+                        description: 'Sistema de alta eficiência com materiais modernos e técnicas avançadas.',
+                        info: {
+                            description: 'Isolamento de alta performance usando materiais como poliuretano, lã mineral ou sistemas EIFS.',
+                            advantages: [
+                                'Excelente eficiência térmica',
+                                'Redução significativa no consumo energético',
+                                'Maior conforto térmico',
+                                'Valorização do imóvel'
+                            ],
+                            disadvantages: [
+                                'Investimento inicial mais alto',
+                                'Instalação mais complexa',
+                                'Requer mão de obra especializada',
+                                'Alguns materiais não são ecológicos'
+                            ],
+                            curiosities: [
+                                'Pode reduzir até 60% do consumo de energia',
+                                'Isolamento contínuo elimina pontes térmicas',
+                                'Sistemas modernos têm vida útil de 50+ anos',
+                                'Payback entre 3-5 anos'
+                            ],
+                            sustainability: 'Boa - Eficiência energética alta',
+                            efficiency: '90% - Performance superior',
+                            cost: 'Médio-alto - Investimento compensador'
+                        }
+                    },
+                    'natural': { 
+                        carbon: 10,
+                        name: 'Isolamento Natural',
+                        icon: '🌿',
+                        description: 'Materiais ecológicos como cortiça, fibras naturais e celulose reciclada.',
+                        info: {
+                            description: 'Isolamento usando materiais naturais e reciclados como cortiça, lã de ovelha, fibra de coco ou celulose.',
+                            advantages: [
+                                'Materiais 100% naturais e renováveis',
+                                'Excelente regulação de umidade',
+                                'Não tóxico e hipoalergênico',
+                                'Biodegradável ao final da vida útil'
+                            ],
+                            disadvantages: [
+                                'Custo inicial mais elevado',
+                                'Disponibilidade limitada no mercado',
+                                'Pode requerer tratamentos especiais',
+                                'Instalação especializada'
+                            ],
+                            curiosities: [
+                                'Lã de ovelha regula umidade naturalmente',
+                                'Cortiça é naturalmente resistente ao fogo',
+                                'Fibra de coco é subproduto da indústria alimentícia',
+                                'Celulose reciclada usa 85% menos energia para produzir'
+                            ],
+                            sustainability: 'Excelente - Materiais naturais e renováveis',
+                            efficiency: '85% - Performance natural',
+                            cost: 'Alto - Investimento em sustentabilidade'
+                        }
+                    }
+                };
+
+                this.waterSystems = {
+                    'conventional': { 
+                        carbon: 25,
+                        name: 'Sistema Convencional',
+                        icon: '🚰',
+                        description: 'Abastecimento exclusivo através da rede pública de água tratada.',
+                        info: {
+                            description: 'Sistema tradicional que utiliza apenas água da rede pública, tratada e distribuída pela companhia de saneamento.',
+                            advantages: [
+                                'Não requer investimento inicial',
+                                'Água tratada e potável',
+                                'Pressão constante',
+                                'Manutenção pela companhia'
+                            ],
+                            disadvantages: [
+                                'Dependência total da rede pública',
+                                'Custos mensais contínuos',
+                                'Desperdício de água potável',
+                                'Vulnerável a racionamentos'
+                            ],
+                            curiosities: [
+                                'Brasileiro consome em média 150L de água por dia',
+                                'Apenas 3% da água do planeta é doce',
+                                'Tratamento de água consome muita energia',
+                                'Perdas na rede chegam a 40% em algumas cidades'
+                            ],
+                            sustainability: 'Baixa - Uso exclusivo de água tratada',
+                            efficiency: '60% - Sem reaproveitamento',
+                            cost: 'Médio - Tarifa mensal contínua'
+                        }
+                    },
+                    'rainwater': { 
+                        carbon: 10,
+                        name: 'Captação de Chuva',
+                        icon: '🌧️',
+                        description: 'Sistema de coleta, armazenamento e tratamento de água pluvial.',
+                        info: {
+                            description: 'Sistema que coleta água da chuva através de calhas e a armazena em cisternas para uso não potável.',
+                            advantages: [
+                                'Redução significativa na conta de água',
+                                'Aproveitamento de recurso natural',
+                                'Reduz enchentes urbanas',
+                                'Água livre de cloro e flúor'
+                            ],
+                            disadvantages: [
+                                'Investimento inicial em equipamentos',
+                                'Dependente do regime de chuvas',
+                                'Requer manutenção regular',
+                                'Necessita tratamento para consumo'
+                            ],
+                            curiosities: [
+                                '1mm de chuva em 100m² = 100 litros de água',
+                                'Água da chuva é naturalmente destilada',
+                                'Sistema pode suprir 50% do consumo residencial',
+                                'Payback do investimento em 3-5 anos'
+                            ],
+                            sustainability: 'Excelente - Aproveitamento de recurso natural',
+                            efficiency: '80% - Reduz dependência da rede',
+                            cost: 'Médio inicial, baixo operacional'
+                        }
+                    },
+                    'greywater': { 
+                        carbon: 8,
+                        name: 'Reuso de Águas Cinzas',
+                        icon: '♻️',
+                        description: 'Tratamento e reutilização de águas de pias, chuveiros e máquinas.',
+                        info: {
+                            description: 'Sistema que trata e reutiliza águas servidas de pias, chuveiros e lavadoras para irrigação e descargas.',
+                            advantages: [
+                                'Máximo aproveitamento da água',
+                                'Redução de até 70% no consumo',
+                                'Menor geração de esgoto',
+                                'Economia significativa na conta'
+                            ],
+                            disadvantages: [
+                                'Sistema mais complexo',
+                                'Investimento inicial alto',
+                                'Manutenção especializada',
+                                'Requer produtos biodegradáveis'
+                            ],
+                            curiosities: [
+                                'Águas cinzas representam 60% do esgoto doméstico',
+                                'Sistema pode economizar 40.000L/mês numa família',
+                                'Plantas preferem água cinza à água potável',
+                                'Reduz carga nas estações de tratamento'
+                            ],
+                            sustainability: 'Excelente - Economia circular da água',
+                            efficiency: '95% - Máximo reaproveitamento',
+                            cost: 'Alto inicial, muito baixo operacional'
+                        }
+                    }
+                };
+
+                this.heatingSystems = {
+                    'gas': { 
+                        carbon: 80,
+                        name: 'Gás Natural',
+                        icon: '🔥',
+                        description: 'Sistema de aquecimento convencional usando gás natural ou GLP.',
+                        info: {
+                            description: 'Aquecimento através da queima de gás natural ou GLP em caldeiras, aquecedores ou fornos.',
+                            advantages: [
+                                'Aquecimento rápido e eficiente',
+                                'Custo operacional relativamente baixo',
+                                'Independe de energia elétrica',
+                                'Tecnologia madura e confiável'
+                            ],
+                            disadvantages: [
+                                'Emissões diretas de CO₂',
+                                'Risco de vazamentos',
+                                'Dependência de fornecimento externo',
+                                'Instalação requer profissional habilitado'
+                            ],
+                            curiosities: [
+                                'Gás natural é 90% metano',
+                                'Queima mais limpa que outros combustíveis fósseis',
+                                'Brasil tem grandes reservas de gás natural',
+                                'Eficiência de combustão pode chegar a 95%'
+                            ],
+                            sustainability: 'Baixa - Combustível fóssil',
+                            efficiency: '85% - Conversão direta',
+                            cost: 'Médio - Combustível contínuo'
+                        }
+                    },
+                    'electric': { 
+                        carbon: 40,
+                        name: 'Elétrico Eficiente',
+                        icon: '⚡',
+                        description: 'Bomba de calor elétrica de alta eficiência energética.',
+                        info: {
+                            description: 'Sistema de bomba de calor que extrai energia térmica do ar externo para aquecer o ambiente interno.',
+                            advantages: [
+                                'Muito eficiente (COP 3-4)',
+                                'Também funciona como ar condicionado',
+                                'Não produz emissões locais',
+                                'Controle preciso de temperatura'
+                            ],
+                            disadvantages: [
+                                'Dependente da rede elétrica',
+                                'Eficiência reduz em frio extremo',
+                                'Investimento inicial elevado',
+                                'Consumo elétrico significativo'
+                            ],
+                            curiosities: [
+                                'Bomba de calor produz 3-4x mais energia que consome',
+                                'Funciona mesmo com temperatura externa de -15°C',
+                                'Tecnologia inverter ajusta potência automaticamente',
+                                'Pode ser combinada com energia solar'
+                            ],
+                            sustainability: 'Média - Depende da matriz elétrica',
+                            efficiency: '300-400% - COP elevado',
+                            cost: 'Alto inicial, médio operacional'
+                        }
+                    },
+                    'solar': { 
+                        carbon: 12,
+                        name: 'Aquecimento Solar',
+                        icon: '☀️',
+                        description: 'Coletores solares térmicos para aquecimento de água e ambientes.',
+                        info: {
+                            description: 'Sistema que utiliza coletores solares para captar energia térmica do sol e aquecer água ou ambientes.',
+                            advantages: [
+                                'Energia 100% renovável e gratuita',
+                                'Redução de 70-90% nos custos',
+                                'Baixa manutenção',
+                                'Vida útil de 20+ anos'
+                            ],
+                            disadvantages: [
+                                'Dependente de radiação solar',
+                                'Investimento inicial significativo',
+                                'Requer backup para dias nublados',
+                                'Necessita espaço adequado'
+                            ],
+                            curiosities: [
+                                'Brasil é líder mundial em aquecimento solar',
+                                'Coletores podem aquecer água até 60°C',
+                                'Sistema funciona mesmo em dias parcialmente nublados',
+                                'Payback entre 2-4 anos'
+                            ],
+                            sustainability: 'Excelente - Energia solar renovável',
+                            efficiency: '70% - Conversão térmica direta',
+                            cost: 'Alto inicial, baixíssimo operacional'
+                        }
+                    }
+                };
+
+                this.landscapingTypes = {
+                    'conventional': { 
+                        carbon: 20,
+                        name: 'Jardim Convencional',
+                        icon: '🌿',
+                        description: 'Paisagismo tradicional com gramado e plantas ornamentais exóticas.',
+                        info: {
+                            description: 'Jardim tradicional com gramado, plantas ornamentais e espécies exóticas que requerem irrigação e manutenção intensiva.',
+                            advantages: [
+                                'Aparência familiar e tradicional',
+                                'Variedade de plantas disponíveis',
+                                'Técnicas bem conhecidas',
+                                'Valorização estética imediata'
+                            ],
+                            disadvantages: [
+                                'Alto consumo de água',
+                                'Uso intensivo de fertilizantes',
+                                'Manutenção frequente necessária',
+                                'Plantas podem não se adaptar ao clima'
+                            ],
+                            curiosities: [
+                                'Gramado pode consumir 50% da água residencial',
+                                'Plantas exóticas podem se tornar invasoras',
+                                'Fertilizantes sintéticos poluem lençóis freáticos',
+                                'Manutenção de jardim gera 30% dos resíduos verdes urbanos'
+                            ],
+                            sustainability: 'Baixa - Alto consumo de recursos',
+                            maintenance: 'Alta - Irrigação e poda frequentes',
+                            cost: 'Médio inicial, alto operacional'
+                        }
+                    },
+                    'native': { 
+                        carbon: 5,
+                        name: 'Plantas Nativas',
+                        icon: '🌳',
+                        description: 'Paisagismo com espécies nativas adaptadas ao clima local.',
+                        info: {
+                            description: 'Jardim composto por plantas nativas da região, adaptadas ao clima e solo locais, requerendo menos recursos.',
+                            advantages: [
+                                'Adaptadas ao clima local',
+                                'Menor necessidade de irrigação',
+                                'Atraem fauna nativa',
+                                'Resistentes a pragas locais'
+                            ],
+                            disadvantages: [
+                                'Aparência menos "tradicional"',
+                                'Menor variedade disponível comercialmente',
+                                'Crescimento pode ser mais lento',
+                                'Conhecimento especializado necessário'
+                            ],
+                            curiosities: [
+                                'Plantas nativas usam 50% menos água',
+                                'Atraem polinizadores importantes',
+                                'Preservam a biodiversidade local',
+                                'Algumas espécies têm propriedades medicinais'
+                            ],
+                            sustainability: 'Excelente - Preservação da biodiversidade',
+                            maintenance: 'Baixa - Adaptação natural',
+                            cost: 'Baixo inicial e operacional'
+                        }
+                    },
+                    'food': { 
+                        carbon: -15,
+                        name: 'Horta Orgânica',
+                        icon: '🥬',
+                        description: 'Produção própria de alimentos orgânicos e plantas medicinais.',
+                        info: {
+                            description: 'Espaço dedicado ao cultivo de hortaliças, ervas e frutas para consumo próprio, usando técnicas orgânicas.',
+                            advantages: [
+                                'Produção de alimentos frescos',
+                                'Redução da pegada de carbono alimentar',
+                                'Economia na compra de alimentos',
+                                'Atividade terapêutica e educativa'
+                            ],
+                            disadvantages: [
+                                'Requer tempo e dedicação',
+                                'Conhecimento de cultivo necessário',
+                                'Produção sazonal',
+                                'Possível ataque de pragas'
+                            ],
+                            curiosities: [
+                                'Horta caseira pode suprir 30% dos vegetais familiares',
+                                'Compostagem reduz 30% do lixo doméstico',
+                                'Alimentos percorrem em média 2000km até chegar à mesa',
+                                'Horta urbana pode sequestrar 2kg de CO₂/m² por ano'
+                            ],
+                            sustainability: 'Excelente - Carbono negativo',
+                            maintenance: 'Média - Cuidados regulares',
+                            cost: 'Baixo - Economia em alimentos'
+                        }
+                    }
+                };
+
+                this.selectedMaterial = null;
+                this.selectedEnergy = null;
+                this.selectedInsulation = null;
+                this.selectedWater = null;
+                this.selectedHeating = null;
+                this.selectedLandscaping = null;
+                this.init();
+            }
+
+            init() {
+                this.renderMaterials();
+                this.setupEventListeners();
+                this.updateProgress();
+            }
+
+            renderMaterials() {
+                const grid = document.getElementById('materialsGrid');
+                grid.innerHTML = this.materials.map(material => `
+                    <div class="material-card" data-material="${material.id}">
+                        <div class="material-image">
+                            ${material.icon}
+                        </div>
+                        <div class="material-info">
+                            <div class="material-name">${material.name}</div>
+                            <div class="material-description">${material.description}</div>
+                            <div class="material-stats">
+                                <span class="impact-badge impact-${material.impact}">${material.impactText}</span>
+                                <div style="display: flex; align-items: center;">
+                                    <span class="carbon-value">${material.carbon} kg CO₂</span>
+                                    <button class="info-btn" onclick="event.stopPropagation(); showMaterialInfo('${material.id}')" title="Ver informações">INFORMAÇÕES</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            setupEventListeners() {
+                // Material cards
+                document.querySelectorAll('.material-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        this.selectMaterial(card.dataset.material);
+                    });
+                });
+
+                // Energy cards
+                document.querySelectorAll('.energy-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        this.selectEnergy(card.dataset.energy);
+                    });
+                });
+
+                // Insulation cards
+                document.querySelectorAll('.insulation-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        this.selectInsulation(card.dataset.insulation);
+                    });
+                });
+
+                // Water cards
+                document.querySelectorAll('.water-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        this.selectWater(card.dataset.water);
+                    });
+                });
+
+                // Heating cards
+                document.querySelectorAll('.heating-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        this.selectHeating(card.dataset.heating);
+                    });
+                });
+
+                // Landscaping cards
+                document.querySelectorAll('.landscaping-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        this.selectLandscaping(card.dataset.landscaping);
+                    });
+                });
+
+                // Action buttons
+                document.getElementById('recalculateBtn').addEventListener('click', () => {
+                    this.calculateImpact();
+                    this.showFeedback('🔄 Impacto recalculado com suas escolhas atuais!');
+                });
+
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    this.resetHouse();
+                });
+
+
+            }
+
+            updateProgress() {
+                const categories = [
+                    { id: 'materialProgress', selected: this.selectedMaterial, name: 'Material de Construção' },
+                    { id: 'energyProgress', selected: this.selectedEnergy, name: 'Sistema Energético' },
+                    { id: 'insulationProgress', selected: this.selectedInsulation, name: 'Isolamento Térmico' },
+                    { id: 'waterProgress', selected: this.selectedWater, name: 'Sistema de Água' },
+                    { id: 'heatingProgress', selected: this.selectedHeating, name: 'Aquecimento' },
+                    { id: 'landscapingProgress', selected: this.selectedLandscaping, name: 'Paisagismo' }
+                ];
+
+                let completedCount = 0;
+
+                categories.forEach(category => {
+                    const element = document.getElementById(category.id);
+                    const statusElement = element.querySelector('.progress-status');
+                    
+                    if (category.selected) {
+                        element.classList.remove('incomplete');
+                        statusElement.textContent = '✅ Selecionado';
+                        completedCount++;
+                    } else {
+                        element.classList.add('incomplete');
+                        statusElement.textContent = '⏳ Aguardando';
+                    }
+                });
+
+                // Atualizar contador
+                document.getElementById('completionCounter').textContent = `${completedCount} de 6 categorias selecionadas`;
+
+                // Verificar se todas as categorias foram selecionadas
+                if (completedCount === 6) {
+                    this.showResults();
+                } else {
+                    this.hideResults();
+                }
+            }
+
+            showResults() {
+                document.getElementById('progressPanel').style.display = 'none';
+                document.getElementById('resultsPanel').style.display = 'block';
+                this.calculateImpact();
+                
+                // Animação de entrada
+                setTimeout(() => {
+                    document.getElementById('resultsPanel').style.animation = 'modalSlideIn 0.5s ease';
+                }, 100);
+                
+                this.showFeedback('🎉 Parabéns! Sua casa sustentável está completa!');
+            }
+
+            hideResults() {
+                document.getElementById('progressPanel').style.display = 'block';
+                document.getElementById('resultsPanel').style.display = 'none';
+            }
+
+            selectMaterial(materialId) {
+                // Remover seleção anterior
+                document.querySelectorAll('.material-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+
+                // Selecionar novo material
+                document.querySelector(`[data-material="${materialId}"]`).classList.add('selected');
+                this.selectedMaterial = materialId;
+
+                // Atualizar progresso
+                this.updateProgress();
+
+                // Mostrar feedback
+                const material = this.materials.find(m => m.id === materialId);
+                this.showFeedback(`🧱 ${material.name} selecionado! ${this.getMaterialFeedback(materialId)}`);
+            }
+
+            selectEnergy(energyId) {
+                // Remover seleção anterior
+                document.querySelectorAll('.energy-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+
+                // Selecionar nova energia
+                document.querySelector(`[data-energy="${energyId}"]`).classList.add('selected');
+                this.selectedEnergy = energyId;
+
+                // Atualizar progresso
+                this.updateProgress();
+
+                // Mostrar feedback
+                this.showFeedback(this.getEnergyFeedback(energyId));
+            }
+
+            selectInsulation(insulationId) {
+                // Remover seleção anterior
+                document.querySelectorAll('.insulation-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+
+                // Selecionar novo isolamento
+                document.querySelector(`[data-insulation="${insulationId}"]`).classList.add('selected');
+                this.selectedInsulation = insulationId;
+
+                // Atualizar progresso
+                this.updateProgress();
+
+                // Mostrar feedback
+                this.showFeedback(this.getInsulationFeedback(insulationId));
+            }
+
+            selectWater(waterId) {
+                // Remover seleção anterior
+                document.querySelectorAll('.water-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+
+                // Selecionar novo sistema de água
+                document.querySelector(`[data-water="${waterId}"]`).classList.add('selected');
+                this.selectedWater = waterId;
+
+                // Atualizar progresso
+                this.updateProgress();
+
+                // Mostrar feedback
+                this.showFeedback(this.getWaterFeedback(waterId));
+            }
+
+            selectHeating(heatingId) {
+                // Remover seleção anterior
+                document.querySelectorAll('.heating-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+
+                // Selecionar novo aquecimento
+                document.querySelector(`[data-heating="${heatingId}"]`).classList.add('selected');
+                this.selectedHeating = heatingId;
+
+                // Atualizar progresso
+                this.updateProgress();
+
+                // Mostrar feedback
+                this.showFeedback(this.getHeatingFeedback(heatingId));
+            }
+
+            selectLandscaping(landscapingId) {
+                // Remover seleção anterior
+                document.querySelectorAll('.landscaping-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+
+                // Selecionar novo paisagismo
+                document.querySelector(`[data-landscaping="${landscapingId}"]`).classList.add('selected');
+                this.selectedLandscaping = landscapingId;
+
+                // Atualizar progresso
+                this.updateProgress();
+
+                // Mostrar feedback
+                this.showFeedback(this.getLandscapingFeedback(landscapingId));
+            }
+
+
+
+            calculateImpact() {
+                // Verificar se todas as seleções foram feitas
+                if (!this.selectedMaterial || !this.selectedEnergy || !this.selectedInsulation || 
+                    !this.selectedWater || !this.selectedHeating || !this.selectedLandscaping) {
+                    return;
+                }
+
+                // Obter valores de carbono
+                const materialCarbon = this.materials.find(m => m.id === this.selectedMaterial).carbon;
+                const energyCarbon = this.energySources[this.selectedEnergy].carbon;
+                const insulationCarbon = this.insulationTypes[this.selectedInsulation].carbon;
+                const waterCarbon = this.waterSystems[this.selectedWater].carbon;
+                const heatingCarbon = this.heatingSystems[this.selectedHeating].carbon;
+                const landscapingCarbon = this.landscapingTypes[this.selectedLandscaping].carbon;
+
+                const totalCarbon = materialCarbon + energyCarbon + insulationCarbon + waterCarbon + heatingCarbon + landscapingCarbon;
+
+                // Calcular métricas
+                const maxCarbon = 520; // Máximo possível com novas categorias
+                const energyEfficiency = Math.max(0, Math.round(((maxCarbon - totalCarbon) / maxCarbon) * 100));
+                
+                const renewableEnergy = this.calculateRenewablePercentage();
+                const sustainableMaterials = this.calculateMaterialSustainability();
+                const waterEfficiency = this.calculateWaterEfficiency();
+                const overallScore = Math.round((energyEfficiency + renewableEnergy + sustainableMaterials + waterEfficiency) / 4);
+
+                // Atualizar interface
+                document.getElementById('energyEfficiency').textContent = `${energyEfficiency}%`;
+                document.getElementById('carbonFootprint').textContent = Math.max(0, totalCarbon);
+                document.getElementById('renewableEnergy').textContent = `${renewableEnergy}%`;
+                document.getElementById('sustainableMaterials').textContent = `${sustainableMaterials}%`;
+                document.getElementById('overallScore').textContent = overallScore;
+
+                // Atualizar classificação
+                this.updateRating(overallScore);
+            }
+
+            calculateRenewablePercentage() {
+                const percentages = {
+                    'grid': 10,
+                    'solar': 85,
+                    'wind': 90,
+                    'hybrid': 95
+                };
+                return percentages[this.selectedEnergy];
+            }
+
+            calculateMaterialSustainability() {
+                const scores = {
+                    'concrete': 20,
+                    'wood': 70,
+                    'bamboo': 90,
+                    'recycled': 80,
+                    'adobe': 85,
+                    'hemp': 95,
+                    'straw': 90,
+                    'cork': 75
+                };
+                return scores[this.selectedMaterial];
+            }
+
+            calculateWaterEfficiency() {
+                const scores = {
+                    'conventional': 40,
+                    'rainwater': 80,
+                    'greywater': 95
+                };
+                return scores[this.selectedWater];
+            }
+
+            updateRating(score) {
+                const ratingElement = document.getElementById('overallRating');
+                
+                let rating, className, title;
+                
+                if (score >= 90) {
+                    rating = '🏆 MESTRE ECO-ARQUITETO! Casa Exemplar';
+                    title = '🌟 Parabéns! Você é um Mestre Eco-Arquiteto!';
+                    className = 'excellent';
+                } else if (score >= 80) {
+                    rating = '🌟 ESPECIALISTA VERDE! Casa Muito Sustentável';
+                    title = '🌱 Excelente! Você é um Especialista Verde!';
+                    className = 'excellent';
+                } else if (score >= 70) {
+                    rating = '🌿 CONSTRUTOR CONSCIENTE! Casa Sustentável';
+                    title = '♻️ Muito Bom! Você é um Construtor Consciente!';
+                    className = 'good';
+                } else if (score >= 60) {
+                    rating = '🌱 APRENDIZ SUSTENTÁVEL! Bom Progresso';
+                    title = '🌿 Bom Trabalho! Você é um Aprendiz Sustentável!';
+                    className = 'good';
+                } else if (score >= 50) {
+                    rating = '🌍 INICIANTE ECO! Continue Melhorando';
+                    title = '🌱 Bom Começo! Você é um Iniciante Eco!';
+                    className = 'average';
+                } else if (score >= 40) {
+                    rating = '🏠 EXPLORADOR VERDE! Está no Caminho Certo';
+                    title = '🌿 Continue Assim! Você é um Explorador Verde!';
+                    className = 'average';
+                } else {
+                    rating = '🌱 FUTURO ECO-HERÓI! Grandes Possibilidades';
+                    title = '🌟 Não Desista! Você é um Futuro Eco-Herói!';
+                    className = 'poor';
+                }
+                
+                ratingElement.innerHTML = `<div style="font-size: 14px; margin-bottom: 8px; opacity: 0.9;">${title}</div>${rating}`;
+                ratingElement.className = `rating ${className}`;
+            }
+
+            getMaterialFeedback(materialId) {
+                const feedbacks = {
+                    'concrete': 'Material resistente, mas considere alternativas mais sustentáveis.',
+                    'wood': 'Ótima escolha! Madeira certificada é renovável.',
+                    'bamboo': 'Excelente! Bambu é super sustentável.',
+                    'recycled': 'Muito bom! Reduz o desperdício.',
+                    'adobe': 'Fantástico! Adobe é muito ecológico.',
+                    'hemp': 'Perfeito! Cânhamo tem pegada negativa de carbono.',
+                    'straw': 'Excelente! Reutiliza resíduos agrícolas.',
+                    'cork': 'Ótima escolha! Cortiça é renovável.'
+                };
+                return feedbacks[materialId];
+            }
+
+            getEnergyFeedback(energyId) {
+                const feedbacks = {
+                    'grid': '⚡ Energia da rede tem alto impacto. Considere renovável!',
+                    'solar': '☀️ Perfeito! Energia solar é limpa e renovável.',
+                    'wind': '💨 Excelente! Energia eólica é muito eficiente.',
+                    'hybrid': '🔋 Fantástico! Sistema híbrido garante energia limpa.'
+                };
+                return feedbacks[energyId];
+            }
+
+            getInsulationFeedback(insulationId) {
+                const feedbacks = {
+                    'basic': '🌡️ Isolamento básico funciona, mas pode melhorar.',
+                    'advanced': '🏠 Ótimo! Isolamento avançado economiza energia.',
+                    'natural': '🌿 Perfeito! Isolamento natural é ecológico.'
+                };
+                return feedbacks[insulationId];
+            }
+
+            getWaterFeedback(waterId) {
+                const feedbacks = {
+                    'conventional': '💧 Sistema convencional. Considere captação de chuva!',
+                    'rainwater': '🌧️ Excelente! Captação de chuva economiza recursos.',
+                    'greywater': '♻️ Fantástico! Reuso de água é muito sustentável.'
+                };
+                return feedbacks[waterId];
+            }
+
+            getHeatingFeedback(heatingId) {
+                const feedbacks = {
+                    'gas': '🔥 Gás natural tem alto impacto. Considere solar!',
+                    'electric': '⚡ Bomba de calor é eficiente, mas solar é melhor.',
+                    'solar': '☀️ Perfeito! Aquecimento solar é limpo e econômico.'
+                };
+                return feedbacks[heatingId];
+            }
+
+            getLandscapingFeedback(landscapingId) {
+                const feedbacks = {
+                    'conventional': '🌿 Jardim convencional. Que tal plantas nativas?',
+                    'native': '🌳 Ótimo! Plantas nativas são adaptadas ao clima.',
+                    'food': '🥬 Fantástico! Horta própria reduz pegada de carbono.'
+                };
+                return feedbacks[landscapingId];
+            }
+
+
+
+            showFeedback(message) {
+                const feedback = document.getElementById('feedback');
+                feedback.textContent = message;
+                feedback.classList.add('show');
+                
+                setTimeout(() => {
+                    feedback.classList.remove('show');
+                }, 4000);
+            }
+
+            resetHouse() {
+                // Resetar seleções
+                this.selectedMaterial = null;
+                this.selectedEnergy = null;
+                this.selectedInsulation = null;
+                this.selectedWater = null;
+                this.selectedHeating = null;
+                this.selectedLandscaping = null;
+                
+                // Resetar interface
+                document.querySelectorAll('.material-card, .energy-card, .insulation-card, .water-card, .heating-card, .landscaping-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Atualizar progresso
+                this.updateProgress();
+                
+                this.showFeedback('🏠 Nova casa criada! Faça suas escolhas sustentáveis.');
+            }
+
+
+        }
+
+        // Funções globais para o modal
+        function showMaterialInfo(materialId) {
+            const house = window.sustainableHouse;
+            const material = house.materials.find(m => m.id === materialId);
+            
+            if (!material || !material.info) return;
+            
+            const modal = document.getElementById('infoModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalIcon.textContent = material.icon;
+            modalTitle.textContent = material.name;
+            modalSubtitle.textContent = material.description;
+            
+            modalBody.innerHTML = `
+                <div class="impact-stats">
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Sustentabilidade</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${material.info.sustainability}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Vida Útil</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${material.info.lifespan}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Reciclabilidade</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${material.info.recyclability}</div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>📋 Descrição</h4>
+                    <p>${material.info.description}</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>✅ Vantagens</h4>
+                    <ul>
+                        ${material.info.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>⚠️ Desvantagens</h4>
+                    <ul>
+                        ${material.info.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="curiosity-box">
+                    <h4>🤔 Curiosidades</h4>
+                    <ul>
+                        ${material.info.curiosities.map(curiosity => `<li>${curiosity}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            modal.classList.add('show');
+        }
+
+        function showEnergyInfo(energyId) {
+            const house = window.sustainableHouse;
+            const energy = house.energySources[energyId];
+            
+            if (!energy || !energy.info) return;
+            
+            const modal = document.getElementById('infoModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalIcon.textContent = energy.icon;
+            modalTitle.textContent = energy.name;
+            modalSubtitle.textContent = energy.description;
+            
+            modalBody.innerHTML = `
+                <div class="impact-stats">
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Sustentabilidade</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${energy.info.sustainability}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Eficiência</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${energy.info.efficiency}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Custo</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${energy.info.cost}</div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>📋 Descrição</h4>
+                    <p>${energy.info.description}</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>✅ Vantagens</h4>
+                    <ul>
+                        ${energy.info.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>⚠️ Desvantagens</h4>
+                    <ul>
+                        ${energy.info.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="curiosity-box">
+                    <h4>🤔 Curiosidades</h4>
+                    <ul>
+                        ${energy.info.curiosities.map(curiosity => `<li>${curiosity}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            modal.classList.add('show');
+        }
+
+        function showInsulationInfo(insulationId) {
+            const house = window.sustainableHouse;
+            const insulation = house.insulationTypes[insulationId];
+            
+            if (!insulation || !insulation.info) return;
+            
+            const modal = document.getElementById('infoModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalIcon.textContent = insulation.icon;
+            modalTitle.textContent = insulation.name;
+            modalSubtitle.textContent = insulation.description;
+            
+            modalBody.innerHTML = `
+                <div class="impact-stats">
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Sustentabilidade</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${insulation.info.sustainability}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Eficiência</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${insulation.info.efficiency}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Custo</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${insulation.info.cost}</div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>📋 Descrição</h4>
+                    <p>${insulation.info.description}</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>✅ Vantagens</h4>
+                    <ul>
+                        ${insulation.info.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>⚠️ Desvantagens</h4>
+                    <ul>
+                        ${insulation.info.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="curiosity-box">
+                    <h4>🤔 Curiosidades</h4>
+                    <ul>
+                        ${insulation.info.curiosities.map(curiosity => `<li>${curiosity}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            modal.classList.add('show');
+        }
+
+        function showWaterInfo(waterId) {
+            const house = window.sustainableHouse;
+            const water = house.waterSystems[waterId];
+            
+            if (!water || !water.info) return;
+            
+            const modal = document.getElementById('infoModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalIcon.textContent = water.icon;
+            modalTitle.textContent = water.name;
+            modalSubtitle.textContent = water.description;
+            
+            modalBody.innerHTML = `
+                <div class="impact-stats">
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Sustentabilidade</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${water.info.sustainability}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Eficiência</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${water.info.efficiency}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Custo</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${water.info.cost}</div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>📋 Descrição</h4>
+                    <p>${water.info.description}</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>✅ Vantagens</h4>
+                    <ul>
+                        ${water.info.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>⚠️ Desvantagens</h4>
+                    <ul>
+                        ${water.info.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="curiosity-box">
+                    <h4>🤔 Curiosidades</h4>
+                    <ul>
+                        ${water.info.curiosities.map(curiosity => `<li>${curiosity}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            modal.classList.add('show');
+        }
+
+        function showHeatingInfo(heatingId) {
+            const house = window.sustainableHouse;
+            const heating = house.heatingSystems[heatingId];
+            
+            if (!heating || !heating.info) return;
+            
+            const modal = document.getElementById('infoModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalIcon.textContent = heating.icon;
+            modalTitle.textContent = heating.name;
+            modalSubtitle.textContent = heating.description;
+            
+            modalBody.innerHTML = `
+                <div class="impact-stats">
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Sustentabilidade</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${heating.info.sustainability}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Eficiência</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${heating.info.efficiency}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Custo</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${heating.info.cost}</div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>📋 Descrição</h4>
+                    <p>${heating.info.description}</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>✅ Vantagens</h4>
+                    <ul>
+                        ${heating.info.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>⚠️ Desvantagens</h4>
+                    <ul>
+                        ${heating.info.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="curiosity-box">
+                    <h4>🤔 Curiosidades</h4>
+                    <ul>
+                        ${heating.info.curiosities.map(curiosity => `<li>${curiosity}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            modal.classList.add('show');
+        }
+
+        function showLandscapingInfo(landscapingId) {
+            const house = window.sustainableHouse;
+            const landscaping = house.landscapingTypes[landscapingId];
+            
+            if (!landscaping || !landscaping.info) return;
+            
+            const modal = document.getElementById('infoModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalIcon.textContent = landscaping.icon;
+            modalTitle.textContent = landscaping.name;
+            modalSubtitle.textContent = landscaping.description;
+            
+            modalBody.innerHTML = `
+                <div class="impact-stats">
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Sustentabilidade</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${landscaping.info.sustainability}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Manutenção</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${landscaping.info.maintenance}</div>
+                    </div>
+                    <div class="impact-stat" style="background: white; border: 2px solid #ff8c00;">
+                        <div class="impact-stat-label" style="color: #ff8c00; font-weight: bold; font-size: 14px;">Custo</div>
+                        <div class="impact-stat-value" style="color: #4CAF50; font-size: 16px;">${landscaping.info.cost}</div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>📋 Descrição</h4>
+                    <p>${landscaping.info.description}</p>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>✅ Vantagens</h4>
+                    <ul>
+                        ${landscaping.info.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>⚠️ Desvantagens</h4>
+                    <ul>
+                        ${landscaping.info.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="curiosity-box">
+                    <h4>🤔 Curiosidades</h4>
+                    <ul>
+                        ${landscaping.info.curiosities.map(curiosity => `<li>${curiosity}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            modal.classList.add('show');
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('infoModal');
+            modal.classList.remove('show');
+        }
+        
+        // Fechar modal clicando fora
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('infoModal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Fechar modal com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Inicializar quando a página carregar
+        window.addEventListener('load', () => {
+            window.sustainableHouse = new SustainableHouse();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'991ac2fc00608b1b',t:'MTc2MDk4Njg2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
