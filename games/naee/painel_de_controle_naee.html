@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱PAINEL DE CONTROLE MÁGICO</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            font-family: 'Arial', sans-serif;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 5px solid #3498db;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ecf0f1;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #3498db;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            background: #2c3e50;
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #34495e;
+            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-item {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #3498db;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .control-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+        }
+
+        .control-label {
+            color: #ecf0f1;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .big-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            margin: 0 auto;
+            display: block;
+        }
+
+        .big-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .red-button {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .green-button {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+        }
+
+        .blue-button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .yellow-button {
+            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+            color: #2c3e50;
+        }
+
+        .switch-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .switch {
+            width: 80px;
+            height: 40px;
+            background: #7f8c8d;
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid #34495e;
+        }
+
+        .switch.active {
+            background: #27ae60;
+        }
+
+        .switch-handle {
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .switch.active .switch-handle {
+            left: 42px;
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider {
+            width: 150px;
+            height: 8px;
+            border-radius: 5px;
+            background: #7f8c8d;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .led-light {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #7f8c8d;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .led-light.on {
+            background: #e74c3c;
+            box-shadow: 0 0 20px #e74c3c, inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .display-screen {
+            background: #1a252f;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            padding: 15px;
+            border-radius: 10px;
+            border: 3px solid #34495e;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .knob {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            border: 5px solid #34495e;
+            position: relative;
+            cursor: pointer;
+            margin: 0 auto;
+            transition: all 0.2s ease;
+        }
+
+        .knob:active {
+            transform: scale(0.95);
+        }
+
+        .knob-indicator {
+            width: 4px;
+            height: 30px;
+            background: #e74c3c;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .music-note {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            border: 5px solid #34495e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            cursor: pointer;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .music-note:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.4);
+        }
+
+        .music-note:active {
+            transform: scale(0.95);
+        }
+
+        .music-note.pulsing {
+            animation: music-pulse 0.6s ease-in-out infinite alternate;
+        }
+
+        @keyframes music-pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            }
+            100% {
+                transform: scale(1.1);
+                box-shadow: 0 0 30px rgba(155, 89, 182, 0.8), 0 0 60px rgba(155, 89, 182, 0.4);
+            }
+        }
+
+        .feedback-area {
+            background: rgba(52, 73, 94, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+            border: 2px solid #3498db;
+        }
+
+        .feedback-text {
+            color: #ecf0f1;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: #ecf0f1;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-arrow {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .back-text {
+            font-size: 0.9rem;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes laser-sweep {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes rainbow-appear {
+            0% {
+                transform: translateX(-50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translateX(-50%) scale(1.1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-50%) scale(1);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes circus-dance {
+            0%, 100% {
+                transform: rotate(0deg) scale(1);
+            }
+            25% {
+                transform: rotate(-10deg) scale(1.1);
+            }
+            75% {
+                transform: rotate(10deg) scale(1.1);
+            }
+        }
+
+        @keyframes rocket-launch {
+            0% {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-50%) translateY(-500px);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .control-panel {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .big-button {
+                width: 80px;
+                height: 80px;
+                font-size: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+
+            .back-button {
+                top: 10px;
+                left: 10px;
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            .back-arrow {
+                font-size: 1rem;
+            }
+
+            .back-text {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header>
+            <button class="back-button" onclick="goBack()">
+                <span class="back-arrow">←</span>
+                <span class="back-text">Voltar</span>
+            </button>
+            <h1>🎛️ Painel de Controle Mágico 🎛️</h1>
+            <p class="subtitle">Explore cada controle e descubra o que acontece!</p>
+        </header>
+
+        <section class="control-panel">
+            <!-- Botão Buzina -->
+            <div class="control-item">
+                <div class="control-label">🚨 BUZINA</div>
+                <button class="big-button red-button" onclick="playHorn()">📯</button>
+            </div>
+
+            <!-- Botão Sirene -->
+            <div class="control-item">
+                <div class="control-label">🚔 SIRENE</div>
+                <button class="big-button blue-button" onclick="playSiren()">🚨</button>
+            </div>
+
+            <!-- Botão Campainha -->
+            <div class="control-item">
+                <div class="control-label">🔔 CAMPAINHA</div>
+                <button class="big-button yellow-button" onclick="playBell()">🔔</button>
+            </div>
+
+            <!-- Botão Aplausos -->
+            <div class="control-item">
+                <div class="control-label">👏 APLAUSOS</div>
+                <button class="big-button green-button" onclick="playApplause()">👏</button>
+            </div>
+
+            <!-- Interruptor LED -->
+            <div class="control-item">
+                <div class="control-label">💡 LUZ LED</div>
+                <div class="switch-container">
+                    <div class="switch" id="ledSwitch" onclick="toggleLED()">
+                        <div class="switch-handle"></div>
+                    </div>
+                    <div class="led-light" id="ledLight"></div>
+                </div>
+            </div>
+
+            <!-- Slider de Volume -->
+            <div class="control-item">
+                <div class="control-label">🔊 VOLUME</div>
+                <div class="slider-container">
+                    <input type="range" min="0" max="100" value="50" class="slider" id="volumeSlider" oninput="adjustVolume(this.value)">
+                    <div class="feedback-text" id="volumeDisplay">50%</div>
+                </div>
+            </div>
+
+            <!-- Botão Música -->
+            <div class="control-item">
+                <div class="control-label">🎵 MÚSICA</div>
+                <div class="music-note" onclick="playMusic()" id="musicNote">♪</div>
+            </div>
+
+            <!-- Display Digital -->
+            <div class="control-item">
+                <div class="control-label">🎨 CORES</div>
+                <div class="display-screen" id="digitalDisplay" onclick="changeDisplayColor()" style="cursor: pointer;"></div>
+            </div>
+
+            <!-- Interruptor de Raios -->
+            <div class="control-item">
+                <div class="control-label">⚡ RAIOS</div>
+                <div class="switch-container">
+                    <div class="switch" id="colorSwitch" onclick="toggleColors()">
+                        <div class="switch-handle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão de Reset -->
+            <div class="control-item">
+                <div class="control-label">🔄 RESET</div>
+                <button class="big-button" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white;" onclick="resetPanel()">🔄</button>
+            </div>
+
+            <!-- Slider de Velocidade -->
+            <div class="control-item">
+                <div class="control-label">⚡ VELOCIDADE</div>
+                <div class="slider-container">
+                    <input type="range" min="1" max="10" value="5" class="slider" id="speedSlider" oninput="adjustSpeed(this.value)">
+                    <div class="feedback-text" id="speedDisplay">5x</div>
+                </div>
+            </div>
+
+            <!-- Botão Laser -->
+            <div class="control-item">
+                <div class="control-label">🎯 LASER</div>
+                <button class="big-button" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white;" onclick="fireLaser()">🎯</button>
+            </div>
+
+            <!-- Botão Arco-íris -->
+            <div class="control-item">
+                <div class="control-label">🌈 ARCO-ÍRIS</div>
+                <button class="big-button" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white;" onclick="createRainbow()">🌈</button>
+            </div>
+
+            <!-- Cronômetro -->
+            <div class="control-item">
+                <div class="control-label">⏰ CRONÔMETRO</div>
+                <div class="slider-container">
+                    <button class="big-button" style="background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%); color: white; width: 100px; height: 60px; border-radius: 15px; font-size: 1.5rem;" onclick="startTimer()" id="timerButton">⏰</button>
+                    <div class="feedback-text" id="timerDisplay">00:10</div>
+                </div>
+            </div>
+
+            <!-- Botão Circo -->
+            <div class="control-item">
+                <div class="control-label">🎪 CIRCO</div>
+                <button class="big-button" style="background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: #2c3e50;" onclick="circusShow()">🎪</button>
+            </div>
+
+            <!-- Botão Foguete -->
+            <div class="control-item">
+                <div class="control-label">🚀 FOGUETE</div>
+                <button class="big-button" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white;" onclick="launchRocket()">🚀</button>
+            </div>
+
+            <!-- Botão Pintura -->
+            <div class="control-item">
+                <div class="control-label">🎨 PINTURA</div>
+                <button class="big-button" style="background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%); color: white;" onclick="paintPanel()">🎨</button>
+            </div>
+
+            <!-- Botão Surpresa -->
+            <div class="control-item">
+                <div class="control-label">🎁 SURPRESA</div>
+                <button class="big-button" style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white;" onclick="surprise()">🎁</button>
+            </div>
+
+            <!-- Botão Tempestade -->
+            <div class="control-item">
+                <div class="control-label">⛈️ TEMPESTADE</div>
+                <button class="big-button" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white;" onclick="createStorm()">⛈️</button>
+            </div>
+
+            <!-- Botão Discoteca -->
+            <div class="control-item">
+                <div class="control-label">🕺 DISCOTECA</div>
+                <button class="big-button" style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); color: white;" onclick="discoParty()">🕺</button>
+            </div>
+        </section>
+
+        <section class="feedback-area">
+            <div class="feedback-text" id="mainFeedback">Clique nos controles para explorar!</div>
+        </section>
+    </main>
+
+    <script>
+        let currentVolume = 50;
+        let currentSpeed = 5;
+        let ledOn = false;
+        let colorsOn = false;
+        let musicPlaying = false;
+        let displayColorIndex = 0;
+
+        // Criar contexto de áudio
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function updateFeedback(message) {
+            document.getElementById('mainFeedback').textContent = message;
+            setTimeout(() => {
+                document.getElementById('mainFeedback').textContent = 'Clique nos controles para explorar!';
+            }, 3000);
+        }
+
+        function playHorn() {
+            playMP3Audio('buzina.mp3');
+            updateFeedback('🚨 BUZINA ATIVADA! BEEP BEEP!');
+            flashButton(event.target);
+        }
+
+        function playSiren() {
+            playMP3Audio('sirene.mp3');
+            updateFeedback('🚔 SIRENE LIGADA! WEE-OOO-WEE-OOO!');
+            flashButton(event.target);
+        }
+
+        function playBell() {
+            playBeep(800, 300, 'sine');
+            setTimeout(() => playBeep(600, 300, 'sine'), 200);
+            updateFeedback('🔔 DING DONG! CAMPAINHA TOCOU!');
+            flashButton(event.target);
+        }
+
+        function playApplause() {
+            playMP3Audio('palmas.mp3');
+            updateFeedback('👏 PARABÉNS! TODOS ESTÃO APLAUDINDO!');
+            flashButton(event.target);
+        }
+
+        function toggleLED() {
+            const ledSwitch = document.getElementById('ledSwitch');
+            const ledLight = document.getElementById('ledLight');
+            
+            ledOn = !ledOn;
+            
+            if (ledOn) {
+                ledSwitch.classList.add('active');
+                ledLight.classList.add('on');
+                updateFeedback('💡 LUZ LED LIGADA! BRILHANDO!');
+                playBeep(600, 200, 'sine');
+            } else {
+                ledSwitch.classList.remove('active');
+                ledLight.classList.remove('on');
+                updateFeedback('💡 LUZ LED DESLIGADA!');
+                playBeep(300, 200, 'sine');
+            }
+        }
+
+        function adjustVolume(value) {
+            currentVolume = value;
+            document.getElementById('volumeDisplay').textContent = value + '%';
+            updateFeedback(`🔊 VOLUME AJUSTADO PARA ${value}%`);
+            playBeep(400 + (value * 4), 100, 'sine');
+        }
+
+        function playMusic() {
+            const musicNote = document.getElementById('musicNote');
+            
+            if (!musicPlaying) {
+                musicNote.classList.add('pulsing');
+                playMelody();
+                updateFeedback('🎵 MÚSICA TOCANDO! LA LA LA!');
+                
+                // Para a pulsação quando a música terminar
+                setTimeout(() => {
+                    musicNote.classList.remove('pulsing');
+                }, 3000); // Duração aproximada da melodia
+            }
+        }
+
+        function toggleColors() {
+            const colorSwitch = document.getElementById('colorSwitch');
+            const raiosCard = colorSwitch.closest('.control-item');
+            
+            colorsOn = !colorsOn;
+            
+            if (colorsOn) {
+                colorSwitch.classList.add('active');
+                startRaiosColorShow(raiosCard);
+                updateFeedback('⚡ RAIOS COLORIDOS ATIVADOS!');
+                playBeep(500, 300, 'triangle');
+            } else {
+                colorSwitch.classList.remove('active');
+                stopRaiosColorShow(raiosCard);
+                updateFeedback('⚡ RAIOS COLORIDOS DESATIVADOS!');
+                playBeep(300, 300, 'triangle');
+            }
+        }
+
+        function adjustSpeed(value) {
+            currentSpeed = value;
+            document.getElementById('speedDisplay').textContent = value + 'x';
+            updateFeedback(`⚡ VELOCIDADE AJUSTADA PARA ${value}x`);
+            playBeep(200 + (value * 50), 150, 'sawtooth');
+        }
+
+        function resetPanel() {
+            // Reset todos os controles
+            document.getElementById('ledSwitch').classList.remove('active');
+            document.getElementById('ledLight').classList.remove('on');
+            document.getElementById('colorSwitch').classList.remove('active');
+            document.getElementById('volumeSlider').value = 50;
+            document.getElementById('speedSlider').value = 5;
+            document.getElementById('volumeDisplay').textContent = '50%';
+            document.getElementById('speedDisplay').textContent = '5x';
+            document.getElementById('digitalDisplay').textContent = 'SISTEMA OK';
+            
+            ledOn = false;
+            colorsOn = false;
+            currentVolume = 50;
+            currentSpeed = 5;
+            
+            const raiosCard = document.getElementById('colorSwitch').closest('.control-item');
+            stopRaiosColorShow(raiosCard);
+            updateFeedback('🔄 PAINEL RESETADO! TUDO VOLTOU AO NORMAL!');
+            playBeep(400, 200, 'sine');
+            setTimeout(() => playBeep(600, 200, 'sine'), 300);
+            flashButton(event.target);
+        }
+
+        function surprise() {
+            const surprises = [
+                '🎉 SURPRESA! CONFETES CAINDO!',
+                '🎈 BALÕES COLORIDOS APARECERAM!',
+                '⭐ ESTRELAS BRILHANTES!',
+                '🦄 UM UNICÓRNIO PASSOU POR AQUI!',
+                '🌟 MAGIA ACONTECENDO!'
+            ];
+            
+            const randomSurprise = surprises[Math.floor(Math.random() * surprises.length)];
+            updateFeedback(randomSurprise);
+            
+            const targetCard = event.target.closest('.control-item');
+            
+            // Efeito visual especial com emojis grandes
+            createBigEmojiShow(targetCard);
+            createFireworks(targetCard);
+            playMagicSound();
+            flashButton(event.target);
+        }
+
+        function changeDisplayColor() {
+            const display = document.getElementById('digitalDisplay');
+            const colors = [
+                '#1a252f', // Original (azul escuro)
+                '#e74c3c', // Vermelho
+                '#27ae60', // Verde
+                '#3498db', // Azul
+                '#f1c40f', // Amarelo
+                '#9b59b6', // Roxo
+                '#e67e22', // Laranja
+                '#2c3e50'  // Cinza escuro
+            ];
+            
+            displayColorIndex = (displayColorIndex + 1) % colors.length;
+            display.style.background = colors[displayColorIndex];
+            
+            // Som de clique
+            playBeep(600, 150, 'sine');
+            
+            // Feedback
+            const colorNames = ['AZUL ESCURO', 'VERMELHO', 'VERDE', 'AZUL', 'AMARELO', 'ROXO', 'LARANJA', 'CINZA'];
+            updateFeedback(`🎨 COR MUDOU PARA ${colorNames[displayColorIndex]}!`);
+            
+            // Efeito visual
+            display.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                display.style.transform = '';
+            }, 200);
+        }
+
+        // Funções de áudio
+        function playMP3Audio(filename) {
+            const audio = new Audio(filename);
+            audio.volume = currentVolume / 100;
+            audio.onerror = function() {
+                console.log('Erro ao carregar áudio: ' + filename);
+                // Fallback para som sintético se o arquivo não existir
+                if (filename === 'buzina.mp3') {
+                    playBeep(200, 500, 'square');
+                } else if (filename === 'sirene.mp3') {
+                    playSweepTone();
+                } else if (filename === 'palmas.mp3') {
+                    playNoise(1000);
+                }
+            };
+            audio.play().catch(function(error) {
+                console.log('Erro ao reproduzir áudio: ' + error);
+            });
+        }
+
+        function playBeep(frequency, duration, type = 'sine') {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(currentVolume / 100 * 0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+        }
+
+        function playSweepTone() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+            oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 0.5);
+            oscillator.frequency.linearRampToValueAtTime(300, audioContext.currentTime + 1);
+            
+            gainNode.gain.setValueAtTime(currentVolume / 100 * 0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 1);
+        }
+
+        function playNoise(duration) {
+            const bufferSize = audioContext.sampleRate * duration / 1000;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.1;
+            }
+            
+            const source = audioContext.createBufferSource();
+            const gainNode = audioContext.createGain();
+            
+            source.buffer = buffer;
+            source.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            gainNode.gain.value = currentVolume / 100 * 0.2;
+            
+            source.start(audioContext.currentTime);
+        }
+
+        function playMelody() {
+            musicPlaying = true;
+            const notes = [523, 587, 659, 698, 784, 880, 988];
+            let noteIndex = 0;
+            
+            const playNote = () => {
+                if (noteIndex < notes.length) {
+                    playBeep(notes[noteIndex], 300, 'triangle');
+                    noteIndex++;
+                    setTimeout(playNote, 400 / currentSpeed);
+                } else {
+                    musicPlaying = false;
+                }
+            };
+            
+            playNote();
+        }
+
+        function playMagicSound() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    playBeep(400 + Math.random() * 400, 200, 'sine');
+                }, i * 100);
+            }
+        }
+
+        // Efeitos visuais
+        function flashButton(button) {
+            button.style.transform = 'scale(1.1)';
+            button.style.boxShadow = '0 0 20px rgba(255, 255, 255, 0.8)';
+            setTimeout(() => {
+                button.style.transform = '';
+                button.style.boxShadow = '';
+            }, 200);
+        }
+
+        function startRaiosColorShow(raiosCard) {
+            let colorInterval = setInterval(() => {
+                if (!colorsOn) {
+                    clearInterval(colorInterval);
+                    raiosCard.style.background = 'linear-gradient(135deg, #34495e 0%, #2c3e50 100%)';
+                    return;
+                }
+                
+                const colors = [
+                    'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)', // Vermelho
+                    'linear-gradient(135deg, #f1c40f 0%, #f39c12 100%)', // Amarelo
+                    'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)', // Verde
+                    'linear-gradient(135deg, #3498db 0%, #2980b9 100%)', // Azul
+                    'linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%)', // Roxo
+                    'linear-gradient(135deg, #e67e22 0%, #d35400 100%)', // Laranja
+                    'linear-gradient(135deg, #1abc9c 0%, #16a085 100%)', // Turquesa
+                    'linear-gradient(135deg, #e91e63 0%, #ad1457 100%)'  // Rosa
+                ];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                raiosCard.style.background = randomColor;
+            }, 800 / currentSpeed);
+        }
+
+        function stopRaiosColorShow(raiosCard) {
+            colorsOn = false;
+        }
+
+        function createFireworks(targetCard) {
+            const cardRect = targetCard.getBoundingClientRect();
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const spark = document.createElement('div');
+                    spark.style.position = 'absolute';
+                    spark.style.width = '4px';
+                    spark.style.height = '4px';
+                    spark.style.background = '#ffd700';
+                    spark.style.borderRadius = '50%';
+                    spark.style.left = (cardRect.left - containerRect.left + Math.random() * cardRect.width) + 'px';
+                    spark.style.top = (cardRect.top - containerRect.top + Math.random() * cardRect.height) + 'px';
+                    spark.style.boxShadow = '0 0 10px #ffd700';
+                    spark.style.zIndex = '1000';
+                    document.querySelector('.container').appendChild(spark);
+                    
+                    setTimeout(() => {
+                        spark.remove();
+                    }, 1000);
+                }, i * 100);
+            }
+        }
+
+        function createBigEmojiShow(targetCard) {
+            const cardRect = targetCard.getBoundingClientRect();
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            const emojis = ['🎉', '🎈', '⭐', '🦄', '🌟', '🎊', '✨', '🎁', '🌈', '🎪'];
+            
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.position = 'absolute';
+                    emoji.style.fontSize = '2rem';
+                    emoji.style.left = (cardRect.left - containerRect.left + Math.random() * cardRect.width) + 'px';
+                    emoji.style.top = (cardRect.top - containerRect.top + Math.random() * cardRect.height) + 'px';
+                    emoji.style.zIndex = '1000';
+                    emoji.style.animation = 'bounce 2s ease-in-out';
+                    emoji.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.8)';
+                    document.querySelector('.container').appendChild(emoji);
+                    
+                    setTimeout(() => {
+                        emoji.remove();
+                    }, 2000);
+                }, i * 150);
+            }
+        }
+
+        function fireLaser() {
+            updateFeedback('🎯 PEW PEW! LASER DISPARADO!');
+            const targetCard = event.target.closest('.control-item');
+            const cardRect = targetCard.getBoundingClientRect();
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            
+            // Criar raio laser
+            const laser = document.createElement('div');
+            laser.style.position = 'absolute';
+            laser.style.width = cardRect.width + 'px';
+            laser.style.height = '4px';
+            laser.style.background = 'linear-gradient(90deg, transparent, #ff0000, transparent)';
+            laser.style.top = (cardRect.top - containerRect.top + cardRect.height / 2) + 'px';
+            laser.style.left = (cardRect.left - containerRect.left) + 'px';
+            laser.style.boxShadow = '0 0 20px #ff0000';
+            laser.style.animation = 'laser-sweep 1s ease-out';
+            laser.style.zIndex = '1000';
+            document.querySelector('.container').appendChild(laser);
+            
+            setTimeout(() => laser.remove(), 1000);
+            
+            playMP3Audio('laser.mp3');
+            flashButton(event.target);
+        }
+
+        function createRainbow() {
+            updateFeedback('🌈 ARCO-ÍRIS MÁGICO APARECEU!');
+            const targetCard = event.target.closest('.control-item');
+            
+            const rainbow = document.createElement('div');
+            rainbow.style.position = 'absolute';
+            rainbow.style.width = '80%';
+            rainbow.style.height = '40%';
+            rainbow.style.background = 'linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)';
+            rainbow.style.borderRadius = '50px 50px 0 0';
+            rainbow.style.top = '30%';
+            rainbow.style.left = '10%';
+            rainbow.style.opacity = '0.8';
+            rainbow.style.animation = 'rainbow-appear 3s ease-in-out';
+            rainbow.style.zIndex = '1000';
+            targetCard.appendChild(rainbow);
+            
+            setTimeout(() => rainbow.remove(), 3000);
+            
+            playMP3Audio('luz.mp3');
+            flashButton(event.target);
+        }
+
+        let timerRunning = false;
+        let timerSeconds = 10;
+
+        function startTimer() {
+            if (timerRunning) return;
+            
+            timerRunning = true;
+            timerSeconds = 10;
+            const button = document.getElementById('timerButton');
+            const display = document.getElementById('timerDisplay');
+            
+            button.textContent = '⏸️';
+            updateFeedback('⏰ CRONÔMETRO INICIADO! 10 SEGUNDOS!');
+            
+            const countdown = setInterval(() => {
+                timerSeconds--;
+                display.textContent = `00:${timerSeconds.toString().padStart(2, '0')}`;
+                playBeep(600, 100, 'sine');
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(countdown);
+                    timerRunning = false;
+                    button.textContent = '⏰';
+                    display.textContent = '00:10';
+                    updateFeedback('⏰ TEMPO ESGOTADO! RING RING!');
+                    
+                    // Alarme final
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => playBeep(800, 200, 'square'), i * 300);
+                    }
+                }
+            }, 1000);
+        }
+
+        function circusShow() {
+            updateFeedback('🎪 BEM-VINDOS AO CIRCO MÁGICO!');
+            const targetCard = event.target.closest('.control-item');
+            const cardRect = targetCard.getBoundingClientRect();
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            const circusEmojis = ['🤡', '🎭', '🎪', '🎠', '🎡', '🎢'];
+            
+            for (let i = 0; i < 4; i++) {
+                setTimeout(() => {
+                    const performer = document.createElement('div');
+                    performer.textContent = circusEmojis[Math.floor(Math.random() * circusEmojis.length)];
+                    performer.style.position = 'absolute';
+                    performer.style.fontSize = '1.8rem';
+                    performer.style.left = (cardRect.left - containerRect.left + Math.random() * cardRect.width) + 'px';
+                    performer.style.top = (cardRect.top - containerRect.top + Math.random() * cardRect.height) + 'px';
+                    performer.style.animation = 'circus-dance 2s ease-in-out infinite';
+                    performer.style.zIndex = '1000';
+                    document.querySelector('.container').appendChild(performer);
+                    
+                    setTimeout(() => performer.remove(), 4000);
+                }, i * 200);
+            }
+            
+            playMP3Audio('palhaco.mp3');
+            flashButton(event.target);
+        }
+
+        function launchRocket() {
+            updateFeedback('🚀 DECOLAGEM! 3... 2... 1... FOGO!');
+            const targetCard = event.target.closest('.control-item');
+            const cardRect = targetCard.getBoundingClientRect();
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            
+            const rocket = document.createElement('div');
+            rocket.textContent = '🚀';
+            rocket.style.position = 'absolute';
+            rocket.style.fontSize = '2.5rem';
+            rocket.style.left = (cardRect.left - containerRect.left + cardRect.width / 2) + 'px';
+            rocket.style.top = (cardRect.top - containerRect.top + cardRect.height) + 'px';
+            rocket.style.transform = 'translateX(-50%)';
+            rocket.style.zIndex = '1000';
+            
+            // Animação personalizada para o foguete
+            let startTime = Date.now();
+            const animateRocket = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = elapsed / 3000; // 3 segundos
+                
+                if (progress < 1) {
+                    const newTop = (cardRect.top - containerRect.top + cardRect.height) - (progress * cardRect.height * 2);
+                    rocket.style.top = newTop + 'px';
+                    rocket.style.opacity = 1 - progress;
+                    requestAnimationFrame(animateRocket);
+                } else {
+                    rocket.remove();
+                }
+            };
+            
+            document.querySelector('.container').appendChild(rocket);
+            animateRocket();
+            
+            // Som de foguete
+            setTimeout(() => playBeep(200, 500, 'sawtooth'), 0);
+            setTimeout(() => playBeep(400, 500, 'sawtooth'), 500);
+            setTimeout(() => playBeep(800, 500, 'sawtooth'), 1000);
+            
+            flashButton(event.target);
+        }
+
+        function paintPanel() {
+            updateFeedback('🎨 PINTANDO O PAINEL COM CORES!');
+            const controlItems = document.querySelectorAll('.control-item');
+            const colors = [
+                'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
+                'linear-gradient(135deg, #4834d4 0%, #686de0 100%)',
+                'linear-gradient(135deg, #00d2d3 0%, #54a0ff 100%)',
+                'linear-gradient(135deg, #5f27cd 0%, #341f97 100%)',
+                'linear-gradient(135deg, #00d8d6 0%, #17c0eb 100%)',
+                'linear-gradient(135deg, #ff9ff3 0%, #f368e0 100%)'
+            ];
+            
+            controlItems.forEach((item, index) => {
+                setTimeout(() => {
+                    const originalBg = item.style.background;
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    item.style.background = randomColor;
+                    
+                    setTimeout(() => {
+                        item.style.background = originalBg || 'linear-gradient(135deg, #34495e 0%, #2c3e50 100%)';
+                    }, 2000);
+                }, index * 200);
+            });
+            
+            playMagicSound();
+            flashButton(event.target);
+        }
+
+
+
+        function createStorm() {
+            updateFeedback('⛈️ TEMPESTADE CHEGANDO! RAIOS E TROVÕES!');
+            const targetCard = event.target.closest('.control-item');
+            const cardRect = targetCard.getBoundingClientRect();
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            
+            // Criar efeito de raios
+            for (let i = 0; i < 4; i++) {
+                setTimeout(() => {
+                    const lightning = document.createElement('div');
+                    lightning.style.position = 'absolute';
+                    lightning.style.width = '3px';
+                    lightning.style.height = cardRect.height + 'px';
+                    lightning.style.background = '#ffffff';
+                    lightning.style.left = (cardRect.left - containerRect.left + Math.random() * cardRect.width) + 'px';
+                    lightning.style.top = (cardRect.top - containerRect.top) + 'px';
+                    lightning.style.boxShadow = '0 0 20px #ffffff, 0 0 40px #00ffff';
+                    lightning.style.opacity = '0.9';
+                    lightning.style.zIndex = '1000';
+                    document.querySelector('.container').appendChild(lightning);
+                    
+                    // Flash do card
+                    const originalBg = targetCard.style.background;
+                    targetCard.style.background = '#ffffff';
+                    setTimeout(() => {
+                        targetCard.style.background = originalBg || 'linear-gradient(135deg, #34495e 0%, #2c3e50 100%)';
+                        lightning.remove();
+                    }, 150);
+                }, i * 400);
+            }
+            
+            // Sons de trovão
+            setTimeout(() => playBeep(100, 800, 'sawtooth'), 200);
+            setTimeout(() => playBeep(80, 1000, 'square'), 800);
+            setTimeout(() => playBeep(60, 600, 'sawtooth'), 1500);
+            
+            flashButton(event.target);
+        }
+
+        function discoParty() {
+            updateFeedback('🕺 FESTA NA DISCOTECA! DANCE DANCE DANCE!');
+            const targetCard = event.target.closest('.control-item');
+            const cardRect = targetCard.getBoundingClientRect();
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            
+            // Criar bola de discoteca
+            const discoBall = document.createElement('div');
+            discoBall.textContent = '🪩';
+            discoBall.style.position = 'absolute';
+            discoBall.style.fontSize = '2rem';
+            discoBall.style.top = (cardRect.top - containerRect.top + 10) + 'px';
+            discoBall.style.left = (cardRect.left - containerRect.left + cardRect.width / 2) + 'px';
+            discoBall.style.transform = 'translateX(-50%)';
+            discoBall.style.animation = 'circus-dance 0.5s ease-in-out infinite';
+            discoBall.style.zIndex = '1000';
+            document.querySelector('.container').appendChild(discoBall);
+            
+            // Efeito de luzes coloridas piscando no card
+            let discoInterval = setInterval(() => {
+                const discoColors = [
+                    'linear-gradient(135deg, #ff0080 0%, #ff8000 100%)',
+                    'linear-gradient(135deg, #8000ff 0%, #0080ff 100%)',
+                    'linear-gradient(135deg, #00ff80 0%, #80ff00 100%)',
+                    'linear-gradient(135deg, #ff4080 0%, #8040ff 100%)',
+                    'linear-gradient(135deg, #40ff80 0%, #ff8040 100%)'
+                ];
+                const randomColor = discoColors[Math.floor(Math.random() * discoColors.length)];
+                targetCard.style.background = randomColor;
+            }, 200);
+            
+            // Criar pessoas dançando no card
+            const dancers = ['🕺', '💃', '🕺', '💃'];
+            dancers.forEach((dancer, index) => {
+                setTimeout(() => {
+                    const dancerElement = document.createElement('div');
+                    dancerElement.textContent = dancer;
+                    dancerElement.style.position = 'absolute';
+                    dancerElement.style.fontSize = '1.5rem';
+                    dancerElement.style.left = (cardRect.left - containerRect.left + (index * cardRect.width / 4) + 20) + 'px';
+                    dancerElement.style.top = (cardRect.top - containerRect.top + cardRect.height - 40) + 'px';
+                    dancerElement.style.animation = 'bounce 0.6s ease-in-out infinite';
+                    dancerElement.style.zIndex = '999';
+                    document.querySelector('.container').appendChild(dancerElement);
+                    
+                    setTimeout(() => dancerElement.remove(), 5000);
+                }, index * 300);
+            });
+            
+            // Parar efeitos após 5 segundos
+            setTimeout(() => {
+                clearInterval(discoInterval);
+                targetCard.style.background = 'linear-gradient(135deg, #34495e 0%, #2c3e50 100%)';
+                discoBall.remove();
+            }, 5000);
+            
+            // Música de discoteca (batida eletrônica)
+            playDiscoBeats();
+            flashButton(event.target);
+        }
+
+        function playDiscoBeats() {
+            const beats = [200, 250, 200, 300, 200, 250, 200, 350];
+            beats.forEach((freq, index) => {
+                setTimeout(() => {
+                    playBeep(freq, 150, 'square');
+                }, index * 200);
+            });
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, tenta ir para uma página padrão
+                updateFeedback('📱 Não há página anterior para voltar!');
+            }
+        }
+
+        // Inicializar contexto de áudio no primeiro clique
+        document.addEventListener('click', function initAudio() {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            document.removeEventListener('click', initAudio);
+        }, { once: true });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9922ecd1a53c8b1b',t:'MTc2MTA3MjQ2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
