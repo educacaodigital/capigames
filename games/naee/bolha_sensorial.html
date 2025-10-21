@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🫧BOLHAS SENSORIAIS</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            font-family: 'Arial', sans-serif;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 95%;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e1f5fe 100%);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 3px solid #64b5f6;
+            text-align: center;
+            margin: 10px auto;
+        }
+
+        h1 {
+            color: #1976d2;
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #42a5f5;
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            font-weight: 300;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .control-button {
+            background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
+            border: none;
+            border-radius: 15px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 12px rgba(100, 181, 246, 0.3);
+            min-width: 120px;
+        }
+
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 181, 246, 0.4);
+        }
+
+        .control-button:active {
+            transform: translateY(0);
+        }
+
+        .pop-it-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            background: linear-gradient(135deg, #90caf9 0%, #64b5f6 100%);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            border: 3px solid #42a5f5;
+            transition: all 0.5s ease;
+            max-width: 700px;
+        }
+
+        .pop-it-board.circle-shape {
+            border-radius: 50%;
+            width: 420px;
+            height: 420px;
+            margin: 0 auto 30px auto;
+            padding: 30px;
+        }
+
+        .pop-it-board.triangle-shape {
+            clip-path: polygon(50% 5%, 10% 95%, 90% 95%);
+            width: 450px;
+            height: 400px;
+            margin: 0 auto 30px auto;
+            padding: 40px 30px;
+        }
+
+        .pop-it-board.heart-shape {
+            clip-path: polygon(50% 15%, 15% 0%, 0% 25%, 0% 62%, 50% 100%, 100% 62%, 100% 25%, 85% 0%);
+            width: 380px;
+            height: 350px;
+            margin: 0 auto 30px auto;
+            padding: 35px;
+        }
+
+        .pop-it-board.star-shape {
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            width: 400px;
+            height: 400px;
+            margin: 0 auto 30px auto;
+            padding: 40px;
+        }
+
+        .pop-it-board.diamond-shape {
+            transform: rotate(45deg);
+            width: 300px;
+            height: 300px;
+            margin: 80px auto;
+            padding: 30px;
+        }
+
+        .pop-it-board.diamond-shape .pop-bubble {
+            transform: rotate(-45deg);
+        }
+
+        .pop-it-board.hexagon-shape {
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            width: 400px;
+            height: 350px;
+            margin: 0 auto 30px auto;
+            padding: 35px;
+        }
+
+        .pop-bubble {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            position: relative;
+            user-select: none;
+        }
+
+        .pop-bubble:nth-child(8n+1) {
+            background: linear-gradient(135deg, #ffcdd2 0%, #f8bbd9 100%);
+            border: 3px solid #f48fb1;
+        }
+
+        .pop-bubble:nth-child(8n+2) {
+            background: linear-gradient(135deg, #f8bbd9 0%, #e1bee7 100%);
+            border: 3px solid #ce93d8;
+        }
+
+        .pop-bubble:nth-child(8n+3) {
+            background: linear-gradient(135deg, #e1bee7 0%, #d1c4e9 100%);
+            border: 3px solid #b39ddb;
+        }
+
+        .pop-bubble:nth-child(8n+4) {
+            background: linear-gradient(135deg, #d1c4e9 0%, #c5cae9 100%);
+            border: 3px solid #9fa8da;
+        }
+
+        .pop-bubble:nth-child(8n+5) {
+            background: linear-gradient(135deg, #c5cae9 0%, #bbdefb 100%);
+            border: 3px solid #90caf9;
+        }
+
+        .pop-bubble:nth-child(8n+6) {
+            background: linear-gradient(135deg, #bbdefb 0%, #b3e5fc 100%);
+            border: 3px solid #81d4fa;
+        }
+
+        .pop-bubble:nth-child(8n+7) {
+            background: linear-gradient(135deg, #b3e5fc 0%, #b2dfdb 100%);
+            border: 3px solid #80cbc4;
+        }
+
+        .pop-bubble:nth-child(8n+8) {
+            background: linear-gradient(135deg, #b2dfdb 0%, #c8e6c9 100%);
+            border: 3px solid #a5d6a7;
+        }
+
+        .pop-bubble:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+        }
+
+        .pop-bubble.popped {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%) !important;
+            border-color: #ffcc02 !important;
+            transform: scale(0.9);
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .pop-bubble.popped:hover {
+            transform: scale(0.95);
+        }
+
+
+
+        .feedback-area {
+            background: rgba(144, 202, 249, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 15px;
+            border: 2px solid #64b5f6;
+        }
+
+        .feedback-text {
+            color: #1976d2;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .pattern-mode {
+            background: linear-gradient(135deg, #b39ddb 0%, #9575cd 100%);
+            border-color: #7e57c2;
+        }
+
+        .pattern-mode .pop-bubble {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #ba68c8;
+        }
+
+        .pattern-mode .pop-bubble.popped {
+            background: linear-gradient(135deg, #ffcdd2 0%, #f8bbd9 100%);
+            border-color: #e91e63;
+        }
+
+        .geometric-shape .pop-bubble {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-color: #66bb6a;
+        }
+
+        .geometric-shape .pop-bubble.popped {
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            border-color: #ff9800;
+        }
+
+
+
+        @media (max-width: 768px) {
+            .pop-it-board {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 6px;
+                padding: 20px;
+            }
+            
+            .pop-bubble {
+                width: 45px;
+                height: 45px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .control-button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pop-it-board {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            .pop-bubble {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>🫧 Pop It Sensorial 🫧</h1>
+            <p class="subtitle">Toque, relaxe e divirta-se com sons suaves</p>
+        </header>
+
+        <section class="controls">
+            <button class="control-button" onclick="goBack()">← Voltar</button>
+            <button class="control-button" onclick="resetBoard()">🔄 Resetar</button>
+            <button class="control-button" onclick="togglePatternMode()">🎨 Colorido</button>
+
+            <button class="control-button" onclick="toggleSound()">🔊 Som: ON</button>
+        </section>
+
+
+
+        <section class="pop-it-board" id="popItBoard">
+            <!-- Bubbles serão geradas pelo JavaScript -->
+        </section>
+
+        <section class="feedback-area">
+            <div class="feedback-text" id="feedbackText">Toque nas bolhinhas para relaxar! 😊</div>
+        </section>
+    </main>
+
+
+
+    <script>
+        let soundEnabled = true;
+        let patternMode = false;
+        let currentShapeIndex = 0;
+
+        // Carregar arquivo de áudio MP3
+        let popAudio;
+        
+        function initAudio() {
+            if (!popAudio) {
+                popAudio = new Audio('popit.mp3');
+                popAudio.preload = 'auto';
+                popAudio.volume = 0.5; // Volume moderado
+            }
+        }
+
+        // Tocar som do arquivo MP3
+        function playPopSound(variation = 0) {
+            if (!soundEnabled || !popAudio) return;
+            
+            try {
+                // Resetar o áudio para o início para permitir múltiplos cliques rápidos
+                popAudio.currentTime = 0;
+                
+                // Variar ligeiramente o volume baseado na variação
+                popAudio.volume = 0.4 + (variation * 0.02);
+                
+                // Tocar o som
+                popAudio.play().catch(error => {
+                    console.log('Erro ao reproduzir áudio:', error);
+                });
+            } catch (error) {
+                console.log('Erro no áudio:', error);
+            }
+        }
+
+        function playNote(frequency, duration = 300) {
+            // Manter compatibilidade com outras funções, mas usar som de pop
+            playPopSound(Math.random() * 5);
+        }
+
+
+
+        function popBubble(event) {
+            initAudio();
+            
+            const bubble = event.target;
+            const index = parseInt(bubble.dataset.index);
+            
+            // Toggle estado da bolhinha
+            bubble.classList.toggle('popped');
+            
+            // Tocar som de pop com variação baseada na posição
+            const variation = index % 8;
+            playPopSound(variation);
+        }
+
+        function hoverBubble(event) {
+            // Removido som no hover para usar apenas o arquivo MP3 no clique
+            return;
+        }
+
+
+
+        function resetBoard() {
+            // Voltar para formato quadrado padrão
+            currentBoardShapeIndex = 0;
+            const board = document.getElementById('popItBoard');
+            
+            // Remover todas as classes de forma
+            board.className = 'pop-it-board';
+            
+            // Recriar tabuleiro padrão
+            createBoardWithShape(boardShapes[0]);
+            
+            document.getElementById('feedbackText').textContent = 'Tabuleiro resetado! Vamos começar de novo! 🔄';
+            
+            playPopSound(0);
+        }
+
+        function togglePatternMode() {
+            patternMode = !patternMode;
+            const board = document.getElementById('popItBoard');
+            const button = event.target;
+            
+            if (patternMode) {
+                board.classList.add('pattern-mode');
+                button.textContent = '🎨 Normal';
+                document.getElementById('feedbackText').textContent = 'Modo Colorido ativado! Cores especiais! 🎨';
+            } else {
+                board.classList.remove('pattern-mode');
+                button.textContent = '🎨 Colorido';
+                document.getElementById('feedbackText').textContent = 'Voltou ao modo normal! 😊';
+            }
+            
+            playPopSound(1);
+        }
+
+        // Definir formas do tabuleiro com posições específicas
+        const boardShapes = [
+            { 
+                name: 'Quadrado', 
+                class: '', 
+                columns: 8, 
+                bubbles: 64,
+                positions: Array.from({length: 64}, (_, i) => i)
+            },
+            { 
+                name: 'Círculo', 
+                class: 'circle-shape', 
+                columns: 7, 
+                bubbles: 49,
+                positions: [
+                    10, 11, 12, 13, 14, 15, 16,
+                    17, 18, 19, 20, 21, 22, 23,
+                    24, 25, 26, 27, 28, 29, 30,
+                    31, 32, 33, 34, 35, 36, 37,
+                    38, 39, 40, 41, 42, 43, 44,
+                    45, 46, 47, 48
+                ]
+            },
+            { 
+                name: 'Triângulo', 
+                class: 'triangle-shape', 
+                columns: 7, 
+                bubbles: 49,
+                positions: [
+                    24,
+                    17, 18, 19,
+                    10, 11, 12, 13, 14,
+                    3, 4, 5, 6, 7, 8, 9,
+                    31, 32, 33, 34, 35, 36, 37,
+                    38, 39, 40, 41, 42, 43, 44,
+                    45, 46, 47, 48
+                ]
+            },
+            { 
+                name: 'Coração', 
+                class: 'heart-shape', 
+                columns: 6, 
+                bubbles: 36,
+                positions: [
+                    1, 2, 4, 5,
+                    6, 7, 8, 9, 10, 11,
+                    12, 13, 14, 15, 16, 17,
+                    19, 20, 21, 22, 23,
+                    26, 27, 28, 29,
+                    33, 34, 35
+                ]
+            },
+            { 
+                name: 'Estrela', 
+                class: 'star-shape', 
+                columns: 6, 
+                bubbles: 36,
+                positions: [
+                    2, 3,
+                    8, 9, 10, 11,
+                    12, 13, 14, 15, 16, 17,
+                    19, 20, 21, 22, 23,
+                    25, 26, 27, 28, 29, 30,
+                    32, 33, 34, 35
+                ]
+            },
+            { 
+                name: 'Losango', 
+                class: 'diamond-shape', 
+                columns: 5, 
+                bubbles: 25,
+                positions: [
+                    2,
+                    5, 6, 7,
+                    10, 11, 12, 13, 14,
+                    15, 16, 17, 18,
+                    22
+                ]
+            },
+            { 
+                name: 'Hexágono', 
+                class: 'hexagon-shape', 
+                columns: 6, 
+                bubbles: 36,
+                positions: [
+                    1, 2, 3, 4,
+                    6, 7, 8, 9, 10, 11,
+                    12, 13, 14, 15, 16, 17,
+                    18, 19, 20, 21, 22, 23,
+                    25, 26, 27, 28, 29, 30,
+                    32, 33, 34, 35
+                ]
+            }
+        ];
+
+        let currentBoardShapeIndex = 0;
+
+        function createGeometricShape() {
+            // Avançar para próxima forma
+            currentBoardShapeIndex = (currentBoardShapeIndex + 1) % boardShapes.length;
+            
+            // Aplicar nova forma do tabuleiro
+            const currentShape = boardShapes[currentBoardShapeIndex];
+            const board = document.getElementById('popItBoard');
+            
+            // Remover todas as classes de forma anteriores
+            board.className = 'pop-it-board';
+            
+            // Adicionar nova classe de forma
+            if (currentShape.class) {
+                board.classList.add(currentShape.class);
+            }
+            
+            // Recriar o tabuleiro com o novo formato
+            createBoardWithShape(currentShape);
+            
+            // Atualizar feedback
+            document.getElementById('feedbackText').textContent = `Formato: ${currentShape.name}! 🔷`;
+            
+            playPopSound(2);
+        }
+
+        function createBoardWithShape(shape) {
+            const board = document.getElementById('popItBoard');
+            board.innerHTML = '';
+            
+            // Ajustar grid columns
+            board.style.gridTemplateColumns = `repeat(${shape.columns}, 1fr)`;
+            
+            // Calcular total de posições no grid
+            const totalGridPositions = shape.columns * Math.ceil(shape.positions.length / shape.columns);
+            
+            // Criar todas as posições do grid (incluindo espaços vazios)
+            for (let i = 0; i < totalGridPositions; i++) {
+                const gridItem = document.createElement('div');
+                
+                // Verificar se esta posição deve ter uma bolinha
+                if (shape.positions.includes(i)) {
+                    gridItem.className = 'pop-bubble';
+                    gridItem.dataset.index = i;
+                    gridItem.addEventListener('click', popBubble);
+                    gridItem.addEventListener('mouseenter', hoverBubble);
+                } else {
+                    // Espaço vazio invisível
+                    gridItem.style.visibility = 'hidden';
+                    gridItem.style.width = '65px';
+                    gridItem.style.height = '65px';
+                }
+                
+                board.appendChild(gridItem);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const button = event.target;
+            
+            if (soundEnabled) {
+                button.textContent = '🔊 Som: ON';
+                document.getElementById('feedbackText').textContent = 'Sons ativados! 🔊';
+                playPopSound(3);
+            } else {
+                button.textContent = '🔇 Som: OFF';
+                document.getElementById('feedbackText').textContent = 'Sons desativados! 🔇';
+            }
+        }
+
+        function goBack() {
+            // Verificar se há histórico disponível
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, mostrar mensagem
+                document.getElementById('feedbackText').textContent = 'Não há página anterior para voltar! 😊';
+                setTimeout(() => {
+                    document.getElementById('feedbackText').textContent = 'Toque nas bolhinhas para relaxar! 😊';
+                }, 3000);
+            }
+        }
+
+        // Inicializar o jogo
+        document.addEventListener('DOMContentLoaded', function() {
+            createBoardWithShape(boardShapes[0]);
+            
+            // Inicializar áudio no primeiro clique
+            document.addEventListener('click', initAudio, { once: true });
+        });
+
+        // Prevenir seleção de texto
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'992321f8a56e8b1b',t:'MTc2MTA3NDY0MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
