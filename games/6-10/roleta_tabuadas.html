@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔢ROLETA DAS TABUADAS</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header-banner {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #feca57, #ff9ff3, #a8e6cf, #fd79a8, #6c5ce7);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shine 3s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 2;
+        }
+
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-1px);
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .roulettes-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .roulette {
+            border-radius: 50%;
+            border: 8px solid #2d3748;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+
+
+        .roulette-1, .roulette-3 {
+            width: 180px;
+            height: 180px;
+        }
+
+        .roulette-2 {
+            width: 120px;
+            height: 120px;
+        }
+
+        .roulette-1 {
+            background: conic-gradient(
+                #ff3838 0deg 40deg,    /* Vermelho forte - 1 */
+                #00d2d3 40deg 80deg,   /* Ciano - 2 */
+                #3742fa 80deg 120deg,  /* Azul - 3 */
+                #ffa502 120deg 160deg, /* Laranja - 4 */
+                #ff9ff3 160deg 200deg, /* Rosa - 5 */
+                #2ed573 200deg 240deg, /* Verde - 6 */
+                #5352ed 240deg 280deg, /* Roxo - 7 */
+                #ffdd59 280deg 320deg, /* Amarelo - 8 */
+                #8b5cf6 320deg 360deg  /* Roxo claro - 9 */
+            );
+        }
+
+        .roulette-2 {
+            background: conic-gradient(
+                #ff6b6b 0deg 120deg,   /* Vermelho - × */
+                #4ecdc4 120deg 240deg, /* Verde - + */
+                #45b7d1 240deg 360deg  /* Azul - - */
+            );
+        }
+
+        .roulette-3 {
+            background: conic-gradient(
+                #ff3838 0deg 40deg,    /* Vermelho forte - 1 */
+                #00d2d3 40deg 80deg,   /* Ciano - 2 */
+                #3742fa 80deg 120deg,  /* Azul - 3 */
+                #ffa502 120deg 160deg, /* Laranja - 4 */
+                #ff9ff3 160deg 200deg, /* Rosa - 5 */
+                #2ed573 200deg 240deg, /* Verde - 6 */
+                #5352ed 240deg 280deg, /* Roxo - 7 */
+                #ffdd59 280deg 320deg, /* Amarelo - 8 */
+                #8b5cf6 320deg 360deg  /* Roxo claro - 9 */
+            );
+        }
+
+        .roulette-numbers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        .number-segment {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d3748;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #2d3748;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .number-segment:nth-child(1) { top: 20px; left: 50%; transform: translateX(-50%); }
+        .number-segment:nth-child(2) { top: 40px; right: 30px; }
+        .number-segment:nth-child(3) { top: 50%; right: 20px; transform: translateY(-50%); }
+        .number-segment:nth-child(4) { bottom: 40px; right: 30px; }
+        .number-segment:nth-child(5) { bottom: 20px; left: 50%; transform: translateX(-50%); }
+        .number-segment:nth-child(6) { bottom: 40px; left: 30px; }
+        .number-segment:nth-child(7) { top: 50%; left: 20px; transform: translateY(-50%); }
+        .number-segment:nth-child(8) { top: 40px; left: 30px; }
+        .number-segment:nth-child(9) { bottom: 50px; right: 50px; }
+
+        .number-text {
+            /* Sem transformação adicional */
+        }
+
+        .operation-segment {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2d3748;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #2d3748;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .operation-segment:nth-child(1) { top: 25px; left: 50%; transform: translateX(-50%); }
+        .operation-segment:nth-child(2) { top: 50%; right: 25px; transform: translateY(-50%); }
+        .operation-segment:nth-child(3) { bottom: 25px; left: 50%; transform: translateX(-50%); }
+
+        .operation-text {
+            /* Sem transformação adicional */
+        }
+
+        .roulette-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2d3748;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            z-index: 10;
+            background: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid #2d3748;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .spin-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.4);
+            transition: all 0.3s ease;
+            margin: 20px;
+        }
+
+        .spin-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(238, 90, 36, 0.6);
+        }
+
+        .spin-button:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .equation-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin: 30px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #e2e8f0;
+        }
+
+        .answer-section {
+            margin: 30px 0;
+        }
+
+        .answer-input {
+            font-size: 2rem;
+            padding: 15px 20px;
+            border: 3px solid #cbd5e0;
+            border-radius: 15px;
+            text-align: center;
+            width: 150px;
+            margin: 0 15px;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .check-button {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .check-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .result-message {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 15px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .correct {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #9ae6b4;
+        }
+
+        .incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #fc8181;
+        }
+
+        .score {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #4a5568;
+            margin: 20px 0;
+            padding: 15px;
+            background: #edf2f7;
+            border-radius: 15px;
+        }
+
+        .spinning {
+            animation: spin 2s ease-out;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(1440deg); }
+        }
+
+        @media (max-width: 768px) {
+            .roulettes-container {
+                gap: 20px;
+            }
+            
+            .roulette-1, .roulette-3 {
+                width: 140px;
+                height: 140px;
+            }
+
+            .roulette-2 {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .roulette-content {
+                font-size: 1.5rem;
+            }
+
+            .number-segment {
+                font-size: 1.4rem;
+            }
+            
+            .equation-display {
+                font-size: 2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="game-container">
+        <header class="header-banner">
+            <button class="back-button" onclick="goBack()" title="Voltar à página anterior">
+                ← VOLTAR
+            </button>
+            <h1>ROLETA DA TABUADA</h1>
+        </header>
+
+        <div class="roulettes-container">
+            <div class="roulette roulette-1" id="roulette1">
+                <div class="roulette-content" id="number1">?</div>
+            </div>
+            <div class="roulette roulette-2" id="roulette2">
+                <div class="roulette-content" id="operation">?</div>
+            </div>
+            <div class="roulette roulette-3" id="roulette3">
+                <div class="roulette-content" id="number2">?</div>
+            </div>
+        </div>
+
+        <button class="spin-button" id="spinButton" onclick="spinRoulettes()">
+            FAÇA SUA OPERAÇÃO MATEMÁTICA
+        </button>
+
+        <div class="equation-display" id="equation" style="display: none;">
+            
+        </div>
+
+        <div class="answer-section">
+            <label for="answerInput" style="font-size: 1.3rem; font-weight: bold; color: #4a5568;">SUA RESPOSTA:</label>
+            <input type="number" class="answer-input" id="answerInput" placeholder="?" disabled>
+            <button class="check-button" id="checkButton" onclick="checkAnswer()" disabled>VERIFICAR</button>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="score">
+            <div>✅ ACERTOS: <span id="correct">0</span> | ❌ ERROS: <span id="incorrect">0</span></div>
+        </div>
+    </main>
+
+    <script>
+        let currentAnswer = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+
+        const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        const operations = ['×', '+', '-'];
+
+        function getRandomElement(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function spinRoulettes() {
+            const spinButton = document.getElementById('spinButton');
+            const answerInput = document.getElementById('answerInput');
+            const checkButton = document.getElementById('checkButton');
+            const resultMessage = document.getElementById('resultMessage');
+            
+            // Desabilitar controles durante o giro
+            spinButton.disabled = true;
+            answerInput.disabled = true;
+            checkButton.disabled = true;
+            answerInput.value = '';
+            resultMessage.textContent = '';
+            resultMessage.className = 'result-message';
+
+            // Adicionar animação de giro
+            document.getElementById('roulette1').classList.add('spinning');
+            document.getElementById('roulette2').classList.add('spinning');
+            document.getElementById('roulette3').classList.add('spinning');
+
+            // Simular o giro das roletas
+            setTimeout(() => {
+                const operation = getRandomElement(operations);
+                let num1, num2;
+
+                // Para subtração, garantir que o primeiro número seja maior que o segundo
+                if (operation === '-') {
+                    num2 = getRandomElement(numbers);
+                    // Escolher um número maior ou igual ao segundo número
+                    const possibleNum1 = numbers.filter(n => n >= num2);
+                    num1 = getRandomElement(possibleNum1);
+                } else {
+                    // Para multiplicação e adição, qualquer combinação é válida
+                    num1 = getRandomElement(numbers);
+                    num2 = getRandomElement(numbers);
+                }
+
+                // Atualizar o conteúdo das roletas
+                document.getElementById('number1').textContent = num1;
+                document.getElementById('operation').textContent = operation;
+                document.getElementById('number2').textContent = num2;
+
+                // Calcular a resposta correta
+                switch(operation) {
+                    case '×':
+                        currentAnswer = num1 * num2;
+                        break;
+                    case '+':
+                        currentAnswer = num1 + num2;
+                        break;
+                    case '-':
+                        currentAnswer = num1 - num2;
+                        break;
+                }
+
+                // Mostrar a equação
+                const equationElement = document.getElementById('equation');
+                equationElement.textContent = `${num1} ${operation} ${num2} = ?`;
+                equationElement.style.display = 'flex';
+
+                // Remover animação de giro
+                document.getElementById('roulette1').classList.remove('spinning');
+                document.getElementById('roulette2').classList.remove('spinning');
+                document.getElementById('roulette3').classList.remove('spinning');
+
+                // Reabilitar controles
+                spinButton.disabled = false;
+                answerInput.disabled = false;
+                checkButton.disabled = false;
+                answerInput.focus();
+            }, 2000);
+        }
+
+        // Função para criar som de sucesso
+        function playSuccessSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Criar uma sequência de notas para um som agradável
+                const notes = [523.25, 659.25, 783.99]; // Dó, Mi, Sol
+                
+                notes.forEach((frequency, index) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.type = 'sine';
+                    
+                    // Configurar volume suave
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime + index * 0.1);
+                    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + index * 0.1 + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.1 + 0.3);
+                    
+                    oscillator.start(audioContext.currentTime + index * 0.1);
+                    oscillator.stop(audioContext.currentTime + index * 0.1 + 0.3);
+                });
+            } catch (error) {
+                // Se não conseguir criar o áudio, não faz nada (falha silenciosa)
+                console.log('Áudio não disponível');
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answerInput').value);
+            const resultMessage = document.getElementById('resultMessage');
+
+            if (isNaN(userAnswer)) {
+                resultMessage.textContent = '⚠️ POR FAVOR, DIGITE UM NÚMERO!';
+                resultMessage.className = 'result-message incorrect';
+                return;
+            }
+
+            if (userAnswer === currentAnswer) {
+                correctCount++;
+                resultMessage.textContent = `🎉 PARABÉNS! VOCÊ ACERTOU! A RESPOSTA É ${currentAnswer}`;
+                resultMessage.className = 'result-message correct';
+                playSuccessSound(); // Tocar som de sucesso
+            } else {
+                incorrectCount++;
+                resultMessage.textContent = `📝 OPS! A RESPOSTA CORRETA É ${currentAnswer}. CONTINUE PRATICANDO!`;
+                resultMessage.className = 'result-message incorrect';
+            }
+
+            updateScore();
+        }
+
+        function updateScore() {
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('incorrect').textContent = incorrectCount;
+        }
+
+        // Função para voltar à página anterior
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, abre em nova aba uma URL genérica
+                window.open('about:blank', '_blank');
+            }
+        }
+
+        // Permitir verificar resposta com Enter
+        document.getElementById('answerInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !this.disabled) {
+                checkAnswer();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'992a9ba6a4c28b18',t:'MTc2MTE1MzAyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
