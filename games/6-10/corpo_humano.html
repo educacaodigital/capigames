@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo das Partes do Corpo Humano</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 50%, #6c5ce7 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .header-banner {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #feca57, #ff9ff3, #a8e6cf);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: bold;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin: 15px 0;
+            height: 580px;
+            align-items: stretch;
+        }
+
+        .body-container {
+            position: relative;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .body-image {
+            width: 100%;
+            max-width: 350px;
+            height: 450px;
+            background: url('corpo_humano.jpg') no-repeat center center;
+            background-size: contain;
+            position: relative;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .body-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Modal da Imagem do Corpo */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .image-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: zoomIn 0.3s ease;
+        }
+
+        .image-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .image-modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        .image-close-button {
+            background: #ff6b6b;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .image-close-button:hover {
+            background: #ff5252;
+            transform: scale(1.1);
+        }
+
+        .enlarged-body-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            min-height: 500px;
+            background: url('corpo_humano.jpg') no-repeat center center;
+            background-size: contain;
+            border: 3px solid #4a90e2;
+            border-radius: 10px;
+            background-color: #fff;
+            cursor: zoom-in;
+            transition: background-size 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .enlarged-body-image.zoomed {
+            cursor: grab;
+            background-size: 150%;
+        }
+
+        .enlarged-body-image.zoomed:active {
+            cursor: grabbing;
+        }
+
+        .enlarged-body-image.zoomed:hover {
+            background-size: 200%;
+        }
+
+        .enlarged-body-image.dragging {
+            cursor: grabbing;
+        }
+
+        .image-instructions {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            color: #1565c0;
+            font-weight: bold;
+        }
+
+        @keyframes zoomIn {
+            from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .drop-zone {
+            border: 2px dashed #ff6b6b;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-height: 32px;
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .drop-zone:hover {
+            background: rgba(74, 144, 226, 0.2);
+            border-color: #4a90e2;
+            transform: scale(1.05);
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(74, 144, 226, 0.3);
+            border-color: #4a90e2;
+            transform: scale(1.1);
+        }
+
+        .drop-zone.correct {
+            background: rgba(46, 213, 115, 0.3);
+            border-color: #2ed573;
+            color: #27ae60;
+            border-style: solid;
+        }
+
+        .drop-zone.incorrect {
+            background: rgba(255, 107, 107, 0.3);
+            border-color: #ff6b6b;
+            color: #e74c3c;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .answer-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .answer-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .answer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .answer-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4a90e2;
+            min-width: 30px;
+        }
+
+        .organs-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .organs-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .organs-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        .organ-item {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 15px;
+            margin: 3px 0;
+            border-radius: 20px;
+            cursor: grab;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            user-select: none;
+            text-align: center;
+        }
+
+        .organ-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .organ-item:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .organ-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .organ-item.placed {
+            background: linear-gradient(45deg, #2ed573, #27ae60);
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .organ-item.placed:hover {
+            transform: none;
+        }
+
+        .score-panel {
+            display: flex;
+            justify-content: space-around;
+            margin: 10px 0;
+            padding: 10px;
+            background: #edf2f7;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .score-number {
+            font-size: 1.5rem;
+            color: #4a90e2;
+        }
+
+        .score-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 15px;
+        }
+
+        .game-button {
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reset-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.3);
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.4);
+        }
+
+        .back-button {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(116, 185, 255, 0.4);
+        }
+
+        .completion-message {
+            background: linear-gradient(45deg, #2ed573, #27ae60);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 20px auto;
+            display: none;
+            animation: celebration 1s ease-in-out;
+            position: relative;
+            z-index: 100;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(46, 213, 115, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes celebration {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .instructions {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-size: 1rem;
+            color: #1565c0;
+        }
+
+        /* Estilos da Seção Conheça os Órgãos */
+        .organs-info-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .organs-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .organ-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .organ-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .organ-card:active {
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .card-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 3px solid rgba(255,255,255,0.4);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .card-preview {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.3;
+        }
+
+        /* Estilos do Modal */
+        .organ-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .modal-icon {
+            font-size: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+            flex: 1;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .close-button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .organ-info {
+            line-height: 1.6;
+            color: #2d3748;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4a90e2;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-text {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .fun-fact {
+            background: #e8f4fd;
+            border-left: 4px solid #4a90e2;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .fun-fact-title {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+                height: auto;
+                gap: 20px;
+            }
+            
+            .body-image {
+                height: 300px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .organ-item {
+                font-size: 0.9rem;
+                padding: 10px 15px;
+            }
+
+            .drop-zone {
+                font-size: 0.8rem;
+                min-height: 25px;
+            }
+
+            .answer-panel, .organs-panel {
+                height: auto;
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="game-container">
+        <header class="header-banner">
+            <h1>🫀 PARTES DO CORPO HUMANO 🧠</h1>
+        </header>
+
+        <div class="instructions">
+            📚 <strong>Como jogar:</strong> Arraste o nome de cada órgão para o local correto no corpo humano!
+        </div>
+
+        <div class="score-panel">
+            <div class="score-item">
+                <div class="score-number" id="correct">0</div>
+                <div class="score-label">✅ ACERTOS</div>
+            </div>
+            <div class="score-item">
+                <div class="score-number" id="total">10</div>
+                <div class="score-label">📋 TOTAL</div>
+            </div>
+            <div class="score-item">
+                <div class="score-number" id="remaining">10</div>
+                <div class="score-label">⏳ RESTANTES</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="body-container">
+                <div class="body-image" onclick="enlargeBodyImage()" title="Clique para ampliar a imagem">
+                    <!-- Imagem numerada do corpo humano -->
+                </div>
+            </div>
+
+            <div class="answer-panel">
+                <div class="answer-title">Complete com os nomes dos órgãos:</div>
+                <div class="answer-list">
+                    <div class="answer-item">
+                        <span class="number">1.</span>
+                        <div class="drop-zone" data-number="1" data-organ="cerebro"></div>
+                    </div>
+                    <div class="answer-item">
+                        <span class="number">2.</span>
+                        <div class="drop-zone" data-number="2" data-organ="traqueia"></div>
+                    </div>
+                    <div class="answer-item">
+                        <span class="number">3.</span>
+                        <div class="drop-zone" data-number="3" data-organ="pulmao"></div>
+                    </div>
+                    <div class="answer-item">
+                        <span class="number">4.</span>
+                        <div class="drop-zone" data-number="4" data-organ="coracao"></div>
+                    </div>
+                    <div class="answer-item">
+                        <span class="number">5.</span>
+                        <div class="drop-zone" data-number="5" data-organ="figado"></div>
+                    </div>
+                    <div class="answer-item">
+                        <span class="number">6.</span>
+                        <div class="drop-zone" data-number="6" data-organ="estomago"></div>
+                    </div>
+                    <div class="answer-item">
+                        <span class="number">7.</span>
+                        <div class="drop-zone" data-number="7" data-organ="rim"></div>
+                    </div>
+                    <div class="answer-item">
+                        <span class="number">8.</span>
+                        <div class="drop-zone" data-number="8" data-organ="intestino-grosso"></div>
+                    </div>
+                    <div class="answer-item">
+                        <span class="number">9.</span>
+                        <div class="drop-zone" data-number="9" data-organ="intestino-delgado"></div>
+                    </div>
+                    <div class="answer-item">
+                        <span class="number">10.</span>
+                        <div class="drop-zone" data-number="10" data-organ="bexiga"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="organs-panel">
+                <div class="organs-title">Arraste os órgãos:</div>
+                <div class="organs-grid">
+                    <div class="organ-item" draggable="true" data-organ="figado">FÍGADO</div>
+                    <div class="organ-item" draggable="true" data-organ="bexiga">BEXIGA</div>
+                    <div class="organ-item" draggable="true" data-organ="cerebro">CÉREBRO</div>
+                    <div class="organ-item" draggable="true" data-organ="intestino-delgado">INTESTINO DELGADO</div>
+                    <div class="organ-item" draggable="true" data-organ="coracao">CORAÇÃO</div>
+                    <div class="organ-item" draggable="true" data-organ="rim">RIM</div>
+                    <div class="organ-item" draggable="true" data-organ="pulmao">PULMÃO</div>
+                    <div class="organ-item" draggable="true" data-organ="estomago">ESTÔMAGO</div>
+                    <div class="organ-item" draggable="true" data-organ="traqueia">TRAQUÉIA</div>
+                    <div class="organ-item" draggable="true" data-organ="intestino-grosso">INTESTINO GROSSO</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="completion-message" id="completionMessage">
+            🎉 PARABÉNS! VOCÊ COMPLETOU O CORPO HUMANO! 🎉<br>
+            Agora você conhece melhor as partes do seu corpo!
+        </div>
+
+        <!-- Seção Conheça os Órgãos -->
+        <div class="organs-info-section">
+            <h2 class="section-title">📚 CONHEÇA OS ÓRGÃOS</h2>
+            <p class="section-subtitle">Clique em cada card para descobrir curiosidades incríveis!</p>
+            
+            <div class="organs-cards-grid">
+                <div class="organ-card" onclick="showOrganInfo('cerebro')">
+                    <img src="cerebro.jpg" alt="Cérebro" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="card-icon" style="display:none;">🧠</div>
+                    <div class="card-title">CÉREBRO</div>
+                    <div class="card-preview">Centro de comando do corpo</div>
+                </div>
+                
+                <div class="organ-card" onclick="showOrganInfo('traqueia')">
+                    <img src="traqueia.jpg" alt="Traquéia" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="card-icon" style="display:none;">🫁</div>
+                    <div class="card-title">TRAQUÉIA</div>
+                    <div class="card-preview">Tubo que leva ar aos pulmões</div>
+                </div>
+                
+                <div class="organ-card" onclick="showOrganInfo('pulmao')">
+                    <img src="pulmao.jpg" alt="Pulmão" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="card-icon" style="display:none;">🫁</div>
+                    <div class="card-title">PULMÃO</div>
+                    <div class="card-preview">Responsável pela respiração</div>
+                </div>
+                
+                <div class="organ-card" onclick="showOrganInfo('coracao')">
+                    <img src="coracao.jpg" alt="Coração" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="card-icon" style="display:none;">❤️</div>
+                    <div class="card-title">CORAÇÃO</div>
+                    <div class="card-preview">Bomba que circula o sangue</div>
+                </div>
+                
+                <div class="organ-card" onclick="showOrganInfo('figado')">
+                    <img src="figado.jpg" alt="Fígado" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="card-icon" style="display:none;">🟤</div>
+                    <div class="card-title">FÍGADO</div>
+                    <div class="card-preview">Filtro e fábrica do corpo</div>
+                </div>
+                
+                <div class="organ-card" onclick="showOrganInfo('estomago')">
+                    <img src="estomago.jpg" alt="Estômago" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="card-icon" style="display:none;">🤰</div>
+                    <div class="card-title">ESTÔMAGO</div>
+                    <div class="card-preview">Onde a comida é digerida</div>
+                </div>
+                
+                <div class="organ-card" onclick="showOrganInfo('rim')">
+                    <img src="rim.jpg" alt="Rim" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="card-icon" style="display:none;">🫘</div>
+                    <div class="card-title">RIM</div>
+                    <div class="card-preview">Filtro natural do sangue</div>
+                </div>
+                
+                <div class="organ-card" onclick="showOrganInfo('intestino-grosso')">
+                    <img src="intestino-grosso.jpg" alt="Intestino Grosso" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="card-icon" style="display:none;">🔄</div>
+                    <div class="card-title">INTESTINO GROSSO</div>
+                    <div class="card-preview">Absorve água dos alimentos</div>
+                </div>
+                
+                <div class="organ-card" onclick="showOrganInfo('intestino-delgado')">
+                    <img src="intestino-delgado.jpg" alt="Intestino Delgado" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="card-icon" style="display:none;">🌀</div>
+                    <div class="card-title">INTESTINO DELGADO</div>
+                    <div class="card-preview">Absorve nutrientes</div>
+                </div>
+                
+                <div class="organ-card" onclick="showOrganInfo('bexiga')">
+                    <img src="bexiga.jpg" alt="Bexiga" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="card-icon" style="display:none;">💧</div>
+                    <div class="card-title">BEXIGA</div>
+                    <div class="card-preview">Armazena a urina</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Informações dos Órgãos -->
+        <div class="organ-modal" id="organModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-icon" id="modalIcon">🧠</span>
+                    <h3 class="modal-title" id="modalTitle">CÉREBRO</h3>
+                    <button class="close-button" onclick="closeOrganInfo()">✖️</button>
+                </div>
+                <div class="modal-body">
+                    <div class="organ-info" id="organInfo">
+                        <!-- Conteúdo será inserido dinamicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal da Imagem Ampliada -->
+        <div class="image-modal" id="imageModal">
+            <div class="image-modal-content">
+                <div class="image-modal-header">
+                    <h3 class="image-modal-title">🫀 CORPO HUMANO - VISÃO AMPLIADA</h3>
+                    <button class="image-close-button" onclick="closeImageModal()">✖️</button>
+                </div>
+                <div class="enlarged-body-image" onclick="toggleZoom(this)"></div>
+                <div class="image-instructions">
+                    📍 Aqui você pode ver melhor os números de cada órgão no corpo humano!<br>
+                    🔍 <strong>Clique na imagem para dar zoom</strong> e ver os detalhes ainda melhor.<br>
+                    🖱️ <strong>Quando ampliada, arraste para mover</strong> e explorar diferentes partes do corpo.<br>
+                    Use esta imagem como referência para completar o jogo.
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons-container">
+            <button class="game-button back-button" onclick="goBack()">⬅️ VOLTAR</button>
+            <button class="game-button reset-button" onclick="resetGame()">🔄 JOGAR NOVAMENTE</button>
+        </div>
+    </main>
+
+    <script>
+        let correctCount = 0;
+        let totalOrgans = 10;
+        let draggedElement = null;
+
+        // Função para criar som de sucesso
+        function playSuccessSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [523.25, 659.25, 783.99]; // Dó, Mi, Sol
+                
+                notes.forEach((frequency, index) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime + index * 0.1);
+                    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + index * 0.1 + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.1 + 0.3);
+                    
+                    oscillator.start(audioContext.currentTime + index * 0.1);
+                    oscillator.stop(audioContext.currentTime + index * 0.1 + 0.3);
+                });
+            } catch (error) {
+                console.log('Áudio não disponível');
+            }
+        }
+
+        // Função para som de erro
+        function playErrorSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.type = 'sawtooth';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (error) {
+                console.log('Áudio não disponível');
+            }
+        }
+
+        // Eventos de arrastar
+        document.querySelectorAll('.organ-item').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                draggedElement = e.target;
+                e.target.classList.add('dragging');
+            });
+
+            item.addEventListener('dragend', (e) => {
+                e.target.classList.remove('dragging');
+                draggedElement = null;
+            });
+        });
+
+        // Eventos das zonas de soltar
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', (e) => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+
+                if (draggedElement) {
+                    const organName = draggedElement.dataset.organ;
+                    const targetOrgan = zone.dataset.organ;
+
+                    if (organName === targetOrgan) {
+                        // Acerto!
+                        zone.classList.add('correct');
+                        zone.textContent = draggedElement.textContent;
+                        draggedElement.classList.add('placed');
+                        draggedElement.draggable = false;
+                        
+                        correctCount++;
+                        updateScore();
+                        playSuccessSound();
+
+                        // Verificar se completou o jogo
+                        if (correctCount === totalOrgans) {
+                            setTimeout(() => {
+                                document.getElementById('completionMessage').style.display = 'block';
+                                playCompletionSound();
+                            }, 500);
+                        }
+                    } else {
+                        // Erro!
+                        zone.classList.add('incorrect');
+                        playErrorSound();
+                        
+                        setTimeout(() => {
+                            zone.classList.remove('incorrect');
+                        }, 1000);
+                    }
+                }
+            });
+        });
+
+        function updateScore() {
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('remaining').textContent = totalOrgans - correctCount;
+        }
+
+        function playCompletionSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // Dó, Mi, Sol, Dó oitava
+                
+                notes.forEach((frequency, index) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime + index * 0.15);
+                    gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + index * 0.15 + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.15 + 0.4);
+                    
+                    oscillator.start(audioContext.currentTime + index * 0.15);
+                    oscillator.stop(audioContext.currentTime + index * 0.15 + 0.4);
+                });
+            } catch (error) {
+                console.log('Áudio não disponível');
+            }
+        }
+
+        function resetGame() {
+            correctCount = 0;
+            updateScore();
+            
+            // Resetar zonas de soltar
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('correct', 'incorrect');
+                zone.textContent = ''; // Deixar vazio
+            });
+
+            // Resetar itens de órgãos
+            document.querySelectorAll('.organ-item').forEach(item => {
+                item.classList.remove('placed');
+                item.draggable = true;
+            });
+
+            // Esconder mensagem de conclusão
+            document.getElementById('completionMessage').style.display = 'none';
+        }
+
+        function goBack() {
+            // Verificar se há histórico de navegação
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, tentar ir para uma página padrão
+                window.open('about:blank', '_blank');
+            }
+        }
+
+        // Dados dos órgãos
+        const organsData = {
+            cerebro: {
+                icon: '🧠',
+                title: 'CÉREBRO',
+                sections: [
+                    {
+                        title: '🎯 O que faz?',
+                        text: 'O cérebro é o centro de comando do nosso corpo! Ele controla tudo: nossos pensamentos, movimentos, respiração e batimentos do coração.'
+                    },
+                    {
+                        title: '📏 Tamanho e peso',
+                        text: 'Pesa cerca de 1,4 kg (como 3 maçãs grandes) e tem o tamanho de duas mãos fechadas juntas.'
+                    },
+                    {
+                        title: '⚡ Curiosidades incríveis',
+                        text: 'Tem mais de 86 bilhões de neurônios! É como ter 86 bilhões de pequenos computadores trabalhando juntos.',
+                        funFact: 'O cérebro usa 20% de toda a energia do corpo, mesmo sendo apenas 2% do peso total!'
+                    }
+                ]
+            },
+            traqueia: {
+                icon: '🫁',
+                title: 'TRAQUÉIA',
+                sections: [
+                    {
+                        title: '🎯 O que faz?',
+                        text: 'A traquéia é como um tubo especial que leva o ar do nariz e boca até os pulmões. É o "elevador do ar"!'
+                    },
+                    {
+                        title: '📏 Características',
+                        text: 'Tem cerca de 10-12 cm de comprimento e é feita de anéis de cartilagem que a mantêm sempre aberta.'
+                    },
+                    {
+                        title: '⚡ Curiosidades incríveis',
+                        text: 'Tem pequenos "cílios" (como cabelos microscópicos) que ajudam a limpar o ar que respiramos.',
+                        funFact: 'A traquéia se divide em dois tubos menores chamados brônquios, um para cada pulmão!'
+                    }
+                ]
+            },
+            pulmao: {
+                icon: '🫁',
+                title: 'PULMÃO',
+                sections: [
+                    {
+                        title: '🎯 O que faz?',
+                        text: 'Os pulmões são responsáveis pela respiração! Eles pegam o oxigênio do ar e removem o gás carbônico do sangue.'
+                    },
+                    {
+                        title: '📏 Capacidade incrível',
+                        text: 'Juntos, podem armazenar cerca de 6 litros de ar! Temos dois pulmões: direito (maior) e esquerdo (menor).'
+                    },
+                    {
+                        title: '⚡ Curiosidades incríveis',
+                        text: 'Respiramos cerca de 20.000 vezes por dia! Os pulmões têm milhões de pequenos "balões" chamados alvéolos.',
+                        funFact: 'Se esticássemos todos os alvéolos, cobririam uma quadra de tênis inteira!'
+                    }
+                ]
+            },
+            coracao: {
+                icon: '❤️',
+                title: 'CORAÇÃO',
+                sections: [
+                    {
+                        title: '🎯 O que faz?',
+                        text: 'O coração é uma bomba super poderosa que envia sangue para todo o corpo, levando oxigênio e nutrientes.'
+                    },
+                    {
+                        title: '📏 Tamanho e força',
+                        text: 'Tem o tamanho do seu punho fechado e bate cerca de 100.000 vezes por dia!'
+                    },
+                    {
+                        title: '⚡ Curiosidades incríveis',
+                        text: 'Bombeia cerca de 7.000 litros de sangue por dia - isso encheria uma piscina pequena!',
+                        funFact: 'O coração tem 4 "quartos" (câmaras): 2 átrios em cima e 2 ventrículos embaixo!'
+                    }
+                ]
+            },
+            figado: {
+                icon: '🟤',
+                title: 'FÍGADO',
+                sections: [
+                    {
+                        title: '🎯 O que faz?',
+                        text: 'O fígado é como uma fábrica e filtro do corpo! Ele limpa o sangue, produz bile para digerir gorduras e armazena energia.'
+                    },
+                    {
+                        title: '📏 O maior órgão interno',
+                        text: 'É o maior órgão interno do corpo, pesando cerca de 1,5 kg - como um laptop!'
+                    },
+                    {
+                        title: '⚡ Curiosidades incríveis',
+                        text: 'Realiza mais de 500 funções diferentes! É como ter uma super fábrica dentro do corpo.',
+                        funFact: 'O fígado pode se regenerar! Se perder uma parte, pode crescer de volta!'
+                    }
+                ]
+            },
+            estomago: {
+                icon: '🤰',
+                title: 'ESTÔMAGO',
+                sections: [
+                    {
+                        title: '🎯 O que faz?',
+                        text: 'O estômago é como um liquidificador natural! Ele mistura e quebra a comida com ácidos especiais.'
+                    },
+                    {
+                        title: '📏 Capacidade elástica',
+                        text: 'Pode esticar para caber até 1,5 litros de comida - como uma garrafa grande de refrigerante!'
+                    },
+                    {
+                        title: '⚡ Curiosidades incríveis',
+                        text: 'Produz até 3 litros de suco gástrico por dia para digerir a comida.',
+                        funFact: 'O estômago tem que produzir uma nova camada protetora a cada 3 dias, senão se "digeriria"!'
+                    }
+                ]
+            },
+            rim: {
+                icon: '🫘',
+                title: 'RIM',
+                sections: [
+                    {
+                        title: '🎯 O que faz?',
+                        text: 'Os rins são filtros super eficientes! Eles limpam o sangue, removem toxinas e controlam a quantidade de água no corpo.'
+                    },
+                    {
+                        title: '📏 Pequenos mas poderosos',
+                        text: 'Cada rim tem o tamanho de um punho, mas filtra todo o sangue do corpo a cada 50 minutos!'
+                    },
+                    {
+                        title: '⚡ Curiosidades incríveis',
+                        text: 'Filtram cerca de 180 litros de sangue por dia - como encher 4 banheiras!',
+                        funFact: 'Temos 2 rins, mas podemos viver normalmente com apenas 1!'
+                    }
+                ]
+            },
+            'intestino-grosso': {
+                icon: '🔄',
+                title: 'INTESTINO GROSSO',
+                sections: [
+                    {
+                        title: '🎯 O que faz?',
+                        text: 'O intestino grosso absorve água dos alimentos e forma as fezes. É a "estação de tratamento final" da digestão!'
+                    },
+                    {
+                        title: '📏 Comprimento',
+                        text: 'Mede cerca de 1,5 metros de comprimento - como a altura de uma criança!'
+                    },
+                    {
+                        title: '⚡ Curiosidades incríveis',
+                        text: 'Abriga trilhões de bactérias boas que nos ajudam a digerir e nos protegem de doenças.',
+                        funFact: 'As bactérias do intestino pesam cerca de 1-2 kg - como um saco de açúcar!'
+                    }
+                ]
+            },
+            'intestino-delgado': {
+                icon: '🌀',
+                title: 'INTESTINO DELGADO',
+                sections: [
+                    {
+                        title: '🎯 O que faz?',
+                        text: 'O intestino delgado absorve os nutrientes dos alimentos. É onde nosso corpo "pega" as vitaminas, proteínas e energia!'
+                    },
+                    {
+                        title: '📏 Surpreendentemente longo',
+                        text: 'Mede cerca de 6-7 metros de comprimento - como 2 carros enfileirados! Mas cabe no corpo porque fica todo enroladinho.'
+                    },
+                    {
+                        title: '⚡ Curiosidades incríveis',
+                        text: 'Tem milhões de "dedinhos" microscópicos chamados vilosidades que aumentam a área de absorção.',
+                        funFact: 'Se esticássemos toda a superfície interna, seria do tamanho de uma quadra de basquete!'
+                    }
+                ]
+            },
+            bexiga: {
+                icon: '💧',
+                title: 'BEXIGA',
+                sections: [
+                    {
+                        title: '🎯 O que faz?',
+                        text: 'A bexiga é como um "tanque de armazenamento" para a urina. Ela guarda a urina até estarmos prontos para ir ao banheiro.'
+                    },
+                    {
+                        title: '📏 Capacidade flexível',
+                        text: 'Pode armazenar entre 300-500ml de urina - como uma garrafa de água pequena!'
+                    },
+                    {
+                        title: '⚡ Curiosidades incríveis',
+                        text: 'É feita de músculos especiais que se contraem para expulsar a urina quando necessário.',
+                        funFact: 'Produzimos cerca de 1,5 litros de urina por dia - como 3 garrafas de água!'
+                    }
+                ]
+            }
+        };
+
+        // Função para mostrar informações do órgão
+        function showOrganInfo(organName) {
+            const organ = organsData[organName];
+            if (!organ) return;
+
+            document.getElementById('modalIcon').textContent = organ.icon;
+            document.getElementById('modalTitle').textContent = organ.title;
+            
+            let infoHTML = '';
+            organ.sections.forEach(section => {
+                infoHTML += `
+                    <div class="info-section">
+                        <div class="info-title">${section.title}</div>
+                        <div class="info-text">${section.text}</div>
+                        ${section.funFact ? `
+                            <div class="fun-fact">
+                                <div class="fun-fact-title">🤯 Fato Incrível:</div>
+                                ${section.funFact}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('organInfo').innerHTML = infoHTML;
+            document.getElementById('organModal').style.display = 'block';
+            
+            // Prevenir scroll do body quando modal está aberto
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Função para fechar modal
+        function closeOrganInfo() {
+            document.getElementById('organModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fechar modal clicando fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('organModal');
+            if (event.target === modal) {
+                closeOrganInfo();
+            }
+        }
+
+        // Fechar modal com tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeOrganInfo();
+                closeImageModal();
+            }
+        });
+
+        // Função para ampliar imagem do corpo
+        function enlargeBodyImage() {
+            document.getElementById('imageModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Variáveis para controle do arrastar
+        let isDragging = false;
+        let startX, startY;
+        let backgroundX = 50, backgroundY = 50; // Posição inicial (centro)
+
+        // Função para alternar zoom na imagem ampliada
+        function toggleZoom(element) {
+            if (!element.classList.contains('zoomed')) {
+                element.classList.add('zoomed');
+                // Resetar posição quando faz zoom
+                backgroundX = 50;
+                backgroundY = 50;
+                element.style.backgroundPosition = `${backgroundX}% ${backgroundY}%`;
+                
+                // Adicionar eventos de arrastar
+                element.addEventListener('mousedown', startDrag);
+                element.addEventListener('touchstart', startDrag);
+            } else {
+                element.classList.remove('zoomed');
+                // Remover eventos de arrastar
+                element.removeEventListener('mousedown', startDrag);
+                element.removeEventListener('touchstart', startDrag);
+                // Resetar posição
+                element.style.backgroundPosition = 'center center';
+            }
+        }
+
+        // Função para iniciar o arrastar
+        function startDrag(e) {
+            const enlargedImage = document.querySelector('.enlarged-body-image');
+            if (!enlargedImage.classList.contains('zoomed')) return;
+            
+            e.preventDefault();
+            isDragging = true;
+            enlargedImage.classList.add('dragging');
+            
+            // Obter posição inicial do mouse/touch
+            if (e.type === 'touchstart') {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            } else {
+                startX = e.clientX;
+                startY = e.clientY;
+            }
+            
+            // Adicionar eventos de movimento e fim
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        // Função para arrastar
+        function drag(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            const enlargedImage = document.querySelector('.enlarged-body-image');
+            
+            // Obter posição atual do mouse/touch
+            let currentX, currentY;
+            if (e.type === 'touchmove') {
+                currentX = e.touches[0].clientX;
+                currentY = e.touches[0].clientY;
+            } else {
+                currentX = e.clientX;
+                currentY = e.clientY;
+            }
+            
+            // Calcular movimento com calibração melhorada
+            const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
+            
+            // Sensibilidade ajustada para movimento mais natural
+            const sensitivity = 0.3;
+            
+            // Atualizar posição do background de forma mais suave
+            backgroundX -= deltaX * sensitivity; // Inverter X para movimento natural
+            backgroundY -= deltaY * sensitivity; // Inverter Y para movimento natural
+            
+            // Limitar movimento com margem mais ampla para exploração
+            backgroundX = Math.max(-20, Math.min(120, backgroundX));
+            backgroundY = Math.max(-20, Math.min(120, backgroundY));
+            
+            // Aplicar nova posição
+            enlargedImage.style.backgroundPosition = `${backgroundX}% ${backgroundY}%`;
+            
+            // Atualizar posição inicial para próximo movimento
+            startX = currentX;
+            startY = currentY;
+        }
+
+        // Função para terminar o arrastar
+        function endDrag() {
+            isDragging = false;
+            const enlargedImage = document.querySelector('.enlarged-body-image');
+            enlargedImage.classList.remove('dragging');
+            
+            // Remover eventos
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('touchend', endDrag);
+        }
+
+        // Função para fechar modal da imagem
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fechar modal da imagem clicando fora dele
+        window.onclick = function(event) {
+            const organModal = document.getElementById('organModal');
+            const imageModal = document.getElementById('imageModal');
+            
+            if (event.target === organModal) {
+                closeOrganInfo();
+            }
+            if (event.target === imageModal) {
+                closeImageModal();
+            }
+        }
+
+        // Inicializar pontuação
+        updateScore();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9931c6ed222c8b18',t:'MTc2MTIyODE5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
