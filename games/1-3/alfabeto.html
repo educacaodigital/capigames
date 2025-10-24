@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo do Alfabeto para Bebês</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #FFE5B4 0%, #FFCCCB 50%, #E6E6FA 100%);
+            min-height: 100%;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        .back-button:hover {
+            background: #FF5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 3rem;
+            color: #FF6B6B;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .alphabet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .letter-button {
+            width: 120px;
+            height: 120px;
+            border: none;
+            border-radius: 20px;
+            font-size: 4rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .letter-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+
+        .letter-button:active {
+            transform: scale(0.95);
+        }
+
+        .letter-button.clicked {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+                box-shadow: 0 0 30px rgba(255,255,255,0.8);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .instructions {
+            font-size: 1.5rem;
+            color: #4A4A4A;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .sound-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8rem;
+            color: #FFD700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+            animation: soundPop 1s ease-out;
+        }
+
+        @keyframes soundPop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .alphabet-grid {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                gap: 15px;
+            }
+            
+            .letter-button {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+            
+            .instructions {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="goBack()" aria-label="Voltar para página anterior">
+        ← VOLTAR
+    </button>
+
+    <main class="container">
+        <h1 class="title">🌟 JOGO DO ALFABETO 🌟</h1>
+        
+        <div class="instructions">
+            👶 CLIQUE NAS LETRINHAS PARA OUVIR O SOM! 🔤
+        </div>
+
+        <div class="alphabet-grid" id="alphabetGrid">
+        </div>
+    </main>
+
+    <div id="soundIndicator" class="sound-indicator"></div>
+
+    <script>
+        // Alfabeto português
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        
+        // Cores vibrantes para cada letra
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+            '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+            '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#F4D03F',
+            '#AED6F1', '#A9DFBF', '#F9E79F', '#D7BDE2', '#A3E4D7',
+            '#FAD7A0', '#D5A6BD', '#A9CCE3', '#C39BD3', '#7FB3D3',
+            '#52BE80'
+        ];
+
+        // Função para criar o grid do alfabeto
+        function createAlphabetGrid() {
+            const grid = document.getElementById('alphabetGrid');
+            
+            alphabet.forEach((letter, index) => {
+                const button = document.createElement('button');
+                button.className = 'letter-button';
+                button.textContent = letter;
+                button.style.backgroundColor = colors[index];
+                button.setAttribute('aria-label', `Letra ${letter}`);
+                
+                button.addEventListener('click', () => playLetterSound(letter, button));
+                
+                grid.appendChild(button);
+            });
+        }
+
+        // Função para reproduzir o som da letra usando Web Speech API
+        function playLetterSound(letter, buttonElement) {
+            // Adiciona animação ao botão clicado
+            buttonElement.classList.add('clicked');
+            
+            // Remove a classe após a animação
+            setTimeout(() => {
+                buttonElement.classList.remove('clicked');
+            }, 600);
+            
+            // Mostra indicador visual de som
+            showSoundIndicator(letter);
+            
+            // Usa a Web Speech API para falar a letra
+            if ('speechSynthesis' in window) {
+                // Cancela qualquer fala anterior
+                speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(letter);
+                
+                // Configurações para voz infantil e clara
+                utterance.rate = 0.7; // Velocidade mais lenta
+                utterance.pitch = 1.2; // Tom mais agudo
+                utterance.volume = 1; // Volume máximo
+                utterance.lang = 'pt-BR'; // Português brasileiro
+                
+                // Tenta usar uma voz feminina se disponível
+                const voices = speechSynthesis.getVoices();
+                const portugueseVoice = voices.find(voice => 
+                    voice.lang.includes('pt') && voice.name.toLowerCase().includes('female')
+                ) || voices.find(voice => voice.lang.includes('pt'));
+                
+                if (portugueseVoice) {
+                    utterance.voice = portugueseVoice;
+                }
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                // Fallback se a API não estiver disponível
+                console.log(`Reproduzindo som da letra: ${letter}`);
+            }
+        }
+
+        // Função para mostrar indicador visual de som
+        function showSoundIndicator(letter) {
+            const indicator = document.getElementById('soundIndicator');
+            indicator.textContent = `🔊 ${letter}`;
+            indicator.style.opacity = '1';
+            indicator.style.animation = 'soundPop 1s ease-out';
+            
+            // Reset da animação
+            setTimeout(() => {
+                indicator.style.opacity = '0';
+            }, 1000);
+        }
+
+        // Função para carregar as vozes disponíveis
+        function loadVoices() {
+            return new Promise((resolve) => {
+                let voices = speechSynthesis.getVoices();
+                if (voices.length > 0) {
+                    resolve(voices);
+                } else {
+                    speechSynthesis.onvoiceschanged = () => {
+                        voices = speechSynthesis.getVoices();
+                        resolve(voices);
+                    };
+                }
+            });
+        }
+
+        // Função para voltar à página anterior
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, tenta ir para uma página padrão
+                window.location.href = '/';
+            }
+        }
+
+        // Inicializa o jogo quando a página carrega
+        document.addEventListener('DOMContentLoaded', async () => {
+            createAlphabetGrid();
+            
+            // Carrega as vozes disponíveis
+            if ('speechSynthesis' in window) {
+                await loadVoices();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99396deb31528b1b',t:'MTc2MTMwODQzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
