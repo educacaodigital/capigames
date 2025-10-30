@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐻O NOME DOS ANIMAIS</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 50%, #45B7D1 100%);
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #FFD700;
+            color: #333;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        .back-button:hover {
+            background: #FFA500;
+            transform: translateY(-2px);
+        }
+
+        .game-container {
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .title {
+            font-size: 2.5rem;
+            color: #333;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .animals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .animal-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .animal-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            border-color: #4ECDC4;
+        }
+
+        .animal-card.speaking {
+            animation: pulse 0.6s ease-in-out;
+            border-color: #FF6B6B;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .animal-emoji {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            display: block;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .animal-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .animal-description {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .speaking-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #FF6B6B;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .animal-card.speaking .speaking-indicator {
+            opacity: 1;
+        }
+
+        .instructions {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px auto;
+            max-width: 600px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .instructions p {
+            color: #666;
+            font-size: 1.1rem;
+            margin: 0 0 15px 0;
+        }
+
+        .audio-instructions-btn {
+            background: #4ECDC4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        .audio-instructions-btn:hover {
+            background: #45B7D1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(69, 183, 209, 0.4);
+        }
+
+        .audio-instructions-btn.playing {
+            background: #FF6B6B;
+            animation: pulse-btn 1s infinite;
+        }
+
+        @keyframes pulse-btn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .animals-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .animal-emoji {
+                font-size: 3rem;
+            }
+            
+            .animal-name {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><button class="back-button" onclick="goBack()">← VOLTAR</button>
+  <main class="game-container">
+   <header class="header">
+    <h1 class="title" id="gameTitle">🐾 APRENDA OS NOMES DOS ANIMAIS 🐾</h1>
+    <p class="subtitle" id="instructionText">CLIQUE EM CADA ANIMAL PARA OUVIR SEU NOME</p>
+   </header>
+   <div class="instructions">
+    <h3>📢 COMO JOGAR</h3>
+    <p>CLIQUE EM QUALQUER ANIMAL PARA OUVIR O NOME DELE!</p><button class="audio-instructions-btn" id="audioInstructionsBtn" onclick="toggleInstructionsAudio()"> 🔊 OUVIR INSTRUÇÕES </button>
+   </div>
+   <div class="animals-grid" id="animalsGrid"><!-- Animais serão inseridos aqui -->
+   </div>
+  </main>
+  <script>
+        const animals = [
+            {
+                emoji: '🐶',
+                name: 'CACHORRO',
+                speechName: 'cachorro'
+            },
+            {
+                emoji: '🐱',
+                name: 'GATO',
+                speechName: 'gato'
+            },
+            {
+                emoji: '🐭',
+                name: 'RATO',
+                speechName: 'rato'
+            },
+            {
+                emoji: '🐹',
+                name: 'HAMSTER',
+                speechName: 'hamster'
+            },
+            {
+                emoji: '🐰',
+                name: 'COELHO',
+                speechName: 'coelho'
+            },
+            {
+                emoji: '🦊',
+                name: 'RAPOSA',
+                speechName: 'raposa'
+            },
+            {
+                emoji: '🐻',
+                name: 'URSO',
+                speechName: 'urso'
+            },
+            {
+                emoji: '🐼',
+                name: 'PANDA',
+                speechName: 'panda'
+            },
+            {
+                emoji: '🐨',
+                name: 'COALA',
+                speechName: 'coala'
+            },
+            {
+                emoji: '🐯',
+                name: 'TIGRE',
+                speechName: 'tigre'
+            },
+            {
+                emoji: '🦁',
+                name: 'LEÃO',
+                speechName: 'leão'
+            },
+            {
+                emoji: '🐮',
+                name: 'VACA',
+                speechName: 'vaca'
+            },
+            {
+                emoji: '🐷',
+                name: 'PORCO',
+                speechName: 'porco'
+            },
+            {
+                emoji: '🐸',
+                name: 'SAPO',
+                speechName: 'sapo'
+            },
+            {
+                emoji: '🐵',
+                name: 'MACACO',
+                speechName: 'macaco'
+            },
+            {
+                emoji: '🐔',
+                name: 'GALINHA',
+                speechName: 'galinha'
+            },
+            {
+                emoji: '🐧',
+                name: 'PINGUIM',
+                speechName: 'pinguim'
+            },
+            {
+                emoji: '🐦',
+                name: 'PÁSSARO',
+                speechName: 'pássaro'
+            },
+            {
+                emoji: '🐠',
+                name: 'PEIXE',
+                speechName: 'peixe'
+            },
+            {
+                emoji: '🐘',
+                name: 'ELEFANTE',
+                speechName: 'elefante'
+            },
+            {
+                emoji: '🦒',
+                name: 'GIRAFA',
+                speechName: 'girafa'
+            },
+            {
+                emoji: '🦓',
+                name: 'ZEBRA',
+                speechName: 'zebra'
+            },
+            {
+                emoji: '🦏',
+                name: 'RINOCERONTE',
+                speechName: 'rinoceronte'
+            },
+            {
+                emoji: '🦛',
+                name: 'HIPOPÓTAMO',
+                speechName: 'hipopótamo'
+            },
+            {
+                emoji: '🐪',
+                name: 'CAMELO',
+                speechName: 'camelo'
+            },
+            {
+                emoji: '🐫',
+                name: 'DROMEDÁRIO',
+                speechName: 'dromedário'
+            },
+            {
+                emoji: '🦘',
+                name: 'CANGURU',
+                speechName: 'canguru'
+            },
+            {
+                emoji: '🦌',
+                name: 'VEADO',
+                speechName: 'veado'
+            },
+            {
+                emoji: '🐺',
+                name: 'LOBO',
+                speechName: 'lobo'
+            },
+            {
+                emoji: '🐗',
+                name: 'JAVALI',
+                speechName: 'javali'
+            },
+            {
+                emoji: '🐴',
+                name: 'CAVALO',
+                speechName: 'cavalo'
+            },
+            {
+                emoji: '🐝',
+                name: 'ABELHA',
+                speechName: 'abelha'
+            },
+            {
+                emoji: '🐛',
+                name: 'LAGARTA',
+                speechName: 'lagarta'
+            },
+            {
+                emoji: '🦋',
+                name: 'BORBOLETA',
+                speechName: 'borboleta'
+            },
+            {
+                emoji: '🐌',
+                name: 'CARACOL',
+                speechName: 'caracol'
+            },
+            {
+                emoji: '🐞',
+                name: 'JOANINHA',
+                speechName: 'joaninha'
+            },
+            {
+                emoji: '🐜',
+                name: 'FORMIGA',
+                speechName: 'formiga'
+            },
+            {
+                emoji: '🕷️',
+                name: 'ARANHA',
+                speechName: 'aranha'
+            },
+            {
+                emoji: '🦂',
+                name: 'ESCORPIÃO',
+                speechName: 'escorpião'
+            },
+            {
+                emoji: '🐢',
+                name: 'TARTARUGA',
+                speechName: 'tartaruga'
+            },
+            {
+                emoji: '🐍',
+                name: 'COBRA',
+                speechName: 'cobra'
+            },
+            {
+                emoji: '🦎',
+                name: 'LAGARTO',
+                speechName: 'lagarto'
+            },
+            {
+                emoji: '🐊',
+                name: 'JACARÉ',
+                speechName: 'jacaré'
+            },
+            {
+                emoji: '🐙',
+                name: 'POLVO',
+                speechName: 'polvo'
+            },
+            {
+                emoji: '🦑',
+                name: 'LULA',
+                speechName: 'lula'
+            },
+            {
+                emoji: '🦐',
+                name: 'CAMARÃO',
+                speechName: 'camarão'
+            },
+            {
+                emoji: '🦀',
+                name: 'CARANGUEJO',
+                speechName: 'caranguejo'
+            },
+            {
+                emoji: '🐡',
+                name: 'BAIACU',
+                speechName: 'baiacu'
+            },
+            {
+                emoji: '🐬',
+                name: 'GOLFINHO',
+                speechName: 'golfinho'
+            },
+            {
+                emoji: '🐳',
+                name: 'BALEIA',
+                speechName: 'baleia'
+            },
+            {
+                emoji: '🦈',
+                name: 'TUBARÃO',
+                speechName: 'tubarão'
+            },
+            {
+                emoji: '🐆',
+                name: 'LEOPARDO',
+                speechName: 'leopardo'
+            },
+            {
+                emoji: '🦅',
+                name: 'ÁGUIA',
+                speechName: 'águia'
+            },
+            {
+                emoji: '🦆',
+                name: 'PATO',
+                speechName: 'pato'
+            },
+            {
+                emoji: '🦢',
+                name: 'CISNE',
+                speechName: 'cisne'
+            },
+            {
+                emoji: '🦉',
+                name: 'CORUJA',
+                speechName: 'coruja'
+            },
+            {
+                emoji: '🦚',
+                name: 'PAVÃO',
+                speechName: 'pavão'
+            },
+            {
+                emoji: '🦜',
+                name: 'PAPAGAIO',
+                speechName: 'papagaio'
+            },
+            {
+                emoji: '🐓',
+                name: 'GALO',
+                speechName: 'galo'
+            },
+            {
+                emoji: '🦃',
+                name: 'PERU',
+                speechName: 'peru'
+            },
+            {
+                emoji: '🕊️',
+                name: 'POMBA',
+                speechName: 'pomba'
+            }
+        ];
+
+        let currentlySpeaking = null;
+        let instructionsUtterance = null;
+        let isPlayingInstructions = false;
+
+        // Configuração padrão
+        const defaultConfig = {
+            game_title: '🐾 APRENDA OS NOMES DOS ANIMAIS 🐾',
+            instruction_text: 'CLIQUE EM CADA ANIMAL PARA OUVIR SEU NOME'
+        };
+
+        function initializeGame() {
+            createAnimalCards();
+        }
+
+        function createAnimalCards() {
+            const animalsGrid = document.getElementById('animalsGrid');
+            animalsGrid.innerHTML = '';
+            
+            animals.forEach((animal, index) => {
+                const animalCard = document.createElement('div');
+                animalCard.className = 'animal-card';
+                animalCard.innerHTML = `
+                    <div class="speaking-indicator">🔊 FALANDO</div>
+                    <span class="animal-emoji">${animal.emoji}</span>
+                    <div class="animal-name">${animal.name}</div>
+                `;
+                
+                animalCard.addEventListener('click', () => speakAnimalName(animal, animalCard));
+                animalsGrid.appendChild(animalCard);
+            });
+        }
+
+        function speakAnimalName(animal, cardElement) {
+            // Parar qualquer fala anterior (incluindo instruções)
+            if (currentlySpeaking) {
+                speechSynthesis.cancel();
+                currentlySpeaking.classList.remove('speaking');
+            }
+            
+            if (isPlayingInstructions) {
+                speechSynthesis.cancel();
+                isPlayingInstructions = false;
+                const btn = document.getElementById('audioInstructionsBtn');
+                btn.textContent = '🔊 OUVIR INSTRUÇÕES';
+                btn.classList.remove('playing');
+            }
+
+            // Verificar se a síntese de voz está disponível
+            if ('speechSynthesis' in window) {
+                // Adicionar classe visual
+                cardElement.classList.add('speaking');
+                currentlySpeaking = cardElement;
+
+                // Criar o texto para falar apenas o nome
+                const fullText = animal.speechName;
+
+                // Criar a fala
+                const utterance = new SpeechSynthesisUtterance(fullText);
+                utterance.rate = 0.7; // Velocidade mais lenta para crianças entenderem melhor
+                utterance.pitch = 1.2; // Tom mais agudo e amigável
+                utterance.volume = 1;
+                utterance.lang = 'pt-BR';
+
+                // Remover classe quando terminar de falar
+                utterance.onend = function() {
+                    cardElement.classList.remove('speaking');
+                    currentlySpeaking = null;
+                };
+
+                utterance.onerror = function() {
+                    cardElement.classList.remove('speaking');
+                    currentlySpeaking = null;
+                };
+
+                // Falar o nome e características do animal
+                speechSynthesis.speak(utterance);
+            } else {
+                // Fallback visual se não houver síntese de voz
+                cardElement.classList.add('speaking');
+                setTimeout(() => {
+                    cardElement.classList.remove('speaking');
+                }, 3000); // Tempo maior para simular fala completa
+            }
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '/';
+            }
+        }
+
+        // Configuração do Element SDK
+        async function onConfigChange(config) {
+            const gameTitle = document.getElementById('gameTitle');
+            const instructionText = document.getElementById('instructionText');
+            
+            if (gameTitle) {
+                gameTitle.textContent = config.game_title || defaultConfig.game_title;
+            }
+            if (instructionText) {
+                instructionText.textContent = config.instruction_text || defaultConfig.instruction_text;
+            }
+        }
+
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ['game_title', config.game_title || defaultConfig.game_title],
+                ['instruction_text', config.instruction_text || defaultConfig.instruction_text]
+            ]);
+        }
+
+        // Inicializar Element SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: onConfigChange,
+                mapToCapabilities: mapToCapabilities,
+                mapToEditPanelValues: mapToEditPanelValues
+            });
+        }
+
+        // Função para falar as instruções de boas-vindas
+        function speakWelcomeMessage() {
+            if ('speechSynthesis' in window) {
+                const welcomeText = "Clique em cada animal para ouvir seu nome";
+                const utterance = new SpeechSynthesisUtterance(welcomeText);
+                utterance.rate = 0.8;
+                utterance.pitch = 1.2;
+                utterance.volume = 1;
+                utterance.lang = 'pt-BR';
+                
+                // Aguardar um pouco antes de falar para garantir que a página carregou
+                setTimeout(() => {
+                    speechSynthesis.speak(utterance);
+                }, 1000);
+            }
+        }
+
+        // Função para controlar o áudio das instruções
+        function toggleInstructionsAudio() {
+            const btn = document.getElementById('audioInstructionsBtn');
+            
+            if (isPlayingInstructions) {
+                // Parar o áudio
+                speechSynthesis.cancel();
+                isPlayingInstructions = false;
+                btn.textContent = '🔊 OUVIR INSTRUÇÕES';
+                btn.classList.remove('playing');
+            } else {
+                // Parar qualquer fala de animal em andamento
+                if (currentlySpeaking) {
+                    speechSynthesis.cancel();
+                    currentlySpeaking.classList.remove('speaking');
+                    currentlySpeaking = null;
+                }
+                
+                // Iniciar o áudio das instruções
+                if ('speechSynthesis' in window) {
+                    const instructionsText = "Clique em qualquer animal para ouvir o nome dele";
+                    instructionsUtterance = new SpeechSynthesisUtterance(instructionsText);
+                    instructionsUtterance.rate = 0.8;
+                    instructionsUtterance.pitch = 1.2;
+                    instructionsUtterance.volume = 1;
+                    instructionsUtterance.lang = 'pt-BR';
+                    
+                    instructionsUtterance.onstart = function() {
+                        isPlayingInstructions = true;
+                        btn.textContent = '⏸️ PAUSAR ÁUDIO';
+                        btn.classList.add('playing');
+                    };
+                    
+                    instructionsUtterance.onend = function() {
+                        isPlayingInstructions = false;
+                        btn.textContent = '🔊 OUVIR INSTRUÇÕES';
+                        btn.classList.remove('playing');
+                    };
+                    
+                    instructionsUtterance.onerror = function() {
+                        isPlayingInstructions = false;
+                        btn.textContent = '🔊 OUVIR INSTRUÇÕES';
+                        btn.classList.remove('playing');
+                    };
+                    
+                    speechSynthesis.speak(instructionsUtterance);
+                }
+            }
+        }
+
+        // Inicializar o jogo quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGame();
+            speakWelcomeMessage();
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'996cdd6112de8b1d',t:'MTc2MTg0Nzc3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
