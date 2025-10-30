@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo do Alfabeto</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            min-height: 100%;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .game-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #2E8B57;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .instructions {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #4682B4;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #F0F8FF;
+            border-radius: 10px;
+            border: 2px solid #87CEEB;
+        }
+
+        .alphabet-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #2E8B57;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .alphabet-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            padding: 20px;
+            background: #F8F8FF;
+            border-radius: 15px;
+            border: 3px solid #DDA0DD;
+            min-height: 80px;
+        }
+
+        .letter {
+            width: 50px;
+            height: 50px;
+            background: #FFB6C1;
+            border: 3px solid #FF69B4;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #8B0000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            text-transform: uppercase;
+        }
+
+        .letter:hover {
+            transform: scale(1.1);
+            background: #FF91A4;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .letter.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .drop-zone {
+            width: 50px;
+            height: 50px;
+            border: 3px dashed #9370DB;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #E6E6FA;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.drag-over {
+            background: #DDA0DD;
+            border-color: #8A2BE2;
+            transform: scale(1.05);
+        }
+
+        .drop-zone.filled {
+            border-style: solid;
+            border-color: #32CD32;
+            background: #98FB98;
+        }
+
+        .scrambled-container {
+            background: #FFF8DC;
+            border: 3px solid #DAA520;
+        }
+
+        .scrambled-container .letter {
+            background: #F0E68C;
+            border-color: #DAA520;
+            color: #8B4513;
+        }
+
+        .scrambled-container .letter:hover {
+            background: #FFFF99;
+        }
+
+        .success-message {
+            text-align: center;
+            font-size: 2rem;
+            color: #32CD32;
+            margin: 20px 0;
+            padding: 20px;
+            background: #F0FFF0;
+            border-radius: 15px;
+            border: 3px solid #32CD32;
+            display: none;
+            animation: celebration 0.6s ease-in-out;
+        }
+
+        @keyframes celebration {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .reset-button {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: #FF6347;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .reset-button:hover {
+            background: #FF4500;
+            transform: scale(1.05);
+        }
+
+        .back-button {
+            display: block;
+            margin: 10px auto;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: #6A5ACD;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background: #483D8B;
+            transform: scale(1.05);
+        }
+
+        .audio-button {
+            display: block;
+            margin: 10px auto 20px auto;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: #4169E1;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .audio-button:hover {
+            background: #0000FF;
+            transform: scale(1.05);
+        }
+
+        .audio-button:disabled {
+            background: #808080;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #E0E0E0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #32CD32, #98FB98);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .letter, .drop-zone {
+                width: 40px;
+                height: 40px;
+                font-size: 1.4rem;
+            }
+            
+            .alphabet-container {
+                gap: 5px;
+                padding: 15px;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <main class="game-container"><button class="audio-button" onclick="playInstructions()">💬 OUVIR INSTRUÇÕES</button>
+   <h1 class="game-title" id="gameTitle">🎯 Jogo do Alfabeto</h1>
+   <div class="instructions" id="instructions">
+    Arraste as letras para formar o alfabeto na ordem correta! 📝✨
+   </div>
+   <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+   </div><!-- Alfabeto de referência -->
+   <div class="alphabet-section">
+    <div class="section-title">
+     📚 ALFABETO DE REFERÊNCIA
+    </div>
+    <div class="alphabet-container" id="referenceAlphabet"></div>
+   </div><!-- Área de ordenação -->
+   <div class="alphabet-section">
+    <div class="section-title">
+     🎯 MONTE O ALFABETO AQUI
+    </div>
+    <div class="alphabet-container" id="sortingArea"></div>
+   </div><!-- Letras embaralhadas -->
+   <div class="alphabet-section">
+    <div class="section-title">
+     🔀 LETRAS EMBARALHADAS
+    </div>
+    <div class="alphabet-container scrambled-container" id="scrambledLetters"></div>
+   </div><!-- Área de prática livre -->
+   <div class="alphabet-section">
+    <div class="section-title">
+     ✏️ ÁREA DE PRÁTICA LIVRE
+    </div>
+    <div class="alphabet-container" id="practiceArea"></div>
+   </div>
+   <div class="success-message" id="successMessage">
+    🎉 PARABÉNS! VOCÊ COMPLETOU O ALFABETO! 🎉
+   </div>
+   <div class="success-message" id="practiceSuccessMessage">
+    🌟 EXCELENTE! VOCÊ ORGANIZOU AS LETRAS NA ÁREA DE PRÁTICA! 🌟
+   </div><button class="reset-button" onclick="resetGame()">🔄 JOGAR NOVAMENTE</button> <button class="back-button" onclick="goBack()">⬅️ VOLTAR</button>
+  </main>
+  <script>
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        let draggedElement = null;
+        let correctPlacements = 0;
+        let practiceLetters = [];
+
+        const defaultConfig = {
+            game_title: "🎯 JOGO DO ALFABETO",
+            instruction_text: "ARRASTE AS LETRAS PARA FORMAR O ALFABETO NA ORDEM CORRETA! 📝✨",
+            success_message: "🎉 PARABÉNS! VOCÊ COMPLETOU O ALFABETO! 🎉"
+        };
+
+        function initializeGame() {
+            createReferenceAlphabet();
+            createSortingArea();
+            createPracticeArea();
+            createScrambledLetters();
+            updateProgress();
+        }
+
+        function createReferenceAlphabet() {
+            const container = document.getElementById('referenceAlphabet');
+            container.innerHTML = '';
+            
+            alphabet.forEach(letter => {
+                const letterElement = document.createElement('div');
+                letterElement.className = 'letter';
+                letterElement.textContent = letter;
+                letterElement.draggable = true;
+                letterElement.dataset.letter = letter;
+                letterElement.dataset.fromReference = 'true';
+                
+                letterElement.addEventListener('dragstart', handleDragStart);
+                letterElement.addEventListener('dragend', handleDragEnd);
+                
+                container.appendChild(letterElement);
+            });
+        }
+
+        function createSortingArea() {
+            const container = document.getElementById('sortingArea');
+            container.innerHTML = '';
+            
+            alphabet.forEach((letter, index) => {
+                const dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.dataset.expectedLetter = letter;
+                dropZone.dataset.position = index;
+                dropZone.dataset.areaType = 'sorting';
+                
+                dropZone.addEventListener('dragover', handleDragOver);
+                dropZone.addEventListener('drop', handleDrop);
+                dropZone.addEventListener('dragleave', handleDragLeave);
+                
+                container.appendChild(dropZone);
+            });
+        }
+
+        function createPracticeArea() {
+            const container = document.getElementById('practiceArea');
+            container.innerHTML = '';
+            practiceLetters = [];
+            
+            alphabet.forEach((letter, index) => {
+                const dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.dataset.expectedLetter = letter;
+                dropZone.dataset.position = index;
+                dropZone.dataset.areaType = 'practice';
+                
+                dropZone.addEventListener('dragover', handleDragOver);
+                dropZone.addEventListener('drop', handleDropPractice);
+                dropZone.addEventListener('dragleave', handleDragLeave);
+                
+                container.appendChild(dropZone);
+            });
+        }
+
+        function createScrambledLetters() {
+            const container = document.getElementById('scrambledLetters');
+            container.innerHTML = '';
+            
+            const scrambledAlphabet = [...alphabet].sort(() => Math.random() - 0.5);
+            
+            scrambledAlphabet.forEach(letter => {
+                const letterElement = document.createElement('div');
+                letterElement.className = 'letter';
+                letterElement.textContent = letter;
+                letterElement.draggable = true;
+                letterElement.dataset.letter = letter;
+                
+                letterElement.addEventListener('dragstart', handleDragStart);
+                letterElement.addEventListener('dragend', handleDragEnd);
+                
+                container.appendChild(letterElement);
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedElement = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.target.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.target.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            
+            if (!draggedElement) return;
+            
+            const dropZone = e.target;
+            const expectedLetter = dropZone.dataset.expectedLetter;
+            const droppedLetter = draggedElement.dataset.letter;
+            
+            // Se a zona já está ocupada, não faz nada
+            if (dropZone.classList.contains('filled')) return;
+            
+            // Cria uma cópia da letra na zona de drop (sempre permite o drop)
+            const letterCopy = draggedElement.cloneNode(true);
+            letterCopy.draggable = true; // Permite mover a letra depois
+            letterCopy.classList.remove('dragging');
+            letterCopy.dataset.fromSorting = 'true';
+            
+            // Adiciona eventos para poder mover dentro da área de ordenação
+            letterCopy.addEventListener('dragstart', handleDragStart);
+            letterCopy.addEventListener('dragend', handleDragEnd);
+            
+            dropZone.appendChild(letterCopy);
+            dropZone.classList.add('filled');
+            
+            // Verifica se a letra está correta para contagem de progresso
+            if (expectedLetter === droppedLetter) {
+                correctPlacements++;
+                updateProgress();
+                
+                // Verifica se o jogo foi completado
+                if (correctPlacements === alphabet.length) {
+                    setTimeout(showSuccess, 500);
+                }
+            }
+            
+            // Mantém sempre a mesma cor das letras (não muda cor baseado em certo/errado)
+            
+            // Remove a letra original APENAS se não veio do alfabeto de referência
+            if (!draggedElement.dataset.fromReference && !draggedElement.dataset.fromSorting) {
+                draggedElement.remove();
+            } else if (draggedElement.dataset.fromSorting) {
+                // Se veio da área de ordenação, limpa a zona anterior
+                const previousZone = draggedElement.parentNode;
+                if (previousZone.classList.contains('drop-zone')) {
+                    previousZone.classList.remove('filled');
+                    previousZone.innerHTML = '';
+                    
+                    // Recalcula os acertos após mover uma letra
+                    recalculateCorrectPlacements();
+                }
+            }
+        }
+
+        function handleDropPractice(e) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            
+            if (!draggedElement) return;
+            
+            const dropZone = e.target;
+            const droppedLetter = draggedElement.dataset.letter;
+            
+            // Se a zona já está ocupada, não faz nada
+            if (dropZone.classList.contains('filled')) return;
+            
+            // Na área de prática, aceita qualquer letra
+            const letterCopy = draggedElement.cloneNode(true);
+            letterCopy.draggable = true;
+            letterCopy.classList.remove('dragging');
+            letterCopy.dataset.fromPractice = 'true';
+            
+            // Muda a cor para amarela na área de prática
+            letterCopy.style.background = '#FFD700';
+            letterCopy.style.borderColor = '#FFA500';
+            letterCopy.style.color = '#8B4513';
+            
+            // Adiciona eventos para poder mover dentro da área de prática
+            letterCopy.addEventListener('dragstart', handleDragStart);
+            letterCopy.addEventListener('dragend', handleDragEnd);
+            
+            dropZone.appendChild(letterCopy);
+            dropZone.classList.add('filled');
+            
+            // Remove a letra original apenas se veio das letras embaralhadas
+            if (!draggedElement.dataset.fromPractice) {
+                draggedElement.remove();
+            } else {
+                // Se veio da área de prática, limpa a zona anterior
+                const previousZone = draggedElement.parentNode;
+                if (previousZone.classList.contains('drop-zone')) {
+                    previousZone.classList.remove('filled');
+                    previousZone.innerHTML = '';
+                }
+            }
+            
+            practiceLetters.push(droppedLetter);
+            checkPracticeCompletion();
+        }
+
+        function recalculateCorrectPlacements() {
+            const sortingArea = document.getElementById('sortingArea');
+            const filledZones = sortingArea.querySelectorAll('.drop-zone.filled');
+            
+            correctPlacements = 0;
+            filledZones.forEach(zone => {
+                const expectedLetter = zone.dataset.expectedLetter;
+                const placedLetter = zone.querySelector('.letter');
+                if (placedLetter && placedLetter.textContent === expectedLetter) {
+                    correctPlacements++;
+                }
+            });
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const percentage = (correctPlacements / alphabet.length) * 100;
+            progressFill.style.width = percentage + '%';
+        }
+
+        function checkPracticeCompletion() {
+            const practiceArea = document.getElementById('practiceArea');
+            const filledZones = practiceArea.querySelectorAll('.drop-zone.filled');
+            
+            if (filledZones.length === alphabet.length) {
+                // Verifica se estão em ordem alfabética
+                let isCorrectOrder = true;
+                filledZones.forEach((zone, index) => {
+                    const letter = zone.querySelector('.letter').textContent;
+                    if (letter !== alphabet[index]) {
+                        isCorrectOrder = false;
+                    }
+                });
+                
+                if (isCorrectOrder) {
+                    setTimeout(showPracticeSuccess, 500);
+                }
+            }
+        }
+
+        function showSuccess() {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'block';
+            
+            // Adiciona confetes visuais
+            createConfetti();
+        }
+
+        function showPracticeSuccess() {
+            const practiceSuccessMessage = document.getElementById('practiceSuccessMessage');
+            practiceSuccessMessage.style.display = 'block';
+            
+            // Adiciona confetes visuais
+            createConfetti();
+            
+            // Esconde a mensagem após alguns segundos
+            setTimeout(() => {
+                practiceSuccessMessage.style.display = 'none';
+            }, 4000);
+        }
+
+        function createConfetti() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.pointerEvents = 'none';
+                    confetti.style.zIndex = '1000';
+                    confetti.style.animation = 'fall 3s linear forwards';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 100);
+            }
+        }
+
+        function resetGame() {
+            correctPlacements = 0;
+            practiceLetters = [];
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('practiceSuccessMessage').style.display = 'none';
+            initializeGame();
+        }
+
+        function goBack() {
+            // Verifica se há histórico de navegação
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, mostra uma mensagem amigável
+                const tempMessage = document.createElement('div');
+                tempMessage.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: #4169E1;
+                    color: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    font-size: 1.2rem;
+                    z-index: 1000;
+                    text-align: center;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                `;
+                tempMessage.textContent = 'Não há página anterior para voltar!';
+                document.body.appendChild(tempMessage);
+                
+                setTimeout(() => tempMessage.remove(), 3000);
+            }
+        }
+
+        let isPlaying = false;
+        let currentUtterance = null;
+
+        function playInstructions() {
+            const audioButton = document.querySelector('.audio-button');
+            
+            // Se já está reproduzindo, cancela o áudio
+            if (isPlaying) {
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                }
+                isPlaying = false;
+                audioButton.disabled = false;
+                audioButton.textContent = '💬 OUVIR INSTRUÇÕES';
+                return;
+            }
+            
+            // Inicia a reprodução
+            isPlaying = true;
+            audioButton.disabled = false; // Mantém habilitado para permitir cancelamento
+            audioButton.textContent = '❌ PARAR ÁUDIO';
+            
+            // Texto das instruções completas
+            const instructionsText = `
+                BEM-VINDOS AO JOGO DO ALFABETO! 
+                ESTE JOGO VAI AJUDAR VOCÊ A APRENDER O ALFABETO DE FORMA DIVERTIDA.
+                
+                VAMOS EXPLICAR COMO JOGAR:
+                
+                PRIMEIRO: OLHE O ALFABETO DE REFERÊNCIA NO TOPO. ELE MOSTRA TODAS AS LETRAS EM ORDEM.
+                
+                SEGUNDO: NA SEÇÃO MONTE O ALFABETO AQUI, VOCÊ DEVE ARRASTAR AS LETRAS PARA AS POSIÇÕES CORRETAS.
+                
+                TERCEIRO: USE AS LETRAS EMBARALHADAS PARA ARRASTAR E FORMAR O ALFABETO.
+                
+                QUARTO: NA ÁREA DE PRÁTICA LIVRE, VOCÊ PODE TREINAR ORGANIZANDO AS LETRAS LIVREMENTE. AS LETRAS FICAM AMARELAS QUANDO COLOCADAS NA ÁREA DE PRÁTICA.
+                
+                PARA JOGAR: CLIQUE E ARRASTE UMA LETRA PARA O LUGAR DESEJADO. AS LETRAS MANTÊM A COR ROSA NA ÁREA PRINCIPAL E FICAM AMARELAS NA ÁREA DE PRÁTICA.
+                
+                QUANDO COMPLETAR O ALFABETO CORRETAMENTE, VOCÊ VERÁ CONFETES E UMA MENSAGEM DE PARABÉNS!
+                
+                AGORA É SUA VEZ! BOA SORTE E DIVIRTA-SE APRENDENDO!
+            `;
+            
+            // Usa a API de síntese de voz do navegador
+            if ('speechSynthesis' in window) {
+                currentUtterance = new SpeechSynthesisUtterance(instructionsText);
+                currentUtterance.lang = 'pt-BR';
+                currentUtterance.rate = 0.8; // Velocidade mais lenta para crianças
+                currentUtterance.pitch = 1.1; // Tom um pouco mais alto
+                currentUtterance.volume = 1;
+                
+                currentUtterance.onend = function() {
+                    isPlaying = false;
+                    audioButton.disabled = false;
+                    audioButton.textContent = '💬 OUVIR INSTRUÇÕES';
+                    currentUtterance = null;
+                };
+                
+                currentUtterance.onerror = function() {
+                    isPlaying = false;
+                    audioButton.disabled = false;
+                    audioButton.textContent = '💬 OUVIR INSTRUÇÕES';
+                    currentUtterance = null;
+                    
+                    // Mostra mensagem visual se o áudio falhar
+                    const tempMessage = document.createElement('div');
+                    tempMessage.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: #FF6B6B;
+                        color: white;
+                        padding: 20px;
+                        border-radius: 10px;
+                        font-size: 1.2rem;
+                        z-index: 1000;
+                        text-align: center;
+                    `;
+                    tempMessage.textContent = 'ÁUDIO NÃO DISPONÍVEL NO SEU NAVEGADOR';
+                    document.body.appendChild(tempMessage);
+                    
+                    setTimeout(() => tempMessage.remove(), 3000);
+                };
+                
+                speechSynthesis.speak(currentUtterance);
+            } else {
+                // Fallback se não houver suporte a áudio
+                isPlaying = false;
+                audioButton.disabled = false;
+                audioButton.textContent = '💬 OUVIR INSTRUÇÕES';
+                
+                const tempMessage = document.createElement('div');
+                tempMessage.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: #FF6B6B;
+                    color: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    font-size: 1.2rem;
+                    z-index: 1000;
+                    text-align: center;
+                `;
+                tempMessage.textContent = 'ÁUDIO NÃO DISPONÍVEL NO SEU NAVEGADOR';
+                document.body.appendChild(tempMessage);
+                
+                setTimeout(() => tempMessage.remove(), 3000);
+            }
+        }
+
+        // Adiciona animação de queda para confetes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // SDK Configuration
+        async function onConfigChange(config) {
+            const gameTitle = document.getElementById('gameTitle');
+            const instructions = document.getElementById('instructions');
+            const successMessage = document.getElementById('successMessage');
+            
+            gameTitle.textContent = config.game_title || defaultConfig.game_title;
+            instructions.textContent = config.instruction_text || defaultConfig.instruction_text;
+            successMessage.textContent = config.success_message || defaultConfig.success_message;
+        }
+
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [
+                    {
+                        get: () => config.background_color || "#87CEEB",
+                        set: (value) => {
+                            config.background_color = value;
+                            window.elementSdk.setConfig({ background_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.card_color || "#FFB6C1",
+                        set: (value) => {
+                            config.card_color = value;
+                            window.elementSdk.setConfig({ card_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.text_color || "#2E8B57",
+                        set: (value) => {
+                            config.text_color = value;
+                            window.elementSdk.setConfig({ text_color: value });
+                        }
+                    }
+                ],
+                borderables: [],
+                fontEditable: {
+                    get: () => config.font_family || "Comic Sans MS",
+                    set: (value) => {
+                        config.font_family = value;
+                        window.elementSdk.setConfig({ font_family: value });
+                    }
+                },
+                fontSizeable: {
+                    get: () => config.font_size || 16,
+                    set: (value) => {
+                        config.font_size = value;
+                        window.elementSdk.setConfig({ font_size: value });
+                    }
+                }
+            };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["game_title", config.game_title || defaultConfig.game_title],
+                ["instruction_text", config.instruction_text || defaultConfig.instruction_text],
+                ["success_message", config.success_message || defaultConfig.success_message]
+            ]);
+        }
+
+        // Initialize SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig,
+                onConfigChange,
+                mapToCapabilities,
+                mapToEditPanelValues
+            });
+        }
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'996bac5fb3fb8b1d',t:'MTc2MTgzNTI4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
