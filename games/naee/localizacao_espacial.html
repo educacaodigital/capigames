@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>➡️LOCALIZAÇÃO ESPACIAL</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            min-height: 100%;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-title {
+            font-size: 2.5rem;
+            color: #2E8B57;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .instructions {
+            font-size: 1.2rem;
+            color: #4682B4;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .game-area {
+            display: block;
+        }
+
+        .challenges-container {
+            max-height: 75vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .challenge-card {
+            background: #F0F8FF;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #87CEEB;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .challenge-card.completed {
+            background: #F0FFF0;
+            border-color: #32CD32;
+        }
+
+        .challenge-card.current {
+            background: #FFF8DC;
+            border-color: #FFD700;
+            box-shadow: 0 5px 20px rgba(255,215,0,0.3);
+        }
+
+        .challenge-number {
+            position: absolute;
+            top: -8px;
+            left: 15px;
+            background: #4169E1;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .challenge-number.completed {
+            background: #32CD32;
+        }
+
+        .challenge-number.current {
+            background: #FFD700;
+            color: #333;
+        }
+
+        .question-text {
+            font-size: 1rem;
+            color: #2E8B57;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .drag-area {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .draggable-emoji {
+            font-size: 2.5rem;
+            background: #FFE4E1;
+            border: 2px solid #FF69B4;
+            border-radius: 15px;
+            padding: 12px;
+            cursor: grab;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(255,105,180,0.3);
+        }
+
+        .draggable-emoji:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(255,105,180,0.4);
+        }
+
+        .draggable-emoji.dragging {
+            cursor: grabbing;
+            transform: rotate(5deg) scale(1.2);
+            opacity: 0.8;
+        }
+
+        .spatial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 280px;
+            margin: 0 auto 15px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #DDD;
+        }
+
+        .grid-cell.corner {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            border: 2px dashed #87CEEB;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+            background: #F8F8FF;
+            position: relative;
+        }
+
+        .grid-cell.reference-point {
+            background: #FFE4B5;
+            border: 2px solid #FF8C00;
+            border-style: solid;
+        }
+
+        .grid-cell.reference-point::before {
+            content: "🎯";
+            font-size: 1.8rem;
+            opacity: 0.7;
+        }
+
+        .grid-cell.drag-over {
+            background: #E6F3FF;
+            border-color: #4169E1;
+            border-style: solid;
+            transform: scale(1.05);
+        }
+
+        .grid-cell.has-emoji {
+            background: #F0FFF0;
+            border-color: #32CD32;
+            border-style: solid;
+        }
+
+        .position-labels {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto 25px;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+        }
+
+        .position-label {
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .position-label.corner {
+            visibility: hidden;
+        }
+
+        .next-btn {
+            background: #4169E1;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .next-btn:hover {
+            background: #0000CD;
+            transform: translateY(-2px);
+        }
+
+        .instruction-text {
+            font-size: 1.1rem;
+            color: #4682B4;
+            text-align: center;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .progress {
+            background: #E0E0E0;
+            border-radius: 10px;
+            height: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #32CD32, #228B22);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+
+
+        .restart-btn {
+            background: #FF6347;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: #FF4500;
+        }
+
+        .back-btn {
+            background: #6A5ACD;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            box-shadow: 0 3px 10px rgba(106,90,205,0.3);
+        }
+
+        .back-btn:hover {
+            background: #483D8B;
+            transform: translateY(-2px);
+        }
+
+        .help-btn {
+            background: #FFD700;
+            color: #333;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            box-shadow: 0 3px 10px rgba(255,215,0,0.3);
+            font-weight: bold;
+        }
+
+        .help-btn:hover {
+            background: #FFA500;
+            transform: translateY(-2px);
+        }
+
+        .help-btn.speaking {
+            background: #FF6347;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateY(-2px) scale(1); }
+            50% { transform: translateY(-2px) scale(1.05); }
+            100% { transform: translateY(-2px) scale(1); }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: #2E8B57;
+            margin-bottom: 10px;
+        }
+
+        .modal-body {
+            font-size: 1.1rem;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .rule-item {
+            background: #F0F8FF;
+            border-left: 4px solid #4169E1;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+        }
+
+        .rule-emoji {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .close-modal-btn {
+            background: #32CD32;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .close-modal-btn:hover {
+            background: #228B22;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #4682B4;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .spatial-grid {
+                max-width: 300px;
+            }
+            
+            .grid-cell {
+                font-size: 2rem;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container"><button class="back-btn" onclick="goBack()">⬅️ VOLTAR</button> <button class="help-btn" id="helpBtn" onclick="toggleSpeech()">🔊 ORIENTAÇÕES</button>
+   <div class="header">
+    <h1 class="game-title">🎯 JOGO DE LOCALIZAÇÃO ESPACIAL</h1>
+    <p class="instructions">VAMOS DESCOBRIR ONDE ESTÃO OS OBJETOS! ARRASTE PARA A POSIÇÃO CORRETA.</p>
+   </div>
+   <div class="game-area" id="gameArea">
+    <div class="progress">
+     <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="instruction-text" style="text-align: center; margin-bottom: 20px; font-size: 1.2rem; color: #4169E1;">
+     🎯 COMPLETE TODOS OS 10 DESAFIOS! ARRASTE CADA EMOJI PARA A POSIÇÃO CORRETA.
+    </div>
+    <div class="challenges-container" id="challengesContainer"><!-- Cards dos desafios serão criados aqui -->
+    </div>
+    <div style="text-align: center; margin-top: 20px;"><button class="restart-btn" id="finishBtn" onclick="restartGame()" style="display: none;">🔄 JOGAR NOVAMENTE</button>
+    </div>
+    <div class="loading" id="loading">
+     SALVANDO RESPOSTA... ⏳
+    </div>
+   </div>
+  </div><!-- Modal de Orientações -->
+  <div class="modal-overlay" id="helpModal">
+   <div class="modal-content">
+    <div class="modal-header">
+     <h2 class="modal-title">🎯 COMO JOGAR</h2>
+    </div>
+    <div class="modal-body">
+     <div class="rule-item"><span class="rule-emoji">🎯</span> <strong>O ALVO É SEU AMIGO!</strong><br>
+       O alvo laranja 🎯 sempre fica no centro para te ajudar a se orientar.
+     </div>
+     <div class="rule-item"><span class="rule-emoji">👆</span> <strong>ARRASTE E SOLTE:</strong><br>
+       Clique no emoji colorido e arraste até a posição correta no grid.
+     </div>
+     <div class="rule-item"><span class="rule-emoji">📍</span> <strong>POSIÇÕES:</strong><br>
+       • ACIMA = em cima do alvo 🎯<br>
+       • ABAIXO = embaixo do alvo 🎯<br>
+       • ESQUERDA = do lado esquerdo do alvo 🎯<br>
+       • DIREITA = do lado direito do alvo 🎯
+     </div>
+     <div class="rule-item"><span class="rule-emoji">⭐</span> <strong>DICA ESPECIAL:</strong><br>
+       Use o alvo 🎯 como referência! Ele sempre está no centro para te guiar.
+     </div>
+     <div class="rule-item"><span class="rule-emoji">🏆</span> <strong>OBJETIVO:</strong><br>
+       Coloque cada emoji na posição correta para ganhar pontos!
+     </div>
+    </div><button class="close-modal-btn" onclick="closeHelp()">ENTENDI! VAMOS JOGAR! 🚀</button>
+   </div>
+  </div>
+  <script>
+        // Configuração padrão
+        const defaultConfig = {
+            game_title: "🎯 JOGO DE LOCALIZAÇÃO ESPACIAL",
+            instructions_text: "VAMOS DESCOBRIR ONDE ESTÃO OS OBJETOS! ARRASTE PARA A POSIÇÃO CORRETA.",
+            encouragement_text: "VOCÊ FEZ UM ÓTIMO TRABALHO! CONTINUE PRATICANDO!"
+        };
+
+        // Estado do jogo
+        let score = 0;
+        let childName = '';
+        let gameData = [];
+        let challengeStates = []; // Array para armazenar o estado de cada desafio
+        
+        // Sistema de narração
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        let isSpeaking = false;
+
+        // Perguntas do jogo - 10 desafios
+        const questions = [
+            {
+                type: 'drag',
+                question: 'COLOQUE O 🐱 ACIMA DO ALVO 🎯',
+                emoji: '🐱',
+                correctPosition: 1,
+                correctAnswer: 'ACIMA'
+            },
+            {
+                type: 'drag',
+                question: 'COLOQUE O 🚗 ABAIXO DO ALVO 🎯',
+                emoji: '🚗',
+                correctPosition: 7,
+                correctAnswer: 'ABAIXO'
+            },
+            {
+                type: 'drag',
+                question: 'COLOQUE O 🏠 À ESQUERDA DO ALVO 🎯',
+                emoji: '🏠',
+                correctPosition: 3,
+                correctAnswer: 'ESQUERDA'
+            },
+            {
+                type: 'drag',
+                question: 'COLOQUE A 🌙 À DIREITA DO ALVO 🎯',
+                emoji: '🌙',
+                correctPosition: 5,
+                correctAnswer: 'DIREITA'
+            },
+            {
+                type: 'drag',
+                question: 'COLOQUE A 🌟 ACIMA DO ALVO 🎯',
+                emoji: '🌟',
+                correctPosition: 1,
+                correctAnswer: 'ACIMA'
+            },
+            {
+                type: 'drag',
+                question: 'COLOQUE O 🎈 ABAIXO DO ALVO 🎯',
+                emoji: '🎈',
+                correctPosition: 7,
+                correctAnswer: 'ABAIXO'
+            },
+            {
+                type: 'drag',
+                question: 'COLOQUE A 🦋 À ESQUERDA DO ALVO 🎯',
+                emoji: '🦋',
+                correctPosition: 3,
+                correctAnswer: 'ESQUERDA'
+            },
+            {
+                type: 'drag',
+                question: 'COLOQUE O 🌺 À DIREITA DO ALVO 🎯',
+                emoji: '🌺',
+                correctPosition: 5,
+                correctAnswer: 'DIREITA'
+            },
+            {
+                type: 'drag',
+                question: 'COLOQUE O 🐸 ACIMA DO ALVO 🎯',
+                emoji: '🐸',
+                correctPosition: 1,
+                correctAnswer: 'ACIMA'
+            },
+            {
+                type: 'drag',
+                question: 'COLOQUE O 🎁 ABAIXO DO ALVO 🎯',
+                emoji: '🎁',
+                correctPosition: 7,
+                correctAnswer: 'ABAIXO'
+            }
+        ];
+
+        // Handler para o Data SDK
+        const dataHandler = {
+            onDataChanged(data) {
+                gameData = data;
+            }
+        };
+
+        // Inicialização
+        async function init() {
+            if (window.dataSdk) {
+                const result = await window.dataSdk.init(dataHandler);
+                if (!result.isOk) {
+                    console.error('Erro ao inicializar Data SDK');
+                }
+            }
+
+            if (window.elementSdk) {
+                window.elementSdk.init({
+                    defaultConfig,
+                    onConfigChange: async (config) => {
+                        document.querySelector('.game-title').textContent = config.game_title || defaultConfig.game_title;
+                        document.querySelector('.instructions').textContent = config.instructions_text || defaultConfig.instructions_text;
+                        document.querySelector('.encouragement').textContent = config.encouragement_text || defaultConfig.encouragement_text;
+                    },
+                    mapToCapabilities: (config) => ({
+                        recolorables: [
+                            {
+                                get: () => config.background_color || '#87CEEB',
+                                set: (value) => {
+                                    config.background_color = value;
+                                    window.elementSdk.setConfig({ background_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.primary_color || '#2E8B57',
+                                set: (value) => {
+                                    config.primary_color = value;
+                                    window.elementSdk.setConfig({ primary_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.accent_color || '#32CD32',
+                                set: (value) => {
+                                    config.accent_color = value;
+                                    window.elementSdk.setConfig({ accent_color: value });
+                                }
+                            }
+                        ],
+                        borderables: [],
+                        fontEditable: {
+                            get: () => config.font_family || 'Comic Sans MS',
+                            set: (value) => {
+                                config.font_family = value;
+                                window.elementSdk.setConfig({ font_family: value });
+                            }
+                        },
+                        fontSizeable: {
+                            get: () => config.font_size || 16,
+                            set: (value) => {
+                                config.font_size = value;
+                                window.elementSdk.setConfig({ font_size: value });
+                            }
+                        }
+                    }),
+                    mapToEditPanelValues: (config) => new Map([
+                        ['game_title', config.game_title || defaultConfig.game_title],
+                        ['instructions_text', config.instructions_text || defaultConfig.instructions_text],
+                        ['encouragement_text', config.encouragement_text || defaultConfig.encouragement_text]
+                    ])
+                });
+            }
+        }
+
+        function startGame() {
+            childName = 'Jogador'; // Nome padrão
+            
+            score = 0;
+            challengeStates = questions.map(() => ({ completed: false, correct: false, startTime: null }));
+            createAllChallenges();
+        }
+
+        function createAllChallenges() {
+            const container = document.getElementById('challengesContainer');
+            container.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const challengeCard = document.createElement('div');
+                challengeCard.className = 'challenge-card';
+                challengeCard.id = `challenge-${index}`;
+                
+                challengeCard.innerHTML = `
+                    <div class="challenge-number" id="number-${index}">${index + 1}</div>
+                    <div class="question-text">${question.question}</div>
+                    <div class="instruction-text" style="font-size: 1rem; color: #666; text-align: center; margin-bottom: 15px;">
+                        ARRASTE O EMOJI PARA A POSIÇÃO CORRETA
+                    </div>
+                    
+                    <div class="drag-area" style="text-align: center; margin-bottom: 20px;">
+                        <div class="draggable-emoji" id="emoji-${index}" draggable="true" data-challenge="${index}">
+                            ${question.emoji}
+                        </div>
+                    </div>
+                    
+                    <div class="spatial-grid" id="grid-${index}" data-challenge="${index}"></div>
+                `;
+                
+                container.appendChild(challengeCard);
+                
+                // Criar grid para este desafio
+                createGrid(index);
+                
+                // Configurar eventos de drag para este emoji
+                setupDragEventsForChallenge(index);
+            });
+            
+            // Marcar primeiro desafio como atual
+            document.getElementById('challenge-0').classList.add('current');
+            document.getElementById('number-0').classList.add('current');
+        }
+
+        function createGrid(challengeIndex) {
+            const grid = document.getElementById(`grid-${challengeIndex}`);
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 9; i++) {
+                const cellDiv = document.createElement('div');
+                cellDiv.className = 'grid-cell';
+                cellDiv.dataset.position = i;
+                cellDiv.dataset.challenge = challengeIndex;
+                
+                // Ocultar células dos cantos (posições 0, 2, 6, 8)
+                if (i === 0 || i === 2 || i === 6 || i === 8) {
+                    cellDiv.classList.add('corner');
+                }
+                
+                // Marcar posição central como ponto de referência
+                if (i === 4) {
+                    cellDiv.classList.add('reference-point');
+                    cellDiv.style.pointerEvents = 'none';
+                } else {
+                    // Adicionar eventos de drop apenas nas células válidas
+                    cellDiv.addEventListener('dragover', handleDragOver);
+                    cellDiv.addEventListener('drop', handleDrop);
+                    cellDiv.addEventListener('dragleave', handleDragLeave);
+                }
+                
+                grid.appendChild(cellDiv);
+            }
+        }
+
+        function setupDragEventsForChallenge(challengeIndex) {
+            const draggableEmoji = document.getElementById(`emoji-${challengeIndex}`);
+            
+            draggableEmoji.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', challengeIndex.toString());
+                draggableEmoji.classList.add('dragging');
+                challengeStates[challengeIndex].startTime = Date.now();
+            });
+            
+            draggableEmoji.addEventListener('dragend', () => {
+                draggableEmoji.classList.remove('dragging');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            if (!e.currentTarget.classList.contains('corner')) {
+                e.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const cell = e.currentTarget;
+            
+            if (cell.classList.contains('corner')) return;
+            
+            cell.classList.remove('drag-over');
+            
+            const challengeIndex = parseInt(e.dataTransfer.getData('text/plain'));
+            const question = questions[challengeIndex];
+            const grid = document.getElementById(`grid-${challengeIndex}`);
+            
+            // Limpar outros emojis do grid deste desafio
+            grid.querySelectorAll('.grid-cell').forEach(c => {
+                if (c.textContent && c.textContent !== '🎯') {
+                    c.textContent = '';
+                    c.classList.remove('has-emoji');
+                }
+            });
+            
+            // Adicionar emoji na célula
+            cell.textContent = question.emoji;
+            cell.classList.add('has-emoji');
+            
+            // Ocultar emoji arrastável
+            document.getElementById(`emoji-${challengeIndex}`).style.display = 'none';
+            
+            // Salvar resposta
+            const position = parseInt(cell.dataset.position);
+            const positionName = getPositionName(position);
+            const isCorrect = position === question.correctPosition;
+            const responseTime = Date.now() - challengeStates[challengeIndex].startTime;
+            
+            // Atualizar estado do desafio
+            challengeStates[challengeIndex].completed = true;
+            challengeStates[challengeIndex].correct = isCorrect;
+            
+            // Atualizar visual do card
+            const challengeCard = document.getElementById(`challenge-${challengeIndex}`);
+            const challengeNumber = document.getElementById(`number-${challengeIndex}`);
+            
+            challengeCard.classList.remove('current');
+            challengeCard.classList.add('completed');
+            challengeNumber.classList.remove('current');
+            challengeNumber.classList.add('completed');
+            
+            if (isCorrect) {
+                score++;
+            }
+            
+            // Salvar dados
+            saveQuestionData(question, positionName, isCorrect, responseTime, challengeIndex);
+            
+            // Atualizar progresso
+            updateProgress();
+            
+            // Verificar se todos os desafios foram completados
+            checkGameCompletion();
+        }
+
+        function getPositionName(position) {
+            const positionMap = {
+                1: 'ACIMA',
+                3: 'ESQUERDA',
+                4: 'CENTRO',
+                5: 'DIREITA',
+                7: 'ABAIXO'
+            };
+            return positionMap[position] || 'DESCONHECIDA';
+        }
+
+
+
+        function updateProgress() {
+            const completedChallenges = challengeStates.filter(state => state.completed).length;
+            const progress = (completedChallenges / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function checkGameCompletion() {
+            const allCompleted = challengeStates.every(state => state.completed);
+            if (allCompleted) {
+                document.getElementById('finishBtn').style.display = 'inline-block';
+                // Scroll para o botão final
+                document.getElementById('finishBtn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        async function saveQuestionData(question, answer, isCorrect, responseTime, challengeIndex) {
+            if (!window.dataSdk) return;
+            
+            document.getElementById('loading').style.display = 'block';
+            
+            const data = {
+                child_name: childName,
+                question_number: challengeIndex + 1,
+                question_type: question.type,
+                answer_given: answer,
+                correct_answer: question.correctAnswer,
+                is_correct: isCorrect,
+                response_time: responseTime,
+                timestamp: new Date().toISOString()
+            };
+            
+            const result = await window.dataSdk.create(data);
+            
+            document.getElementById('loading').style.display = 'none';
+            
+            if (!result.isOk) {
+                console.error('Erro ao salvar dados:', result.error);
+            }
+        }
+
+
+
+        function restartGame() {
+            score = 0;
+            challengeStates = [];
+            document.getElementById('finishBtn').style.display = 'none';
+            document.getElementById('progressBar').style.width = '0%';
+            startGame();
+        }
+
+        // Função para voltar à página anterior
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, mostra uma mensagem amigável
+                const confirmMessage = document.createElement('div');
+                confirmMessage.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: #FFE4B5;
+                    border: 3px solid #FF8C00;
+                    border-radius: 15px;
+                    padding: 20px;
+                    text-align: center;
+                    font-size: 1.2rem;
+                    color: #333;
+                    z-index: 1001;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                `;
+                confirmMessage.innerHTML = `
+                    <div style="margin-bottom: 15px;">📱 NÃO HÁ PÁGINA ANTERIOR</div>
+                    <div style="font-size: 1rem; margin-bottom: 15px;">Você já está na primeira página!</div>
+                    <button onclick="this.parentElement.remove()" style="background: #32CD32; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">OK</button>
+                `;
+                document.body.appendChild(confirmMessage);
+                
+                setTimeout(() => {
+                    if (confirmMessage.parentElement) {
+                        confirmMessage.remove();
+                    }
+                }, 3000);
+            }
+        }
+
+        // Função para alternar narração das orientações
+        function toggleSpeech() {
+            const helpBtn = document.getElementById('helpBtn');
+            
+            if (isSpeaking) {
+                // Pausar/parar a narração
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                helpBtn.classList.remove('speaking');
+                helpBtn.innerHTML = '🔊 ORIENTAÇÕES';
+            } else {
+                // Iniciar narração
+                startSpeech();
+            }
+        }
+
+        function startSpeech() {
+            const helpBtn = document.getElementById('helpBtn');
+            
+            // Texto das orientações de forma prática e fácil
+            const instructionText = `
+                Olá! Vou te explicar como jogar o jogo de localização espacial de forma bem fácil!
+                
+                Primeiro, você vai ver um alvo laranja no centro da tela. Esse alvo é seu amigo e sempre vai te ajudar!
+                
+                Você precisa arrastar os emojis coloridos para as posições corretas. É muito simples:
+                
+                Quando eu disser "coloque acima do alvo", você arrasta o emoji para cima do alvo laranja.
+                
+                Quando eu disser "coloque abaixo do alvo", você arrasta para baixo do alvo.
+                
+                Para a esquerda, você arrasta para o lado esquerdo do alvo.
+                
+                Para a direita, você arrasta para o lado direito do alvo.
+                
+                É só clicar no emoji, segurar e arrastar até a posição certa!
+                
+                O alvo laranja sempre fica no centro para te orientar. Use ele como referência!
+                
+                São 10 desafios divertidos para você completar. Não se preocupe se errar, o importante é se divertir e aprender!
+                
+                Agora você já sabe como jogar! Divirta-se!
+            `;
+
+            // Criar utterance para fala
+            currentUtterance = new SpeechSynthesisUtterance(instructionText);
+            
+            // Configurar voz em português brasileiro
+            const voices = speechSynthesis.getVoices();
+            const portugueseVoice = voices.find(voice => 
+                voice.lang.includes('pt-BR') || voice.lang.includes('pt')
+            );
+            
+            if (portugueseVoice) {
+                currentUtterance.voice = portugueseVoice;
+            }
+            
+            // Configurações da voz
+            currentUtterance.rate = 0.8; // Velocidade mais lenta para crianças
+            currentUtterance.pitch = 1.1; // Tom um pouco mais agudo
+            currentUtterance.volume = 1.0; // Volume máximo
+            
+            // Eventos da narração
+            currentUtterance.onstart = function() {
+                isSpeaking = true;
+                helpBtn.classList.add('speaking');
+                helpBtn.innerHTML = '⏸️ PAUSAR';
+            };
+            
+            currentUtterance.onend = function() {
+                isSpeaking = false;
+                helpBtn.classList.remove('speaking');
+                helpBtn.innerHTML = '🔊 ORIENTAÇÕES';
+            };
+            
+            currentUtterance.onerror = function() {
+                isSpeaking = false;
+                helpBtn.classList.remove('speaking');
+                helpBtn.innerHTML = '🔊 ORIENTAÇÕES';
+                
+                // Fallback: mostrar modal se a voz não funcionar
+                showHelpModal();
+            };
+            
+            // Iniciar a narração
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        // Função para mostrar modal (fallback)
+        function showHelpModal() {
+            document.getElementById('helpModal').style.display = 'flex';
+        }
+
+        // Função para fechar orientações
+        function closeHelp() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+
+        // Fechar modal clicando fora dele
+        document.getElementById('helpModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeHelp();
+            }
+        });
+
+        // Inicializar quando a página carregar
+        window.addEventListener('load', () => {
+            init();
+            startGame();
+            
+            // Garantir que as vozes estejam carregadas
+            if (speechSynthesis.getVoices().length === 0) {
+                speechSynthesis.addEventListener('voiceschanged', function() {
+                    // Vozes carregadas
+                });
+            }
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'998e6612879b8b1d',t:'MTc2MjE5OTQwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
