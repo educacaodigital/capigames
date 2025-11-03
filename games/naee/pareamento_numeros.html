@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔢PAREAMENTO DOS NÚMEROS</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 50%, #FECFEF 100%);
+            min-height: 100%;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .game-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #E91E63;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .instructions {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #9C27B0;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #F3E5F5;
+            border-radius: 10px;
+            border: 2px solid #CE93D8;
+        }
+
+        .game-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #E91E63;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .numbers-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px;
+            background: #FFF3E0;
+            border-radius: 15px;
+            border: 3px solid #FFB74D;
+            min-height: 80px;
+        }
+
+        .number {
+            width: 60px;
+            height: 60px;
+            background: #81C784;
+            border: 3px solid #4CAF50;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1B5E20;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .number:hover {
+            transform: scale(1.1);
+            background: #A5D6A7;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .number.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .drop-zone {
+            width: 60px;
+            height: 60px;
+            border: 3px dashed #FF9800;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFF8E1;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .drop-zone.drag-over {
+            background: #FFCC02;
+            border-color: #FF8F00;
+            transform: scale(1.05);
+        }
+
+        .drop-zone.filled {
+            border-style: solid;
+            border-color: #4CAF50;
+            background: #E8F5E8;
+        }
+
+        .drop-zone.correct {
+            border-color: #2E7D32;
+            background: #C8E6C9;
+            animation: correctMatch 0.6s ease-in-out;
+        }
+
+        @keyframes correctMatch {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .scrambled-container {
+            background: #E1F5FE;
+            border: 3px solid #29B6F6;
+        }
+
+        .scrambled-container .number {
+            background: #64B5F6;
+            border-color: #2196F3;
+            color: #0D47A1;
+        }
+
+        .scrambled-container .number:hover {
+            background: #90CAF9;
+        }
+
+        .matching-area {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            padding: 20px;
+            background: #F9FBE7;
+            border-radius: 15px;
+            border: 3px solid #8BC34A;
+        }
+
+        .practice-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px;
+            background: #FFF9C4;
+            border-radius: 15px;
+            border: 3px solid #FFC107;
+            min-height: 100px;
+        }
+
+        .practice-drop-zone {
+            width: 60px;
+            height: 60px;
+            border: 3px dashed #FFC107;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFFDE7;
+            transition: all 0.3s ease;
+        }
+
+        .practice-drop-zone.drag-over {
+            background: #FFEB3B;
+            border-color: #FF8F00;
+            transform: scale(1.05);
+        }
+
+        .practice-drop-zone.filled {
+            border-style: solid;
+            border-color: #FFC107;
+            background: #FFF8E1;
+        }
+
+        .practice-drop-zone .number {
+            background: #FFD54F;
+            border-color: #FFC107;
+            color: #E65100;
+        }
+
+        .practice-drop-zone .number:hover {
+            background: #FFECB3;
+        }
+
+        .number-pair {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .number-label {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #388E3C;
+            margin-bottom: 5px;
+        }
+
+        .success-message {
+            text-align: center;
+            font-size: 2rem;
+            color: #4CAF50;
+            margin: 20px 0;
+            padding: 20px;
+            background: #E8F5E8;
+            border-radius: 15px;
+            border: 3px solid #4CAF50;
+            display: none;
+            animation: celebration 0.6s ease-in-out;
+        }
+
+        @keyframes celebration {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .reset-button {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: #FF5722;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .reset-button:hover {
+            background: #E64A19;
+            transform: scale(1.05);
+        }
+
+        .back-button {
+            display: block;
+            margin: 10px auto;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: #9C27B0;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background: #7B1FA2;
+            transform: scale(1.05);
+        }
+
+        .audio-button {
+            display: block;
+            margin: 10px auto 20px auto;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .audio-button:hover {
+            background: #1976D2;
+            transform: scale(1.05);
+        }
+
+        .audio-button:disabled {
+            background: #808080;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #E0E0E0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .number, .drop-zone, .practice-drop-zone {
+                width: 50px;
+                height: 50px;
+                font-size: 1.6rem;
+            }
+            
+            .matching-area {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <main class="game-container"><button class="audio-button" onclick="playInstructions()">💬 OUVIR INSTRUÇÕES</button>
+   <h1 class="game-title" id="gameTitle">🔢 Jogo de Pareamento de Números</h1>
+   <div class="instructions" id="instructions">
+    Arraste os números para fazer o pareamento correto de 0 a 9! 🎯✨
+   </div>
+   <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+   </div><!-- Números de referência -->
+   <div class="game-section">
+    <div class="section-title">
+     📚 NÚMEROS DE REFERÊNCIA (0-9)
+    </div>
+    <div class="numbers-container" id="referenceNumbers"></div>
+   </div><!-- Área de pareamento -->
+   <div class="game-section">
+    <div class="section-title">
+     🎯 ÁREA DE PAREAMENTO
+    </div>
+    <div class="matching-area" id="matchingArea"></div>
+   </div><!-- Números embaralhados -->
+   <div class="game-section">
+    <div class="section-title">
+     🔀 NÚMEROS EMBARALHADOS
+    </div>
+    <div class="numbers-container scrambled-container" id="scrambledNumbers"></div>
+   </div><!-- Área de prática livre -->
+   <div class="game-section">
+    <div class="section-title">
+     ✏️ ÁREA DE PRÁTICA LIVRE
+    </div>
+    <div class="practice-area" id="practiceArea"></div>
+   </div>
+   <div class="success-message" id="successMessage">
+    🎉 PARABÉNS! VOCÊ COMPLETOU TODOS OS PAREAMENTOS! 🎉
+   </div>
+   <div class="success-message" id="practiceSuccessMessage">
+    🌟 EXCELENTE! VOCÊ ORGANIZOU OS NÚMEROS NA ÁREA DE PRÁTICA! 🌟
+   </div><button class="reset-button" onclick="resetGame()">🔄 JOGAR NOVAMENTE</button> <button class="back-button" onclick="goBack()">⬅️ VOLTAR</button>
+  </main>
+  <script>
+        const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let draggedElement = null;
+        let correctMatches = 0;
+
+        const defaultConfig = {
+            game_title: "🔢 JOGO DE PAREAMENTO DE NÚMEROS",
+            instruction_text: "ARRASTE OS NÚMEROS PARA FAZER O PAREAMENTO CORRETO DE 0 A 9! 🎯✨",
+            success_message: "🎉 PARABÉNS! VOCÊ COMPLETOU TODOS OS PAREAMENTOS! 🎉"
+        };
+
+        function initializeGame() {
+            createReferenceNumbers();
+            createMatchingArea();
+            createPracticeArea();
+            createScrambledNumbers();
+            updateProgress();
+        }
+
+        function createReferenceNumbers() {
+            const container = document.getElementById('referenceNumbers');
+            container.innerHTML = '';
+            
+            numbers.forEach(number => {
+                const numberElement = document.createElement('div');
+                numberElement.className = 'number';
+                numberElement.textContent = number;
+                numberElement.draggable = true;
+                numberElement.dataset.number = number;
+                numberElement.dataset.fromReference = 'true';
+                
+                numberElement.addEventListener('dragstart', handleDragStart);
+                numberElement.addEventListener('dragend', handleDragEnd);
+                numberElement.addEventListener('click', () => speakNumber(number));
+                
+                container.appendChild(numberElement);
+            });
+        }
+
+        function createMatchingArea() {
+            const container = document.getElementById('matchingArea');
+            container.innerHTML = '';
+            
+            numbers.forEach(number => {
+                const pairContainer = document.createElement('div');
+                pairContainer.className = 'number-pair';
+                
+                const label = document.createElement('div');
+                label.className = 'number-label';
+                label.textContent = `Número ${number}`;
+                
+                const dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.dataset.expectedNumber = number;
+                dropZone.dataset.areaType = 'matching';
+                
+                dropZone.addEventListener('dragover', handleDragOver);
+                dropZone.addEventListener('drop', handleDrop);
+                dropZone.addEventListener('dragleave', handleDragLeave);
+                
+                pairContainer.appendChild(label);
+                pairContainer.appendChild(dropZone);
+                container.appendChild(pairContainer);
+            });
+        }
+
+        function createPracticeArea() {
+            const container = document.getElementById('practiceArea');
+            container.innerHTML = '';
+            
+            // Cria 10 espaços para prática livre
+            for (let i = 0; i < 10; i++) {
+                const dropZone = document.createElement('div');
+                dropZone.className = 'practice-drop-zone';
+                dropZone.dataset.position = i;
+                dropZone.dataset.areaType = 'practice';
+                
+                dropZone.addEventListener('dragover', handleDragOver);
+                dropZone.addEventListener('drop', handleDropPractice);
+                dropZone.addEventListener('dragleave', handleDragLeave);
+                
+                container.appendChild(dropZone);
+            }
+        }
+
+        function createScrambledNumbers() {
+            const container = document.getElementById('scrambledNumbers');
+            container.innerHTML = '';
+            
+            const scrambledNumbers = [...numbers].sort(() => Math.random() - 0.5);
+            
+            scrambledNumbers.forEach(number => {
+                const numberElement = document.createElement('div');
+                numberElement.className = 'number';
+                numberElement.textContent = number;
+                numberElement.draggable = true;
+                numberElement.dataset.number = number;
+                
+                numberElement.addEventListener('dragstart', handleDragStart);
+                numberElement.addEventListener('dragend', handleDragEnd);
+                numberElement.addEventListener('click', () => speakNumber(number));
+                
+                container.appendChild(numberElement);
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedElement = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.target.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.target.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            
+            if (!draggedElement) return;
+            
+            const dropZone = e.target;
+            const expectedNumber = parseInt(dropZone.dataset.expectedNumber);
+            const droppedNumber = parseInt(draggedElement.dataset.number);
+            
+            // Se a zona já está ocupada, não faz nada
+            if (dropZone.classList.contains('filled')) return;
+            
+            // Cria uma cópia do número na zona de drop
+            const numberCopy = draggedElement.cloneNode(true);
+            numberCopy.draggable = true;
+            numberCopy.classList.remove('dragging');
+            numberCopy.dataset.fromMatching = 'true';
+            
+            // Adiciona eventos para poder mover dentro da área de pareamento
+            numberCopy.addEventListener('dragstart', handleDragStart);
+            numberCopy.addEventListener('dragend', handleDragEnd);
+            numberCopy.addEventListener('click', () => speakNumber(droppedNumber));
+            
+            dropZone.appendChild(numberCopy);
+            dropZone.classList.add('filled');
+            
+            // Verifica se o pareamento está correto
+            if (expectedNumber === droppedNumber) {
+                dropZone.classList.add('correct');
+                correctMatches++;
+                updateProgress();
+                
+                // Verifica se o jogo foi completado
+                if (correctMatches === numbers.length) {
+                    setTimeout(showSuccess, 500);
+                }
+            }
+            
+            // Remove o número original APENAS se não veio da referência
+            if (!draggedElement.dataset.fromReference && !draggedElement.dataset.fromMatching) {
+                draggedElement.remove();
+            } else if (draggedElement.dataset.fromMatching) {
+                // Se veio da área de pareamento, limpa a zona anterior
+                const previousZone = draggedElement.parentNode;
+                if (previousZone.classList.contains('drop-zone')) {
+                    previousZone.classList.remove('filled', 'correct');
+                    previousZone.innerHTML = '';
+                    
+                    // Recalcula os acertos após mover um número
+                    recalculateCorrectMatches();
+                }
+            }
+        }
+
+        function handleDropPractice(e) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            
+            if (!draggedElement) return;
+            
+            const dropZone = e.target;
+            
+            // Se a zona já está ocupada, não faz nada
+            if (dropZone.classList.contains('filled')) return;
+            
+            // Na área de prática, aceita qualquer número em qualquer posição
+            const numberCopy = draggedElement.cloneNode(true);
+            numberCopy.draggable = true;
+            numberCopy.classList.remove('dragging');
+            numberCopy.dataset.fromPractice = 'true';
+            
+            // Adiciona eventos para poder mover dentro da área de prática
+            numberCopy.addEventListener('dragstart', handleDragStart);
+            numberCopy.addEventListener('dragend', handleDragEnd);
+            numberCopy.addEventListener('click', () => speakNumber(parseInt(draggedElement.dataset.number)));
+            
+            dropZone.appendChild(numberCopy);
+            dropZone.classList.add('filled');
+            
+            // Remove o número original apenas se não veio da referência ou de outras áreas
+            if (!draggedElement.dataset.fromReference && !draggedElement.dataset.fromMatching && !draggedElement.dataset.fromPractice) {
+                draggedElement.remove();
+            } else if (draggedElement.dataset.fromPractice) {
+                // Se veio da área de prática, limpa a zona anterior
+                const previousZone = draggedElement.parentNode;
+                if (previousZone.classList.contains('practice-drop-zone')) {
+                    previousZone.classList.remove('filled');
+                    previousZone.innerHTML = '';
+                }
+            } else if (draggedElement.dataset.fromMatching) {
+                // Se veio da área de pareamento, limpa a zona anterior
+                const previousZone = draggedElement.parentNode;
+                if (previousZone.classList.contains('drop-zone')) {
+                    previousZone.classList.remove('filled', 'correct');
+                    previousZone.innerHTML = '';
+                    recalculateCorrectMatches();
+                }
+            }
+            
+            // Verifica se completou a sequência na área de prática (opcional)
+            checkPracticeCompletion();
+        }
+
+        function recalculateCorrectMatches() {
+            const matchingArea = document.getElementById('matchingArea');
+            const filledZones = matchingArea.querySelectorAll('.drop-zone.filled');
+            
+            correctMatches = 0;
+            filledZones.forEach(zone => {
+                const expectedNumber = parseInt(zone.dataset.expectedNumber);
+                const placedNumber = zone.querySelector('.number');
+                if (placedNumber && parseInt(placedNumber.textContent) === expectedNumber) {
+                    zone.classList.add('correct');
+                    correctMatches++;
+                } else {
+                    zone.classList.remove('correct');
+                }
+            });
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const percentage = (correctMatches / numbers.length) * 100;
+            progressFill.style.width = percentage + '%';
+        }
+
+        function checkPracticeCompletion() {
+            const practiceArea = document.getElementById('practiceArea');
+            const filledZones = practiceArea.querySelectorAll('.practice-drop-zone.filled');
+            
+            // Verifica se todos os 10 espaços estão preenchidos
+            if (filledZones.length === 10) {
+                // Verifica se estão em ordem numérica (0-9)
+                let isCorrectOrder = true;
+                const placedNumbers = [];
+                
+                filledZones.forEach(zone => {
+                    const number = zone.querySelector('.number').textContent;
+                    placedNumbers.push(parseInt(number));
+                });
+                
+                // Verifica se os números estão em ordem crescente (0,1,2,3,4,5,6,7,8,9)
+                for (let i = 0; i < placedNumbers.length; i++) {
+                    if (placedNumbers[i] !== i) {
+                        isCorrectOrder = false;
+                        break;
+                    }
+                }
+                
+                if (isCorrectOrder) {
+                    setTimeout(showPracticeSuccess, 500);
+                }
+            }
+        }
+
+        function showSuccess() {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'block';
+            
+            // Adiciona confetes visuais
+            createConfetti();
+        }
+
+        function showPracticeSuccess() {
+            const practiceSuccessMessage = document.getElementById('practiceSuccessMessage');
+            practiceSuccessMessage.style.display = 'block';
+            
+            // Adiciona confetes visuais
+            createConfetti();
+            
+            // Esconde a mensagem após alguns segundos
+            setTimeout(() => {
+                practiceSuccessMessage.style.display = 'none';
+            }, 4000);
+        }
+
+        function createConfetti() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98FB98'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.pointerEvents = 'none';
+                    confetti.style.zIndex = '1000';
+                    confetti.style.animation = 'fall 3s linear forwards';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 100);
+            }
+        }
+
+        function resetGame() {
+            correctMatches = 0;
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('practiceSuccessMessage').style.display = 'none';
+            initializeGame();
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                const tempMessage = document.createElement('div');
+                tempMessage.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: #2196F3;
+                    color: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    font-size: 1.2rem;
+                    z-index: 1000;
+                    text-align: center;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                `;
+                tempMessage.textContent = 'Não há página anterior para voltar!';
+                document.body.appendChild(tempMessage);
+                
+                setTimeout(() => tempMessage.remove(), 3000);
+            }
+        }
+
+        let isPlaying = false;
+        let currentUtterance = null;
+
+        function speakNumber(number) {
+            // Para qualquer fala anterior
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+            }
+            
+            const numberNames = {
+                0: "ZERO",
+                1: "UM",
+                2: "DOIS", 
+                3: "TRÊS",
+                4: "QUATRO",
+                5: "CINCO",
+                6: "SEIS",
+                7: "SETE",
+                8: "OITO",
+                9: "NOVE"
+            };
+            
+            const numberText = numberNames[number] || number.toString();
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(numberText);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.2;
+                utterance.volume = 1;
+                
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        function playInstructions() {
+            const audioButton = document.querySelector('.audio-button');
+            
+            if (isPlaying) {
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                }
+                isPlaying = false;
+                audioButton.disabled = false;
+                audioButton.textContent = '💬 OUVIR INSTRUÇÕES';
+                return;
+            }
+            
+            isPlaying = true;
+            audioButton.disabled = false;
+            audioButton.textContent = '❌ PARAR ÁUDIO';
+            
+            const instructionsText = `
+                BEM-VINDOS AO JOGO DE PAREAMENTO DE NÚMEROS! 
+                ESTE JOGO VAI AJUDAR VOCÊ A APRENDER OS NÚMEROS DE 0 A 9 DE FORMA DIVERTIDA.
+                
+                VAMOS EXPLICAR COMO JOGAR:
+                
+                PRIMEIRO: OLHE OS NÚMEROS DE REFERÊNCIA NO TOPO. ELES MOSTRAM TODOS OS NÚMEROS DE 0 A 9. CLIQUE EM QUALQUER NÚMERO PARA OUVIR SEU NOME!
+                
+                SEGUNDO: NA ÁREA DE PAREAMENTO, VOCÊ VERÁ ESPAÇOS COM RÓTULOS COMO "NÚMERO 0", "NÚMERO 1", E ASSIM POR DIANTE.
+                
+                TERCEIRO: USE OS NÚMEROS EMBARALHADOS PARA ARRASTAR E FAZER O PAREAMENTO CORRETO. VOCÊ TAMBÉM PODE CLICAR NOS NÚMEROS PARA OUVIR SEUS NOMES.
+                
+                QUARTO: NA ÁREA DE PRÁTICA LIVRE, VOCÊ PODE TREINAR ORGANIZANDO OS NÚMEROS LIVREMENTE. OS NÚMEROS FICAM AMARELOS QUANDO COLOCADOS NA ÁREA DE PRÁTICA.
+                
+                PARA JOGAR: CLIQUE E ARRASTE UM NÚMERO PARA O ESPAÇO DESEJADO. POR EXEMPLO, ARRASTE O NÚMERO 5 PARA O ESPAÇO "NÚMERO 5" NA ÁREA DE PAREAMENTO, OU PARA QUALQUER POSIÇÃO NA ÁREA DE PRÁTICA.
+                
+                DICA ESPECIAL: CLIQUE EM QUALQUER NÚMERO PARA OUVIR SEU NOME EM VOZ ALTA! ISSO VAI AJUDAR VOCÊ A APRENDER MELHOR.
+                
+                QUANDO VOCÊ FIZER UM PAREAMENTO CORRETO NA ÁREA PRINCIPAL, O ESPAÇO FICARÁ VERDE E VOCÊ VERÁ UMA ANIMAÇÃO.
+                
+                QUANDO COMPLETAR TODOS OS PAREAMENTOS CORRETAMENTE, VOCÊ VERÁ CONFETES E UMA MENSAGEM DE PARABÉNS!
+                
+                AGORA É SUA VEZ! BOA SORTE E DIVIRTA-SE APRENDENDO OS NÚMEROS!
+            `;
+            
+            if ('speechSynthesis' in window) {
+                currentUtterance = new SpeechSynthesisUtterance(instructionsText);
+                currentUtterance.lang = 'pt-BR';
+                currentUtterance.rate = 0.8;
+                currentUtterance.pitch = 1.1;
+                currentUtterance.volume = 1;
+                
+                currentUtterance.onend = function() {
+                    isPlaying = false;
+                    audioButton.disabled = false;
+                    audioButton.textContent = '💬 OUVIR INSTRUÇÕES';
+                    currentUtterance = null;
+                };
+                
+                currentUtterance.onerror = function() {
+                    isPlaying = false;
+                    audioButton.disabled = false;
+                    audioButton.textContent = '💬 OUVIR INSTRUÇÕES';
+                    currentUtterance = null;
+                    
+                    const tempMessage = document.createElement('div');
+                    tempMessage.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: #FF6B6B;
+                        color: white;
+                        padding: 20px;
+                        border-radius: 10px;
+                        font-size: 1.2rem;
+                        z-index: 1000;
+                        text-align: center;
+                    `;
+                    tempMessage.textContent = 'ÁUDIO NÃO DISPONÍVEL NO SEU NAVEGADOR';
+                    document.body.appendChild(tempMessage);
+                    
+                    setTimeout(() => tempMessage.remove(), 3000);
+                };
+                
+                speechSynthesis.speak(currentUtterance);
+            } else {
+                isPlaying = false;
+                audioButton.disabled = false;
+                audioButton.textContent = '💬 OUVIR INSTRUÇÕES';
+                
+                const tempMessage = document.createElement('div');
+                tempMessage.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: #FF6B6B;
+                    color: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    font-size: 1.2rem;
+                    z-index: 1000;
+                    text-align: center;
+                `;
+                tempMessage.textContent = 'ÁUDIO NÃO DISPONÍVEL NO SEU NAVEGADOR';
+                document.body.appendChild(tempMessage);
+                
+                setTimeout(() => tempMessage.remove(), 3000);
+            }
+        }
+
+        // Adiciona animação de queda para confetes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // SDK Configuration
+        async function onConfigChange(config) {
+            const gameTitle = document.getElementById('gameTitle');
+            const instructions = document.getElementById('instructions');
+            const successMessage = document.getElementById('successMessage');
+            
+            gameTitle.textContent = config.game_title || defaultConfig.game_title;
+            instructions.textContent = config.instruction_text || defaultConfig.instruction_text;
+            successMessage.textContent = config.success_message || defaultConfig.success_message;
+        }
+
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [
+                    {
+                        get: () => config.background_color || "#FF9A9E",
+                        set: (value) => {
+                            config.background_color = value;
+                            window.elementSdk.setConfig({ background_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.number_color || "#81C784",
+                        set: (value) => {
+                            config.number_color = value;
+                            window.elementSdk.setConfig({ number_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.text_color || "#E91E63",
+                        set: (value) => {
+                            config.text_color = value;
+                            window.elementSdk.setConfig({ text_color: value });
+                        }
+                    }
+                ],
+                borderables: [],
+                fontEditable: {
+                    get: () => config.font_family || "Comic Sans MS",
+                    set: (value) => {
+                        config.font_family = value;
+                        window.elementSdk.setConfig({ font_family: value });
+                    }
+                },
+                fontSizeable: {
+                    get: () => config.font_size || 16,
+                    set: (value) => {
+                        config.font_size = value;
+                        window.elementSdk.setConfig({ font_size: value });
+                    }
+                }
+            };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["game_title", config.game_title || defaultConfig.game_title],
+                ["instruction_text", config.instruction_text || defaultConfig.instruction_text],
+                ["success_message", config.success_message || defaultConfig.success_message]
+            ]);
+        }
+
+        // Initialize SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig,
+                onConfigChange,
+                mapToCapabilities,
+                mapToEditPanelValues
+            });
+        }
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'998e767ba4228b1d',t:'MTc2MjIwMDA3OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
