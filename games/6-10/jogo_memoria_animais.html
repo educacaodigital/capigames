@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo da Memória dos Animais</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 20px;
+      height: 100%;
+      font-family: 'Comic Sans MS', Arial, sans-serif;
+      background: linear-gradient(135deg, #065F46 0%, #059669 50%, #10B981 100%);
+      color: white;
+    }
+    
+    html {
+      height: 100%;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+      padding: 15px 20px;
+      border-radius: 20px;
+      margin-bottom: 15px;
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(34, 197, 94, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 8px;
+      gap: 10px;
+    }
+    
+    .back-btn {
+      position: absolute;
+      left: 0;
+      background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+    }
+    
+    .volume-btn {
+      position: absolute;
+      right: 0;
+      background: linear-gradient(45deg, #8B5CF6, #A78BFA);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .volume-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+    }
+    
+    .volume-btn.muted {
+      background: linear-gradient(45deg, #808080, #A9A9A9);
+      box-shadow: 0 4px 12px rgba(128, 128, 128, 0.3);
+    }
+    
+    .instructions-btn {
+      position: absolute;
+      right: 120px;
+      background: linear-gradient(45deg, #F59E0B, #FBBF24);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .instructions-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+    }
+    
+    .instructions-btn.speaking {
+      background: linear-gradient(45deg, #DC2626, #EF4444);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      animation: pulse-speaking 1s infinite;
+    }
+    
+    @keyframes pulse-speaking {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .title {
+      font-size: 2rem;
+      margin: 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      background: linear-gradient(45deg, #22C55E, #4ADE80);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: bold;
+    }
+    
+    .instructions {
+      font-size: 1rem;
+      margin: 0 0 12px 0;
+      opacity: 0.9;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .stats {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+    
+    .stat {
+      background: linear-gradient(45deg, #16A34A, #22C55E);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.2s ease;
+    }
+    
+    .stat:hover {
+      transform: translateY(-2px);
+    }
+    
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      max-width: 700px;
+      margin: 0 auto 20px auto;
+    }
+    
+    .card {
+      aspect-ratio: 1;
+      background: #7C2D12;
+      border: 3px solid #A16207;
+      border-radius: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+    }
+    
+    .card.flipped {
+      background: #FEF3C7;
+    }
+    
+    .card.matched {
+      background: #4ADE80;
+      animation: pulse 0.5s ease-in-out;
+    }
+    
+    .card-back {
+      font-size: 3rem;
+      display: block;
+    }
+    
+    .card-front {
+      display: none;
+      width: 80%;
+      height: 80%;
+    }
+    
+    .card.flipped .card-back {
+      display: none;
+    }
+    
+    .card.flipped .card-front {
+      display: block;
+    }
+    
+    .animal-img {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .animal-name {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(5px);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .controls {
+      margin-top: 20px;
+    }
+    
+    .btn {
+      background: linear-gradient(45deg, #16A34A, #22C55E);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 0 10px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .win-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(45deg, #16A34A, #22C55E);
+      color: white;
+      padding: 40px;
+      border-radius: 20px;
+      font-size: 2rem;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+    }
+    
+    .win-message.show {
+      display: block;
+      animation: popIn 0.5s ease-out;
+    }
+    
+    @keyframes popIn {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    @media (max-width: 600px) {
+      .title { font-size: 2rem; }
+      .game-board { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+      .stats { flex-direction: column; gap: 10px; }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><!-- Áudio de Fundo -->
+  <audio id="backgroundMusic" loop><source src="nature.mp3" type="audio/mpeg">
+  </audio><!-- Imagens dos Animais -->
+  <div style="display: none;"><img id="lion-img" src="lion.jpg" alt="Leão" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="elephant-img" src="elephant.jpg" alt="Elefante" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="giraffe-img" src="giraffe.jpg" alt="Girafa" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="zebra-img" src="zebra.jpg" alt="Zebra" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="monkey-img" src="monkey.jpg" alt="Macaco" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="tiger-img" src="tiger.jpg" alt="Tigre" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="bear-img" src="bear.jpg" alt="Urso" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="rabbit-img" src="rabbit.jpg" alt="Coelho" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';">
+  </div>
+  <div class="container">
+   <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="goBack()">← VOLTAR</button>
+     <h1 class="title" id="gameTitle">🦁 JOGO DA MEMÓRIA DOS ANIMAIS 🐾</h1><button class="volume-btn" id="volumeBtn" onclick="toggleVolume()">🔊 SOM</button> <button class="instructions-btn" id="instructionsBtn" onclick="speakInstructions()">🗣️ INSTRUÇÕES</button>
+    </div>
+    <p class="instructions" id="instructionsText">🌿 ENCONTRE OS PARES DE ANIMAIS DA NATUREZA! 🌿</p>
+    <div class="stats">
+     <div class="stat" id="movesDisplay">
+      JOGADAS: 0
+     </div>
+     <div class="stat" id="pairsDisplay">
+      PARES: 0/8
+     </div>
+    </div>
+   </div>
+   <div class="game-board" id="gameBoard"></div>
+   <div class="controls"><button class="btn" onclick="startNewGame()">🔄 NOVO JOGO</button>
+   </div>
+   <div class="win-message" id="winMessage">
+    <div id="winText">
+     🎉 PARABÉNS! VOCÊ CONHECEU TODOS OS ANIMAIS! 🎉
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#065F46",
+      card_color: "#7C2D12",
+      text_color: "#FFFFFF",
+      button_color: "#16A34A",
+      stat_color: "#22C55E",
+      font_family: "Comic Sans MS",
+      font_size: 16,
+      game_title: "🦁 JOGO DA MEMÓRIA DOS ANIMAIS 🐾",
+      instructions_text: "🌿 ENCONTRE OS PARES DE ANIMAIS DA NATUREZA! 🌿",
+      win_message: "🎉 PARABÉNS! VOCÊ CONHECEU TODOS OS ANIMAIS! 🎉"
+    };
+
+    const animals = [
+      { name: 'Lion', img: 'lion-img' },
+      { name: 'Elephant', img: 'elephant-img' },
+      { name: 'Giraffe', img: 'giraffe-img' },
+      { name: 'Zebra', img: 'zebra-img' },
+      { name: 'Monkey', img: 'monkey-img' },
+      { name: 'Tiger', img: 'tiger-img' },
+      { name: 'Bear', img: 'bear-img' },
+      { name: 'Rabbit', img: 'rabbit-img' }
+    ];
+
+    let gameCards = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let moves = 0;
+    let canFlip = true;
+    let isMuted = false;
+    let backgroundMusic;
+    let speechSynthesis = window.speechSynthesis;
+    let isSpeaking = false;
+
+    function getAnimalNameInPortuguese(englishName) {
+      const translations = {
+        'Lion': 'LEÃO',
+        'Elephant': 'ELEFANTE',
+        'Giraffe': 'GIRAFA',
+        'Zebra': 'ZEBRA',
+        'Monkey': 'MACACO',
+        'Tiger': 'TIGRE',
+        'Bear': 'URSO',
+        'Rabbit': 'COELHO'
+      };
+      return translations[englishName] || englishName;
+    }
+
+    function createGameBoard() {
+      const gameBoard = document.getElementById('gameBoard');
+      gameBoard.innerHTML = '';
+      
+      // Criar pares de animais
+      const cardPairs = [...animals, ...animals];
+      gameCards = cardPairs.sort(() => Math.random() - 0.5);
+      
+      gameCards.forEach((animal, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.index = index;
+        card.dataset.animal = animal.name;
+        
+        // Clonar a imagem
+        const originalImg = document.getElementById(animal.img);
+        const clonedImg = originalImg.cloneNode(true);
+        clonedImg.classList.add('animal-img');
+        clonedImg.removeAttribute('id');
+        clonedImg.style.display = 'block';
+        
+        card.innerHTML = `
+          <div class="card-back">🐾</div>
+          <div class="card-front">
+            <div class="animal-name">${getAnimalNameInPortuguese(animal.name)}</div>
+          </div>
+        `;
+        
+        card.querySelector('.card-front').appendChild(clonedImg);
+        card.addEventListener('click', () => flipCard(card, index));
+        gameBoard.appendChild(card);
+      });
+    }
+
+    function flipCard(card, index) {
+      if (!canFlip || card.classList.contains('flipped') || card.classList.contains('matched')) {
+        return;
+      }
+      
+      card.classList.add('flipped');
+      flippedCards.push({ card, index, animal: card.dataset.animal });
+      
+      if (flippedCards.length === 2) {
+        canFlip = false;
+        moves++;
+        updateStats();
+        
+        setTimeout(checkMatch, 1000);
+      }
+    }
+
+    function checkMatch() {
+      const [first, second] = flippedCards;
+      
+      if (first.animal === second.animal) {
+        first.card.classList.add('matched');
+        second.card.classList.add('matched');
+        matchedPairs++;
+        updateStats();
+        
+        if (matchedPairs === animals.length) {
+          setTimeout(showWinMessage, 500);
+        }
+      } else {
+        first.card.classList.remove('flipped');
+        second.card.classList.remove('flipped');
+      }
+      
+      flippedCards = [];
+      canFlip = true;
+    }
+
+    function updateStats() {
+      document.getElementById('movesDisplay').textContent = `JOGADAS: ${moves}`;
+      document.getElementById('pairsDisplay').textContent = `PARES: ${matchedPairs}/${animals.length}`;
+    }
+
+    function showWinMessage() {
+      document.getElementById('winMessage').classList.add('show');
+    }
+
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.open('about:blank', '_blank');
+      }
+    }
+
+    function toggleVolume() {
+      const volumeBtn = document.getElementById('volumeBtn');
+      
+      if (isMuted) {
+        backgroundMusic.play().catch(e => console.log('Erro ao reproduzir áudio:', e));
+        volumeBtn.textContent = '🔊 SOM';
+        volumeBtn.classList.remove('muted');
+        isMuted = false;
+      } else {
+        backgroundMusic.pause();
+        volumeBtn.textContent = '🔇 MUDO';
+        volumeBtn.classList.add('muted');
+        isMuted = true;
+      }
+    }
+
+    function speakInstructions() {
+      const instructionsBtn = document.getElementById('instructionsBtn');
+      
+      if (isSpeaking) {
+        speechSynthesis.cancel();
+        instructionsBtn.classList.remove('speaking');
+        instructionsBtn.textContent = '🗣️ INSTRUÇÕES';
+        isSpeaking = false;
+        return;
+      }
+      
+      const instructionsText = `
+        Bem-vindos ao Jogo da Memória dos Animais!
+        
+        Como jogar:
+        Primeiro, clique em duas cartas para virá-las e ver os animais.
+        Se os dois animais forem iguais, você encontrou um par! As cartas ficarão viradas.
+        Se os animais forem diferentes, as cartas voltarão a ficar viradas para baixo.
+        
+        O objetivo é encontrar todos os 8 pares de animais da natureza.
+        Os animais são: Leão, Elefante, Girafa, Zebra, Macaco, Tigre, Urso e Coelho.
+        
+        Tente memorizar onde estão os animais para fazer menos jogadas!
+        
+        Boa sorte, pequeno explorador da natureza!
+      `;
+      
+      const utterance = new SpeechSynthesisUtterance(instructionsText);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.8;
+      utterance.pitch = 1.1;
+      utterance.volume = 0.8;
+      
+      utterance.onstart = () => {
+        isSpeaking = true;
+        instructionsBtn.classList.add('speaking');
+        instructionsBtn.textContent = '⏹️ PARAR';
+      };
+      
+      utterance.onend = () => {
+        isSpeaking = false;
+        instructionsBtn.classList.remove('speaking');
+        instructionsBtn.textContent = '🗣️ INSTRUÇÕES';
+      };
+      
+      utterance.onerror = () => {
+        isSpeaking = false;
+        instructionsBtn.classList.remove('speaking');
+        instructionsBtn.textContent = '🗣️ INSTRUÇÕES';
+        console.log('Erro na síntese de voz');
+      };
+      
+      speechSynthesis.speak(utterance);
+    }
+
+    function initializeAudio() {
+      backgroundMusic = document.getElementById('backgroundMusic');
+      backgroundMusic.volume = 0.3;
+      
+      backgroundMusic.play().catch(e => {
+        console.log('Reprodução automática bloqueada. Clique no botão de som para ativar.');
+        isMuted = true;
+        document.getElementById('volumeBtn').textContent = '🔇 MUDO';
+        document.getElementById('volumeBtn').classList.add('muted');
+      });
+    }
+
+    function startNewGame() {
+      matchedPairs = 0;
+      moves = 0;
+      flippedCards = [];
+      canFlip = true;
+      
+      document.getElementById('winMessage').classList.remove('show');
+      updateStats();
+      createGameBoard();
+      applyStyles();
+    }
+
+    function applyStyles() {
+      const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseSize = config.font_size || defaultConfig.font_size;
+      
+      document.body.style.fontFamily = `${customFont}, Arial, sans-serif`;
+      document.body.style.fontSize = `${baseSize}px`;
+      
+      const bgColor = config.background_color || defaultConfig.background_color;
+      document.body.style.background = `linear-gradient(135deg, ${bgColor} 0%, #059669 50%, #10B981 100%)`;
+      
+      document.getElementById('gameTitle').textContent = config.game_title || defaultConfig.game_title;
+      document.getElementById('instructionsText').textContent = config.instructions_text || defaultConfig.instructions_text;
+      document.getElementById('winText').textContent = config.win_message || defaultConfig.win_message;
+      
+      const textColor = config.text_color || defaultConfig.text_color;
+      document.body.style.color = textColor;
+      
+      const statColor = config.stat_color || defaultConfig.stat_color;
+      document.querySelectorAll('.stat').forEach(stat => {
+        stat.style.background = `linear-gradient(45deg, ${statColor}, #16A34A)`;
+      });
+      
+      const cardColor = config.card_color || defaultConfig.card_color;
+      document.querySelectorAll('.card').forEach(card => {
+        if (!card.classList.contains('flipped') && !card.classList.contains('matched')) {
+          card.style.background = cardColor;
+        }
+      });
+      
+      const buttonColor = config.button_color || defaultConfig.button_color;
+      document.querySelectorAll('.btn').forEach(btn => {
+        btn.style.background = `linear-gradient(45deg, ${buttonColor}, #22C55E)`;
+      });
+    }
+
+    async function onConfigChange(config) {
+      applyStyles();
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.card_color || defaultConfig.card_color,
+              set: (value) => {
+                config.card_color = value;
+                window.elementSdk.setConfig({ card_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.button_color || defaultConfig.button_color,
+              set: (value) => {
+                config.button_color = value;
+                window.elementSdk.setConfig({ button_color: value });
+              }
+            },
+            {
+              get: () => config.stat_color || defaultConfig.stat_color,
+              set: (value) => {
+                config.stat_color = value;
+                window.elementSdk.setConfig({ stat_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["game_title", config.game_title || defaultConfig.game_title],
+          ["instructions_text", config.instructions_text || defaultConfig.instructions_text],
+          ["win_message", config.win_message || defaultConfig.win_message]
+        ])
+      });
+    }
+
+    initializeAudio();
+    startNewGame();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99946600a7528b1d',t:'MTc2MjI2MjMxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
