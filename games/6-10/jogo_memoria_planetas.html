@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🪐JOGO DA MEMÓRIA DOS PLANETAS</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 20px;
+      height: 100%;
+      font-family: 'Comic Sans MS', Arial, sans-serif;
+      background: linear-gradient(135deg, #0B1426 0%, #1E3A8A 50%, #312E81 100%);
+      color: white;
+    }
+    
+    html {
+      height: 100%;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+      padding: 15px 20px;
+      border-radius: 20px;
+      margin-bottom: 15px;
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(147, 51, 234, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 8px;
+    }
+    
+    .back-btn {
+      position: absolute;
+      left: 0;
+      background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+    }
+    
+    .volume-btn {
+      position: absolute;
+      right: 0;
+      background: linear-gradient(45deg, #4169E1, #6495ED);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(65, 105, 225, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .volume-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(65, 105, 225, 0.4);
+    }
+    
+    .volume-btn.muted {
+      background: linear-gradient(45deg, #808080, #A9A9A9);
+      box-shadow: 0 4px 12px rgba(128, 128, 128, 0.3);
+    }
+    
+    .title {
+      font-size: 2rem;
+      margin: 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      background: linear-gradient(45deg, #9333EA, #C084FC);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: bold;
+    }
+    
+    .instructions {
+      font-size: 1rem;
+      margin: 0 0 12px 0;
+      opacity: 0.9;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .stats {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+    
+    .stat {
+      background: linear-gradient(45deg, #9333EA, #7C3AED);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.2s ease;
+    }
+    
+    .stat:hover {
+      transform: translateY(-2px);
+    }
+    
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      max-width: 700px;
+      margin: 0 auto 20px auto;
+    }
+    
+    .card {
+      aspect-ratio: 1;
+      background: #1E1B4B;
+      border: 3px solid #312E81;
+      border-radius: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(147, 51, 234, 0.3);
+    }
+    
+    .card.flipped {
+      background: #F8FAFC;
+    }
+    
+    .card.matched {
+      background: #C084FC;
+      animation: pulse 0.5s ease-in-out;
+    }
+    
+    .card-back {
+      font-size: 3rem;
+      display: block;
+    }
+    
+    .card-front {
+      display: none;
+      width: 80%;
+      height: 80%;
+    }
+    
+    .card.flipped .card-back {
+      display: none;
+    }
+    
+    .card.flipped .card-front {
+      display: block;
+    }
+    
+    .planet-img {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .planet-name {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(5px);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .controls {
+      margin-top: 20px;
+    }
+    
+    .btn {
+      background: linear-gradient(45deg, #7C3AED, #9333EA);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 0 10px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .win-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(45deg, #7C3AED, #9333EA);
+      color: white;
+      padding: 40px;
+      border-radius: 20px;
+      font-size: 2rem;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+    }
+    
+    .win-message.show {
+      display: block;
+      animation: popIn 0.5s ease-out;
+    }
+    
+    @keyframes popIn {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    @media (max-width: 600px) {
+      .title { font-size: 2rem; }
+      .game-board { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+      .stats { flex-direction: column; gap: 10px; }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><!-- Áudio de Fundo -->
+  <audio id="backgroundMusic" loop><source src="space.mp3" type="audio/mpeg">
+  </audio><!-- Imagens dos Planetas -->
+  <div style="display: none;"><img id="mercury-img" src="mercury.jpg" alt="Mercúrio" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="venus-img" src="venus.jpg" alt="Vênus" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="earth-img" src="earth.jpg" alt="Terra" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="mars-img" src="mars.jpg" alt="Marte" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="jupiter-img" src="jupiter.jpg" alt="Júpiter" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="saturn-img" src="saturn.jpg" alt="Saturno" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="uranus-img" src="uranus.jpg" alt="Urano" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';"> <img id="neptune-img" src="neptune.jpg" alt="Netuno" onerror="this.src=''; this.alt='Imagem não encontrada'; this.style.display='none';">
+  </div>
+  <div class="container">
+   <div class="header">
+    <div class="header-top"><button class="back-btn" onclick="goBack()">← VOLTAR</button>
+     <h1 class="title" id="gameTitle">🪐 JOGO DA MEMÓRIA DOS PLANETAS 🌌</h1><button class="volume-btn" id="volumeBtn" onclick="toggleVolume()">🔊 SOM</button>
+    </div>
+    <p class="instructions" id="instructionsText">🚀 ENCONTRE OS PARES DE PLANETAS DO SISTEMA SOLAR! 🚀</p>
+    <div class="stats">
+     <div class="stat" id="movesDisplay">
+      JOGADAS: 0
+     </div>
+     <div class="stat" id="pairsDisplay">
+      PARES: 0/8
+     </div>
+    </div>
+   </div>
+   <div class="game-board" id="gameBoard"></div>
+   <div class="controls"><button class="btn" onclick="startNewGame()">🔄 NOVO JOGO</button>
+   </div>
+   <div class="win-message" id="winMessage">
+    <div id="winText">
+     🎉 PARABÉNS! VOCÊ EXPLOROU TODO O SISTEMA SOLAR! 🎉
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#0B1426",
+      card_color: "#1E1B4B",
+      text_color: "#FFFFFF",
+      button_color: "#7C3AED",
+      stat_color: "#9333EA",
+      font_family: "Comic Sans MS",
+      font_size: 16,
+      game_title: "🪐 JOGO DA MEMÓRIA DOS PLANETAS 🌌",
+      instructions_text: "🚀 ENCONTRE OS PARES DE PLANETAS DO SISTEMA SOLAR! 🚀",
+      win_message: "🎉 PARABÉNS! VOCÊ EXPLOROU TODO O SISTEMA SOLAR! 🎉"
+    };
+
+    const planets = [
+      { name: 'Mercury', img: 'mercury-img' },
+      { name: 'Venus', img: 'venus-img' },
+      { name: 'Earth', img: 'earth-img' },
+      { name: 'Mars', img: 'mars-img' },
+      { name: 'Jupiter', img: 'jupiter-img' },
+      { name: 'Saturn', img: 'saturn-img' },
+      { name: 'Uranus', img: 'uranus-img' },
+      { name: 'Neptune', img: 'neptune-img' }
+    ];
+
+    let gameCards = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let moves = 0;
+    let canFlip = true;
+    let isMuted = false;
+    let backgroundMusic;
+
+    function getPlanetNameInPortuguese(englishName) {
+      const translations = {
+        'Mercury': 'MERCÚRIO',
+        'Venus': 'VÊNUS',
+        'Earth': 'TERRA',
+        'Mars': 'MARTE',
+        'Jupiter': 'JÚPITER',
+        'Saturn': 'SATURNO',
+        'Uranus': 'URANO',
+        'Neptune': 'NETUNO'
+      };
+      return translations[englishName] || englishName;
+    }
+
+    function createGameBoard() {
+      const gameBoard = document.getElementById('gameBoard');
+      gameBoard.innerHTML = '';
+      
+      // Criar pares de planetas
+      const cardPairs = [...planets, ...planets];
+      gameCards = cardPairs.sort(() => Math.random() - 0.5);
+      
+      gameCards.forEach((planet, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.index = index;
+        card.dataset.planet = planet.name;
+        
+        // Clonar a imagem
+        const originalImg = document.getElementById(planet.img);
+        const clonedImg = originalImg.cloneNode(true);
+        clonedImg.classList.add('planet-img');
+        clonedImg.removeAttribute('id');
+        clonedImg.style.display = 'block';
+        
+        card.innerHTML = `
+          <div class="card-back">🌟</div>
+          <div class="card-front">
+            <div class="planet-name">${getPlanetNameInPortuguese(planet.name)}</div>
+          </div>
+        `;
+        
+        card.querySelector('.card-front').appendChild(clonedImg);
+        card.addEventListener('click', () => flipCard(card, index));
+        gameBoard.appendChild(card);
+      });
+    }
+
+    function flipCard(card, index) {
+      if (!canFlip || card.classList.contains('flipped') || card.classList.contains('matched')) {
+        return;
+      }
+      
+      card.classList.add('flipped');
+      flippedCards.push({ card, index, planet: card.dataset.planet });
+      
+      if (flippedCards.length === 2) {
+        canFlip = false;
+        moves++;
+        updateStats();
+        
+        setTimeout(checkMatch, 1000);
+      }
+    }
+
+    function checkMatch() {
+      const [first, second] = flippedCards;
+      
+      if (first.planet === second.planet) {
+        first.card.classList.add('matched');
+        second.card.classList.add('matched');
+        matchedPairs++;
+        updateStats();
+        
+        if (matchedPairs === planets.length) {
+          setTimeout(showWinMessage, 500);
+        }
+      } else {
+        first.card.classList.remove('flipped');
+        second.card.classList.remove('flipped');
+      }
+      
+      flippedCards = [];
+      canFlip = true;
+    }
+
+    function updateStats() {
+      document.getElementById('movesDisplay').textContent = `JOGADAS: ${moves}`;
+      document.getElementById('pairsDisplay').textContent = `PARES: ${matchedPairs}/${planets.length}`;
+    }
+
+    function showWinMessage() {
+      document.getElementById('winMessage').classList.add('show');
+    }
+
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        // Se não há histórico, abre em nova aba uma página genérica
+        window.open('about:blank', '_blank');
+      }
+    }
+
+    function toggleVolume() {
+      const volumeBtn = document.getElementById('volumeBtn');
+      
+      if (isMuted) {
+        backgroundMusic.play().catch(e => console.log('Erro ao reproduzir áudio:', e));
+        volumeBtn.textContent = '🔊 SOM';
+        volumeBtn.classList.remove('muted');
+        isMuted = false;
+      } else {
+        backgroundMusic.pause();
+        volumeBtn.textContent = '🔇 MUDO';
+        volumeBtn.classList.add('muted');
+        isMuted = true;
+      }
+    }
+
+    function initializeAudio() {
+      backgroundMusic = document.getElementById('backgroundMusic');
+      backgroundMusic.volume = 0.3; // Volume baixo para não incomodar
+      
+      // Tentar tocar automaticamente (pode não funcionar em alguns navegadores)
+      backgroundMusic.play().catch(e => {
+        console.log('Reprodução automática bloqueada. Clique no botão de som para ativar.');
+        isMuted = true;
+        document.getElementById('volumeBtn').textContent = '🔇 MUDO';
+        document.getElementById('volumeBtn').classList.add('muted');
+      });
+    }
+
+    function startNewGame() {
+      matchedPairs = 0;
+      moves = 0;
+      flippedCards = [];
+      canFlip = true;
+      
+      document.getElementById('winMessage').classList.remove('show');
+      updateStats();
+      createGameBoard();
+      applyStyles();
+    }
+
+    function applyStyles() {
+      const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseSize = config.font_size || defaultConfig.font_size;
+      
+      // Aplicar estilos baseados na configuração
+      document.body.style.fontFamily = `${customFont}, Arial, sans-serif`;
+      document.body.style.fontSize = `${baseSize}px`;
+      
+      const bgColor = config.background_color || defaultConfig.background_color;
+      document.body.style.background = `linear-gradient(135deg, ${bgColor} 0%, #1E3A8A 50%, #312E81 100%)`;
+      
+      document.getElementById('gameTitle').textContent = config.game_title || defaultConfig.game_title;
+      document.getElementById('instructionsText').textContent = config.instructions_text || defaultConfig.instructions_text;
+      document.getElementById('winText').textContent = config.win_message || defaultConfig.win_message;
+      
+      // Aplicar cores aos elementos
+      const textColor = config.text_color || defaultConfig.text_color;
+      document.body.style.color = textColor;
+      
+      const statColor = config.stat_color || defaultConfig.stat_color;
+      document.querySelectorAll('.stat').forEach(stat => {
+        stat.style.background = `linear-gradient(45deg, ${statColor}, #7C3AED)`;
+      });
+      
+      const cardColor = config.card_color || defaultConfig.card_color;
+      document.querySelectorAll('.card').forEach(card => {
+        if (!card.classList.contains('flipped') && !card.classList.contains('matched')) {
+          card.style.background = cardColor;
+        }
+      });
+      
+      const buttonColor = config.button_color || defaultConfig.button_color;
+      document.querySelectorAll('.btn').forEach(btn => {
+        btn.style.background = `linear-gradient(45deg, ${buttonColor}, #9333EA)`;
+      });
+    }
+
+    async function onConfigChange(config) {
+      applyStyles();
+    }
+
+    // Inicializar SDK se disponível
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.card_color || defaultConfig.card_color,
+              set: (value) => {
+                config.card_color = value;
+                window.elementSdk.setConfig({ card_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.button_color || defaultConfig.button_color,
+              set: (value) => {
+                config.button_color = value;
+                window.elementSdk.setConfig({ button_color: value });
+              }
+            },
+            {
+              get: () => config.stat_color || defaultConfig.stat_color,
+              set: (value) => {
+                config.stat_color = value;
+                window.elementSdk.setConfig({ stat_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["game_title", config.game_title || defaultConfig.game_title],
+          ["instructions_text", config.instructions_text || defaultConfig.instructions_text],
+          ["win_message", config.win_message || defaultConfig.win_message]
+        ])
+      });
+    }
+
+    // Inicializar áudio e iniciar o jogo
+    initializeAudio();
+    startNewGame();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9994403be6258b1d',t:'MTc2MjI2MDc3MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
