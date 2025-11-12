@@ -3,7 +3,7 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🗣️COMUNICADOR CAA</title>
+  <title>Comunicador CAA Infantil</title>
   <script src="/_sdk/element_sdk.js"></script>
   <style>
         body {
@@ -100,40 +100,44 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
-            min-height: 180px;
+            min-height: 280px;
+            height: 280px;
         }
 
         .symbol-card.has-accents {
             padding: 10px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
-            min-height: 180px;
+            min-height: 280px;
+            height: 280px;
         }
 
         .accents-row {
             display: flex;
             justify-content: center;
-            gap: 5px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
+            gap: 3px;
+            margin-bottom: 8px;
+            flex-wrap: nowrap;
             flex-shrink: 0;
+            height: 35px;
+            align-items: center;
         }
 
         .accent-btn {
             background: linear-gradient(45deg, #FFE5B4, #FFCCCB);
             border: 2px solid #FF6B6B;
-            border-radius: 8px;
-            padding: 5px 8px;
-            font-size: 1.2rem;
+            border-radius: 6px;
+            padding: 3px 5px;
+            font-size: 1rem;
             font-weight: bold;
             color: #2C3E50;
             cursor: pointer;
             transition: all 0.2s ease;
-            min-width: 30px;
+            min-width: 26px;
             font-family: 'Arial Black', Arial, sans-serif;
         }
 
@@ -144,16 +148,37 @@
         }
 
         .main-letter {
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: bold;
             color: #2C3E50;
             font-family: 'Arial Black', Arial, sans-serif;
-            margin: 10px 0;
+            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 60px;
-            flex-grow: 1;
+            height: 80px;
+            flex-shrink: 0;
+            line-height: 1;
+            width: 100%;
+        }
+
+        .libras-container {
+            width: 100%;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin: 10px 0;
+        }
+
+        .libras-image {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: block;
         }
 
         .symbol-card:hover {
@@ -180,10 +205,15 @@
         }
 
         .symbol-icon.letter {
-            font-size: 4.5rem;
+            font-size: 4rem;
             font-weight: bold;
             color: #2C3E50;
             font-family: 'Arial Black', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+            line-height: 1;
         }
 
         .symbol-text {
@@ -257,6 +287,94 @@
             padding: 12px 20px;
         }
 
+        .theme-btn {
+            background: linear-gradient(45deg, #2C3E50, #34495E) !important;
+            font-size: 1rem;
+            padding: 12px 20px;
+        }
+
+        /* Estilos do Modo Escuro */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+        }
+
+        body.dark-mode .container {
+            background: #000000;
+            box-shadow: 0 8px 32px rgba(255,255,255,0.1);
+        }
+
+        body.dark-mode .header {
+            background: linear-gradient(45deg, #1a1a1a, #2d2d2d);
+        }
+
+        body.dark-mode .title {
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(255,215,0,0.3);
+        }
+
+        body.dark-mode .subtitle {
+            color: #FFD700;
+        }
+
+        body.dark-mode .volume-control span {
+            color: #FFD700;
+        }
+
+        body.dark-mode .symbol-card {
+            background: #1a1a1a;
+            border: 3px solid #FFD700;
+            box-shadow: 0 4px 10px rgba(255,215,0,0.2);
+        }
+
+        body.dark-mode .symbol-card:hover {
+            border-color: #FFA500;
+            box-shadow: 0 8px 25px rgba(255,215,0,0.4);
+        }
+
+        body.dark-mode .symbol-card.clicked {
+            background: linear-gradient(45deg, #2d2d2d, #1a1a1a);
+        }
+
+        body.dark-mode .symbol-text {
+            color: #FFD700;
+        }
+
+        body.dark-mode .main-letter {
+            color: #FFD700;
+        }
+
+        body.dark-mode .symbol-icon.letter {
+            color: #FFD700;
+        }
+
+        body.dark-mode .symbol-icon {
+            color: #FFD700;
+        }
+
+        body.dark-mode .accent-btn {
+            background: linear-gradient(45deg, #2d2d2d, #1a1a1a);
+            border: 2px solid #FFD700;
+            color: #FFD700;
+        }
+
+        body.dark-mode .accent-btn:hover {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000000;
+        }
+
+        body.dark-mode .phrase-display {
+            background: linear-gradient(45deg, #1a1a1a, #2d2d2d);
+            border: 3px solid #FFD700;
+        }
+
+        body.dark-mode .phrase-text {
+            color: #FFD700;
+        }
+
+        body.dark-mode .volume-slider {
+            background: #2d2d2d;
+        }
+
         .volume-control {
             display: flex;
             align-items: center;
@@ -322,10 +440,10 @@
  <body>
   <div class="container">
    <header class="header">
-    <h1 class="title" id="app-title">MEU COMUNICADOR CAA</h1>
-    <p class="subtitle" id="welcome-message">OLÁ! VAMOS NOS COMUNICAR?</p>
+    <h1 class="title" id="app-title">Meu Comunicador CAA</h1>
+    <p class="subtitle" id="welcome-message">Olá! Vamos nos comunicar juntos?</p>
    </header>
-   <div class="volume-control"><span>🔊 VOLUME:</span> <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="0.8"> <button class="control-btn help-btn" id="helpBtn">💬 ORIENTAÇÕES</button> <button class="control-btn back-btn" id="backBtn">⬅️ VOLTAR</button>
+   <div class="volume-control"><span>🔊 Volume:</span> <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="0.8"> <button class="control-btn help-btn" id="helpBtn">❓ ORIENTAÇÕES</button> <button class="control-btn back-btn" id="backBtn">⬅️ VOLTAR</button> <button class="control-btn theme-btn" id="themeBtn">🌙 MODO ESCURO</button>
    </div>
    <div class="categories"><button class="category-btn active" data-category="comidas">🍎 COMIDAS</button> <button class="category-btn" data-category="sentimentos">😊 SENTIMENTOS</button> <button class="category-btn" data-category="animais">🐶 ANIMAIS</button> <button class="category-btn" data-category="pessoas">👨‍👩‍👧‍👦 PESSOAS</button> <button class="category-btn" data-category="lugares">🏠 LUGARES</button> <button class="category-btn" data-category="localizacao">📍 LOCALIZAÇÃO</button> <button class="category-btn" data-category="cores">🌈 CORES</button> <button class="category-btn" data-category="formas">⭕ FORMAS</button> <button class="category-btn" data-category="rotina">⏰ ROTINA</button> <button class="category-btn" data-category="corpo">👋 CORPO</button> <button class="category-btn" data-category="estudos">📚 ESTUDOS</button> <button class="category-btn" data-category="cumprimentos">👋 CUMPRIMENTOS E PALAVRAS DE ROTINA</button> <button class="category-btn" data-category="alfabeto">🔤 ALFABETO</button> <button class="category-btn" data-category="numeros">🔢 NÚMEROS</button>
    </div>
@@ -693,6 +811,7 @@
                     icon: 'A', 
                     text: 'A', 
                     audio: 'A',
+                    libras: 'a.jpg',
                     accents: [
                         { icon: 'Á', text: 'Á', audio: 'A AGUDO' },
                         { icon: 'À', text: 'À', audio: 'A GRAVE' },
@@ -700,47 +819,51 @@
                         { icon: 'Ã', text: 'Ã', audio: 'A TIL' }
                     ]
                 },
-                { icon: 'B', text: 'B', audio: 'B' },
-                { icon: 'C', text: 'C', audio: 'C' },
+                { icon: 'B', text: 'B', audio: 'B', libras: 'b.jpg' },
+                { icon: 'C', text: 'C', audio: 'C', libras: 'c.jpg' },
                 { 
                     icon: 'Ç', 
                     text: 'Ç', 
                     audio: 'C CEDILHA',
+                    libras: 'c.jpg',
                     isSpecial: true
                 },
-                { icon: 'D', text: 'D', audio: 'D' },
+                { icon: 'D', text: 'D', audio: 'D', libras: 'd.jpg' },
                 { 
                     icon: 'E', 
                     text: 'E', 
                     audio: 'E',
+                    libras: 'e.jpg',
                     accents: [
                         { icon: 'É', text: 'É', audio: 'E AGUDO' },
                         { icon: 'È', text: 'È', audio: 'E GRAVE' },
                         { icon: 'Ê', text: 'Ê', audio: 'E CIRCUNFLEXO' }
                     ]
                 },
-                { icon: 'F', text: 'F', audio: 'F' },
-                { icon: 'G', text: 'G', audio: 'G' },
-                { icon: 'H', text: 'H', audio: 'H' },
+                { icon: 'F', text: 'F', audio: 'F', libras: 'f.jpg' },
+                { icon: 'G', text: 'G', audio: 'G', libras: 'g.jpg' },
+                { icon: 'H', text: 'H', audio: 'H', libras: 'h.jpg' },
                 { 
                     icon: 'I', 
                     text: 'I', 
                     audio: 'I',
+                    libras: 'i.jpg',
                     accents: [
                         { icon: 'Í', text: 'Í', audio: 'I AGUDO' },
                         { icon: 'Ì', text: 'Ì', audio: 'I GRAVE' },
                         { icon: 'Î', text: 'Î', audio: 'I CIRCUNFLEXO' }
                     ]
                 },
-                { icon: 'J', text: 'J', audio: 'J' },
-                { icon: 'K', text: 'K', audio: 'K' },
-                { icon: 'L', text: 'L', audio: 'L' },
-                { icon: 'M', text: 'M', audio: 'M' },
-                { icon: 'N', text: 'N', audio: 'N' },
+                { icon: 'J', text: 'J', audio: 'J', libras: 'j.jpg' },
+                { icon: 'K', text: 'K', audio: 'K', libras: 'k.jpg' },
+                { icon: 'L', text: 'L', audio: 'L', libras: 'l.jpg' },
+                { icon: 'M', text: 'M', audio: 'M', libras: 'm.jpg' },
+                { icon: 'N', text: 'N', audio: 'N', libras: 'n.jpg' },
                 { 
                     icon: 'O', 
                     text: 'O', 
                     audio: 'O',
+                    libras: 'o.jpg',
                     accents: [
                         { icon: 'Ó', text: 'Ó', audio: 'O AGUDO' },
                         { icon: 'Ò', text: 'Ò', audio: 'O GRAVE' },
@@ -748,30 +871,31 @@
                         { icon: 'Õ', text: 'Õ', audio: 'O TIL' }
                     ]
                 },
-                { icon: 'P', text: 'P', audio: 'P' },
-                { icon: 'Q', text: 'Q', audio: 'Q' },
-                { icon: 'R', text: 'R', audio: 'R' },
-                { icon: 'S', text: 'S', audio: 'S' },
-                { icon: 'T', text: 'T', audio: 'T' },
+                { icon: 'P', text: 'P', audio: 'P', libras: 'p.jpg' },
+                { icon: 'Q', text: 'Q', audio: 'Q', libras: 'q.jpg' },
+                { icon: 'R', text: 'R', audio: 'R', libras: 'r.jpg' },
+                { icon: 'S', text: 'S', audio: 'S', libras: 's.jpg' },
+                { icon: 'T', text: 'T', audio: 'T', libras: 't.jpg' },
                 { 
                     icon: 'U', 
                     text: 'U', 
                     audio: 'U',
+                    libras: 'u.jpg',
                     accents: [
                         { icon: 'Ú', text: 'Ú', audio: 'U AGUDO' },
                         { icon: 'Ù', text: 'Ù', audio: 'U GRAVE' },
                         { icon: 'Û', text: 'Û', audio: 'U CIRCUNFLEXO' }
                     ]
                 },
-                { icon: 'V', text: 'V', audio: 'V' },
-                { icon: 'W', text: 'W', audio: 'W' },
-                { icon: 'X', text: 'X', audio: 'X' },
-                { icon: 'Y', text: 'Y', audio: 'Y' },
-                { icon: 'Z', text: 'Z', audio: 'Z' },
-                { icon: '⎵', text: ' ', audio: 'ESPAÇO' },
-                { icon: '.', text: '.', audio: 'PONTO FINAL' },
-                { icon: '!', text: '!', audio: 'PONTO DE EXCLAMAÇÃO' },
-                { icon: '?', text: '?', audio: 'PONTO DE INTERROGAÇÃO' }
+                { icon: 'V', text: 'V', audio: 'V', libras: 'v.jpg' },
+                { icon: 'W', text: 'W', audio: 'W', libras: 'w.jpg' },
+                { icon: 'X', text: 'X', audio: 'X', libras: 'x.jpg' },
+                { icon: 'Y', text: 'Y', audio: 'Y', libras: 'y.jpg' },
+                { icon: 'Z', text: 'Z', audio: 'Z', libras: 'z.jpg' },
+                { icon: '⎵', text: ' ', audio: 'ESPAÇO', libras: '' },
+                { icon: '.', text: '.', audio: 'PONTO FINAL', libras: '' },
+                { icon: '!', text: '!', audio: 'PONTO DE EXCLAMAÇÃO', libras: '' },
+                { icon: '?', text: '?', audio: 'PONTO DE INTERROGAÇÃO', libras: '' }
             ],
             numeros: [
                 { icon: '0️⃣', text: '0', audio: 'ZERO' },
@@ -792,6 +916,7 @@
         let currentVolume = 0.8;
         let currentCategory = 'comidas';
         let isPlayingInstructions = false;
+        let isDarkMode = false;
 
         // Elementos DOM
         const categoryBtns = document.querySelectorAll('.category-btn');
@@ -843,6 +968,12 @@
             const backBtn = document.getElementById('backBtn');
             backBtn.addEventListener('click', () => {
                 goBack();
+            });
+
+            // Botão de tema
+            const themeBtn = document.getElementById('themeBtn');
+            themeBtn.addEventListener('click', () => {
+                toggleTheme();
             });
         }
 
@@ -906,8 +1037,17 @@
                         cardContent += '</div>';
                     }
                     
-                    // Letra principal
+                    // Letra principal sempre visível
                     cardContent += `<div class="main-letter">${symbol.icon}</div>`;
+                    
+                    // Container para imagem de Libras (sempre presente para manter alinhamento)
+                    cardContent += `<div class="libras-container">`;
+                    if (symbol.libras && symbol.libras.trim() !== '') {
+                        cardContent += `<img src="${symbol.libras}" alt="Libras ${symbol.text}" class="libras-image" onerror="this.style.visibility='hidden';">`;
+                    }
+                    cardContent += `</div>`;
+                    
+                    // Texto da letra
                     cardContent += `<p class="symbol-text">${symbol.text}</p>`;
                     
                     symbolCard.innerHTML = cardContent;
@@ -937,21 +1077,33 @@
                     // Cartas normais (consoantes, números, outros símbolos)
                     symbolCard.className = 'symbol-card';
                     
-                    let iconClass = 'symbol-icon';
+                    // Para alfabeto
                     if (category === 'alfabeto') {
+                        let iconClass = 'symbol-icon';
+                        
                         // Letras maiúsculas recebem classe especial
                         if (symbol.icon.length === 1 && /[A-Z]/.test(symbol.icon)) {
                             iconClass = 'symbol-icon letter';
-                        } else {
-                            // Pontuação e espaço mantêm tamanho normal
-                            iconClass = 'symbol-icon';
                         }
+                        
+                        let cardHTML = `<span class="${iconClass}">${symbol.icon}</span>`;
+                        
+                        // Container para imagem de Libras (sempre presente para manter alinhamento)
+                        cardHTML += `<div class="libras-container">`;
+                        if (symbol.libras && symbol.libras.trim() !== '') {
+                            cardHTML += `<img src="${symbol.libras}" alt="Libras ${symbol.text}" class="libras-image" onerror="this.style.visibility='hidden';">`;
+                        }
+                        cardHTML += `</div>`;
+                        
+                        cardHTML += `<p class="symbol-text">${symbol.text}</p>`;
+                        symbolCard.innerHTML = cardHTML;
+                    } else {
+                        // Para outras categorias (não alfabeto)
+                        symbolCard.innerHTML = `
+                            <span class="symbol-icon">${symbol.icon}</span>
+                            <p class="symbol-text">${symbol.text}</p>
+                        `;
                     }
-                    
-                    symbolCard.innerHTML = `
-                        <span class="${iconClass}">${symbol.icon}</span>
-                        <p class="symbol-text">${symbol.text}</p>
-                    `;
 
                     symbolCard.addEventListener('click', () => {
                         selectSymbol(symbol);
@@ -1084,6 +1236,24 @@
                 showFeedback('VOLTANDO À PÁGINA ANTERIOR...');
             } else {
                 showFeedback('NENHUMA PÁGINA ANTERIOR ENCONTRADA!');
+            }
+        }
+
+        // Alternar tema claro/escuro
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            const themeBtn = document.getElementById('themeBtn');
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                themeBtn.textContent = '☀️ MODO CLARO';
+                showFeedback('MODO ESCURO ATIVADO!');
+                speakText('MODO ESCURO ATIVADO');
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeBtn.textContent = '🌙 MODO ESCURO';
+                showFeedback('MODO CLARO ATIVADO!');
+                speakText('MODO CLARO ATIVADO');
             }
         }
 
@@ -1232,5 +1402,5 @@
             }, 1000);
         });
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'998d9fd8e3b38b1d',t:'MTc2MjE5MTI4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99c8427bf4dd8b1e',t:'MTc2MjgwNjEyMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
