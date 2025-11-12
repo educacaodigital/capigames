@@ -1,0 +1,1264 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🦖 MUNDO DOS DINOSSAUROS</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 50%, #6B8E23 100%);
+      min-height: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 80%, rgba(34, 139, 34, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(46, 125, 50, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(27, 94, 32, 0.2) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .container {
+      position: relative;
+      z-index: 1;
+    }
+    
+    html {
+      height: 100%;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #FF6347 0%, #FF8C42 25%, #FFD700 50%, #32CD32 75%, #FF6347 100%);
+      padding: 15px 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 20px rgba(255,140,66,0.5);
+      border: 3px solid #8B4513;
+      position: relative;
+    }
+    
+    .header h1 {
+      font-size: 32px;
+      margin: 0;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.5);
+      letter-spacing: 2px;
+      animation: titleGlow 3s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+      0%, 100% { text-shadow: 3px 3px 6px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.5); }
+      50% { text-shadow: 3px 3px 6px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.8); }
+    }
+    
+    .audio-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .audio-button, .back-button {
+      background: rgba(255,255,255,0.3);
+      border: 2px solid rgba(255,255,255,0.5);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      backdrop-filter: blur(5px);
+    }
+    
+    .audio-button:hover, .back-button:hover {
+      background: rgba(255,255,255,0.5);
+      transform: scale(1.1);
+    }
+    
+    .back-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    
+    .tab-button {
+      padding: 10px 25px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+    
+    .tab-button.active {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    
+    .content {
+      background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,255,240,0.95) 100%);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      flex: 1;
+      overflow-y: auto;
+      border: 3px solid rgba(107, 142, 35, 0.3);
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .dino-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .dino-card {
+      border: 3px solid;
+      border-radius: 15px;
+      padding: 12px;
+      cursor: pointer;
+      transition: transform 0.3s;
+      display: flex;
+      flex-direction: column;
+      min-height: 420px;
+    }
+    
+    .dino-card:hover {
+      transform: scale(1.03);
+    }
+    
+    .dino-image {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+      padding: 8px;
+    }
+    
+    .dino-name {
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    
+    .dino-info {
+      font-size: 12px;
+      line-height: 1.4;
+      flex: 1;
+    }
+    
+    .quiz-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .question {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 35px;
+      text-align: center;
+      padding: 0 20px;
+    }
+    
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      .answers {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .answer-button {
+      padding: 25px 20px;
+      font-size: 18px;
+      border: 3px solid;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-weight: bold;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    
+    .answer-button:hover {
+      transform: scale(1.05);
+    }
+    
+    .answer-button.correct {
+      animation: correctAnswer 0.5s;
+    }
+    
+    .answer-button.incorrect {
+      animation: incorrectAnswer 0.5s;
+    }
+    
+    @keyframes correctAnswer {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    @keyframes incorrectAnswer {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    
+    .score {
+      display: none;
+    }
+    
+    .next-button {
+      display: block;
+      margin: 30px auto 0;
+      padding: 15px 40px;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+    
+    .result-message {
+      text-align: center;
+      font-size: 22px;
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 15px;
+      font-weight: bold;
+    }
+    
+    .dino-detail-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .dino-detail-overlay.active {
+      display: flex;
+    }
+    
+    .dino-detail-card {
+      background: white;
+      border-radius: 20px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90%;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .dino-detail-header {
+      padding: 30px;
+      border-radius: 20px 20px 0 0;
+      position: relative;
+    }
+    
+    .dino-detail-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .dino-detail-close:hover {
+      background: white;
+      transform: scale(1.1);
+    }
+    
+    .dino-detail-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .dino-detail-name {
+      font-size: 36px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 10px;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .dino-detail-body {
+      padding: 30px;
+    }
+    
+    .dino-detail-section {
+      margin-bottom: 25px;
+    }
+    
+    .dino-detail-section-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .dino-detail-text {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #333;
+    }
+    
+    .dino-detail-facts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .dino-detail-fact {
+      background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(240,240,240,0.9) 100%);
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .dino-detail-curiosities {
+      background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,250,240,0.9) 100%);
+      padding: 20px;
+      border-radius: 15px;
+      border: 3px solid;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <audio id="background-music" loop><source src="dinossauro.mp3" type="audio/mpeg">
+  </audio>
+  <div class="container">
+   <header class="header"><button class="back-button" id="back-button" onclick="goBack()" title="Voltar"> ⬅️ </button>
+    <h1 id="game-title">MUNDO DOS DINOSSAUROS</h1>
+    <div class="audio-controls"><button class="audio-button" id="audio-toggle" onclick="toggleAudio()" title="Pausar/Tocar música"> 🔊 </button>
+    </div>
+   </header>
+   <div class="tabs"><button class="tab-button active" id="learn-tab" onclick="switchTab('learn')"> <span id="learn-tab-title">📚 Aprender</span> </button> <button class="tab-button" id="quiz-tab" onclick="switchTab('quiz')"> <span id="quiz-tab-title">🎮 Quiz</span> </button>
+   </div>
+   <div class="content">
+    <div id="learn-content" class="tab-content active">
+     <h2 style="text-align: center; margin-bottom: 20px;">CONHEÇA OS DINOSSAUROS!</h2>
+     <div class="dino-grid" id="dino-grid"></div>
+    </div>
+    <div id="quiz-content" class="tab-content">
+     <div class="quiz-container">
+      <div class="score" id="score">
+       Pontuação: 0 / 0
+      </div>
+      <div class="question" id="question"></div>
+      <div class="answers" id="answers"></div><button class="next-button" id="next-button" style="display: none;" onclick="nextQuestion()">Próxima Pergunta</button>
+      <div class="result-message" id="result-message"></div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <div class="dino-detail-overlay" id="dino-detail-overlay" onclick="closeDetailIfClickOutside(event)">
+   <div class="dino-detail-card" id="dino-detail-card"><!-- Conteúdo será preenchido dinamicamente -->
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      game_title: "🦕 Mundo dos Dinossauros 🦖",
+      learn_tab_title: "📚 Aprender",
+      quiz_tab_title: "🎮 Quiz",
+      background_color: "#8B4513",
+      card_color: "#FF8C42",
+      button_color: "#228B22",
+      text_color: "#4A2511",
+      accent_color: "#DC143C",
+      font_family: "Comic Sans MS",
+      font_size: 16
+    };
+
+    const dinosaurs = [
+      {
+        name: "Tiranossauro Rex",
+        image: "tiranossauro.jpg",
+        color: "#ff6b6b",
+        info: "O T-Rex era um dos maiores carnívoros! Tinha dentes enormes de até 30cm e podia correr a 40 km/h. Viveu há 68 milhões de anos na América do Norte.",
+        facts: ["Carnívoro", "12 metros de comprimento", "Dentes de 30cm", "Pesava 9 toneladas"],
+        curiosities: "🦴 Seus dentes eram tão fortes que podiam esmagar ossos! Tinha o olfato super desenvolvido e podia sentir cheiro de comida a quilômetros de distância. Seus braços eram pequenos, mas muito fortes!"
+      },
+      {
+        name: "Tricerátops",
+        image: "triceratops1.jpg",
+        color: "#4ecdc4",
+        info: "Tinha três chifres na cabeça e um escudo ósseo no pescoço. Era herbívoro e usava seus chifres para se defender dos predadores. Pesava até 12 toneladas!",
+        facts: ["Herbívoro", "3 chifres poderosos", "Escudo protetor", "9 metros de comprimento"],
+        curiosities: "🛡️ Seu escudo ósseo tinha 2 metros de largura! Tinha um bico parecido com o de papagaio para cortar plantas. Vivia em grupos para se proteger melhor dos predadores."
+      },
+      {
+        name: "Velociraptor",
+        image: "velociraptor1.jpg",
+        color: "#95e1d3",
+        info: "Era pequeno mas muito inteligente! Caçava em grupo usando estratégias complexas. Tinha uma garra afiada em cada pé que usava para atacar suas presas.",
+        facts: ["Carnívoro", "Caçava em grupo", "Muito inteligente", "2 metros de comprimento"],
+        curiosities: "🧠 Era coberto de penas coloridas! Seu cérebro era grande para seu tamanho, tornando-o um dos dinossauros mais espertos. Podia saltar até 3 metros de altura!"
+      },
+      {
+        name: "Estegossauro",
+        image: "estegossauro.jpg",
+        color: "#f38181",
+        info: "Tinha placas ósseas nas costas e espinhos na cauda! As placas ajudavam a controlar a temperatura corporal e impressionar outros dinossauros. Comia plantas baixas.",
+        facts: ["Herbívoro", "17 placas nas costas", "4 espinhos na cauda", "9 metros de comprimento"],
+        curiosities: "🌡️ Suas placas mudavam de cor quando ficava com raiva! Tinha um cérebro do tamanho de uma noz, mas isso não o impedia de sobreviver. Seus espinhos tinham 60cm de comprimento!"
+      },
+      {
+        name: "Braquiossauro",
+        image: "braquiossauro.jpg",
+        color: "#aa96da",
+        info: "Era gigante! Tinha pescoço super longo para alcançar folhas no topo das árvores mais altas. Pesava até 80 toneladas - como 15 elefantes juntos!",
+        facts: ["Herbívoro", "Pescoço de 9 metros", "80 toneladas", "26 metros de comprimento"],
+        curiosities: "🌳 Comia 200kg de plantas por dia! Seu coração pesava 400kg e bombeava sangue até o topo da cabeça. Tinha narinas no topo da cabeça, como uma baleia!"
+      },
+      {
+        name: "Pterodáctilo",
+        image: "pterodactilo.jpg",
+        color: "#fcbad3",
+        info: "Podia voar! Tinha asas feitas de pele esticada e comia peixes que pescava mergulhando na água. Não era um dinossauro de verdade, mas um réptil voador que viveu na mesma época.",
+        facts: ["Carnívoro", "Podia voar", "Comia peixes", "Envergadura de 1 metro"],
+        curiosities: "🦅 Tinha ossos ocos como as aves modernas para ser mais leve! Seu bico não tinha dentes. Podia dobrar suas asas quando estava no chão para andar melhor."
+      },
+      {
+        name: "Espinossauro",
+        image: "espinossauro.jpg",
+        color: "#ff9ff3",
+        info: "Tinha uma vela enorme nas costas de até 2 metros de altura! Era maior que o T-Rex e comia principalmente peixes. Podia nadar muito bem nos rios e tinha patas adaptadas para água.",
+        facts: ["Carnívoro", "Vela de 2m nas costas", "Excelente nadador", "15 metros de comprimento"],
+        curiosities: "🏊 Era o único dinossauro que passava a maior parte do tempo na água! Tinha narinas no topo do focinho para respirar enquanto nadava. Suas garras eram perfeitas para pescar!"
+      },
+      {
+        name: "Anquilossauro",
+        image: "anquilossauro.jpg",
+        color: "#feca57",
+        info: "Parecia um tanque de guerra! Tinha armadura óssea cobrindo todo o corpo e uma cauda com uma bola pesada que usava como martelo para se defender dos predadores.",
+        facts: ["Herbívoro", "Armadura óssea completa", "Cauda com bola de 30kg", "6 metros de comprimento"],
+        curiosities: "🛡️ Sua armadura era tão forte que nem o T-Rex conseguia morder! A bola na cauda podia quebrar ossos de predadores. Até suas pálpebras tinham armadura!"
+      },
+      {
+        name: "Diplodoco",
+        image: "diplodoco.jpg",
+        color: "#48dbfb",
+        info: "Um dos dinossauros mais longos! Tinha 27 metros de comprimento, com pescoço e cauda extremamente longos. Usava a cauda como chicote para se defender.",
+        facts: ["Herbívoro", "27 metros de comprimento", "Cauda como chicote", "Pescoço de 8 metros"],
+        curiosities: "📏 Sua cauda tinha 80 ossos! Podia estalar a cauda como um chicote, fazendo um som mais alto que um trovão. Engolia pedras para ajudar na digestão!"
+      },
+      {
+        name: "Alossauro",
+        image: "alossauro.jpg",
+        color: "#ff6348",
+        info: "Grande predador que viveu antes do T-Rex. Tinha garras afiadas e mandíbulas poderosas. Caçava dinossauros herbívoros grandes, às vezes em grupo.",
+        facts: ["Carnívoro", "9 metros de comprimento", "Garras de 15cm", "Pesava 2 toneladas"],
+        curiosities: "🦖 Tinha uma crista óssea acima dos olhos! Podia abrir a boca em um ângulo de 90 graus. Seus dentes cresciam novamente quando caíam, como os tubarões!"
+      },
+      {
+        name: "Parassaurolofus",
+        image: "parassaurolofus.jpg",
+        color: "#0abde3",
+        info: "Tinha uma crista longa e curva na cabeça de até 1,8 metros que usava para fazer sons e se comunicar! Vivia em grandes grupos e comia plantas. Podia andar em duas ou quatro patas.",
+        facts: ["Herbívoro", "Crista sonora de 1,8m", "Vivia em grupos", "10 metros de comprimento"],
+        curiosities: "🎺 Sua crista funcionava como uma trombeta natural! Podia fazer sons que viajavam por quilômetros. Cada dinossauro tinha um som único, como uma impressão digital sonora!"
+      },
+      {
+        name: "Carnotauro",
+        image: "carnotauro.jpg",
+        color: "#ee5a6f",
+        info: "Tinha dois chifres acima dos olhos como um touro! Era rápido e ágil, com braços ainda menores que o T-Rex. Caçava dinossauros menores na América do Sul.",
+        facts: ["Carnívoro", "2 chifres de touro", "Muito rápido", "8 metros de comprimento"],
+        curiosities: "🐂 Tinha a pele coberta de escamas com padrões únicos! Era um dos dinossauros carnívoros mais rápidos. Seus braços eram tão pequenos que mal podiam se mover!"
+      },
+      {
+        name: "Iguanodonte",
+        image: "iguanodonte.jpg",
+        color: "#10ac84",
+        info: "Um dos primeiros dinossauros descobertos pela ciência! Tinha um polegar em forma de espinho afiado para defesa. Comia plantas e vivia em grandes grupos para proteção.",
+        facts: ["Herbívoro", "Polegar espinho", "Vivia em grupos", "10 metros de comprimento"],
+        curiosities: "👍 Seu polegar espinho tinha 15cm! Cientistas primeiro pensaram que era um chifre no nariz. Podia andar em duas ou quatro patas dependendo da situação!"
+      },
+      {
+        name: "Argentinossauro",
+        image: "argentinossauro.jpg",
+        color: "#c44569",
+        info: "O maior dinossauro que já existiu! Pesava até 100 toneladas e tinha 35 metros de comprimento. Era tão grande quanto um prédio de 6 andares! Comia toneladas de plantas por dia.",
+        facts: ["Herbívoro", "100 toneladas", "35 metros de comprimento", "Altura de 21 metros"],
+        curiosities: "🏢 Cada vértebra da coluna tinha 1,5 metros! Seus ovos eram do tamanho de uma bola de futebol. Precisava comer 24 horas por dia para manter seu tamanho gigante!"
+      },
+      {
+        name: "Compsognato",
+        image: "compsognato.jpg",
+        color: "#f8b500",
+        info: "Um dos menores dinossauros! Do tamanho de uma galinha, pesava apenas 3kg. Era muito rápido e ágil, caçando insetos, lagartos e pequenos mamíferos.",
+        facts: ["Carnívoro", "Tamanho de galinha", "Muito rápido", "1 metro de comprimento"],
+        curiosities: "🐔 Podia correr a 60 km/h! Tinha ossos ocos e leves como as aves. Caçava em grupos pequenos para pegar presas maiores. Era coberto de penas primitivas!"
+      },
+      {
+        name: "Paquicefalossauro",
+        image: "paquicefalossauro.jpg",
+        color: "#786fa6",
+        info: "Tinha um crânio super grosso e duro de até 25cm de espessura! Os machos batiam cabeça uns nos outros para impressionar as fêmeas e disputar território, como carneiros fazem hoje.",
+        facts: ["Herbívoro", "Crânio de 25cm", "Batia cabeça", "5 metros de comprimento"],
+        curiosities: "💥 Seu crânio era 20 vezes mais grosso que o nosso! Tinha pequenos espinhos ao redor da cabeça. Podia dar cabeçadas a 25 km/h sem se machucar!"
+      },
+      {
+        name: "Deinonychus",
+        image: "deinonychus.jpg",
+        color: "#f19066",
+        info: "Primo maior do Velociraptor! Tinha uma garra enorme de 13cm no pé que usava para atacar. Caçava em grupo usando táticas inteligentes. Era muito ágil e perigoso.",
+        facts: ["Carnívoro", "Garra de 13cm", "Caçador em grupo", "3,4 metros de comprimento"],
+        curiosities: "🗡️ Sua garra podia girar 180 graus! Era coberto de penas e tinha cores vibrantes. Podia saltar sobre suas presas e atacar com as garras dos pés!"
+      },
+      {
+        name: "Giganotossauro",
+        image: "giganotossauro.jpg",
+        color: "#cf6a87",
+        info: "Maior que o T-Rex! Viveu na América do Sul e caçava dinossauros gigantes como o Argentinossauro. Tinha dentes afiados como facas e mandíbulas poderosas.",
+        facts: ["Carnívoro", "Maior que T-Rex", "Dentes de 20cm", "13 metros de comprimento"],
+        curiosities: "⚔️ Caçava em grupo para derrubar presas gigantes! Seu crânio tinha 1,8 metros. Podia comer 200kg de carne em uma refeição. Tinha um olfato incrível!"
+      },
+      {
+        name: "Maiassaura",
+        image: "maiassaura.jpg",
+        color: "#f6b93b",
+        info: "Chamada de 'boa mãe lagarto'! Cuidava muito bem dos seus filhotes, alimentando-os no ninho por meses. Construía ninhos em colônias e vivia em grandes grupos familiares.",
+        facts: ["Herbívoro", "Boa mãe", "Cuidava dos filhotes", "9 metros de comprimento"],
+        curiosities: "👶 Construía ninhos com 2 metros de diâmetro! Mastigava comida para os filhotes. Viviam em colônias de até 10.000 dinossauros. Protegiam os ninhos juntos!"
+      },
+      {
+        name: "Oviraptor",
+        image: "oviraptor.jpg",
+        color: "#e55039",
+        info: "Tinha um bico sem dentes e uma crista colorida na cabeça! Comia ovos, frutas, moluscos e pequenos animais. Tinha penas coloridas e era muito ágil.",
+        facts: ["Onívoro", "Bico sem dentes", "Tinha penas coloridas", "2 metros de comprimento"],
+        curiosities: "🥚 Seu nome significa 'ladrão de ovos', mas na verdade cuidava dos próprios ovos! Tinha penas como pavões. Podia quebrar ovos e moluscos com seu bico forte!"
+      },
+      {
+        name: "Kentrossauro",
+        image: "kentrossauro.jpg",
+        color: "#4a69bd",
+        info: "Parente africano do Estegossauro! Tinha espinhos afiados nas costas e na cauda para defesa. Vivia na África e comia plantas baixas. Seus espinhos eram muito perigosos.",
+        facts: ["Herbívoro", "Espinhos afiados", "Vivia na África", "5 metros de comprimento"],
+        curiosities: "🦔 Tinha espinhos de 60cm apontando para os lados! Vivia em grupos para melhor proteção. Seus espinhos eram tão afiados que podiam perfurar predadores!"
+      },
+      {
+        name: "Baryonyx",
+        image: "baryonyx.jpg",
+        color: "#0fb9b1",
+        info: "Tinha garras enormes de 30cm e comia peixes! Ficava perto de rios e usava suas garras para pescar, como ursos fazem hoje. Tinha um focinho longo como crocodilo.",
+        facts: ["Carnívoro", "Comia peixes", "Garras de 30cm", "10 metros de comprimento"],
+        curiosities: "🎣 Tinha 96 dentes serrilhados perfeitos para segurar peixes escorregadios! Podia ficar de pé na água rasa. Seu nome significa 'garra pesada'!"
+      },
+      {
+        name: "Gallimimus",
+        image: "gallimimus.jpg",
+        color: "#fa983a",
+        info: "Parecia uma avestruz gigante! Era o dinossauro mais rápido, correndo até 60 km/h. Tinha pescoço longo, pernas fortes e comia plantas, insetos e pequenos animais.",
+        facts: ["Onívoro", "Muito rápido", "60 km/h", "6 metros de comprimento"],
+        curiosities: "🏃 Tinha pernas longas e finas perfeitas para correr! Seus olhos eram grandes para ver predadores de longe. Podia fazer curvas rápidas enquanto corria!"
+      },
+      {
+        name: "Therizinosaurus",
+        image: "therizinosaurus.jpg",
+        color: "#b8e994",
+        info: "Tinha as garras mais longas de todos os dinossauros! Com 1 metro de comprimento, usava para alcançar e puxar galhos com folhas. Era herbívoro e pacífico, mas suas garras eram assustadoras.",
+        facts: ["Herbívoro", "Garras de 1 metro", "Pacífico", "5 metros de comprimento"],
+        curiosities: "✂️ Suas garras eram maiores que espadas! Tinha penas e parecia um pássaro gigante. Apesar das garras enormes, só comia plantas. Podia ficar de pé nas patas traseiras!"
+      },
+      {
+        name: "Mosassauro",
+        image: "mosassauro.jpg",
+        color: "#3c6382",
+        info: "Réptil marinho gigante! Não era dinossauro, mas vivia nos oceanos. Tinha dentes afiados e comia peixes, tubarões, tartarugas e até outros mosassauros! Era o predador supremo dos mares.",
+        facts: ["Carnívoro", "Vivia no mar", "15 metros de comprimento", "Predador supremo"],
+        curiosities: "🌊 Tinha uma segunda fileira de dentes no céu da boca! Podia nadar a 40 km/h. Suas mandíbulas podiam abrir muito para engolir presas grandes inteiras!"
+      },
+      {
+        name: "Archaeopteryx",
+        image: "archaeopteryx.jpg",
+        color: "#38ada9",
+        info: "Elo entre dinossauros e aves! Tinha penas e asas, mas também dentes afiados e garras. Podia voar curtas distâncias e caçava insetos. É considerado a primeira ave!",
+        facts: ["Carnívoro", "Tinha penas", "Podia voar", "50cm de comprimento"],
+        curiosities: "🦜 Tinha penas nas asas e cauda, mas também garras nas asas! Seus fósseis são raríssimos e muito valiosos. Provava que aves evoluíram dos dinossauros!"
+      }
+    ];
+
+    const quizQuestions = [
+      {
+        question: "Qual dinossauro tinha três chifres na cabeça?",
+        answers: ["Tricerátops", "T-Rex", "Carnotauro", "Velociraptor"],
+        correct: 0
+      },
+      {
+        question: "Qual réptil voador comia peixes?",
+        answers: ["Braquiossauro", "Archaeopteryx", "Pterodáctilo", "Estegossauro"],
+        correct: 2
+      },
+      {
+        question: "Qual dinossauro tinha placas ósseas nas costas?",
+        answers: ["Velociraptor", "Estegossauro", "T-Rex", "Tricerátops"],
+        correct: 1
+      },
+      {
+        question: "Qual era o maior dinossauro que já existiu?",
+        answers: ["T-Rex", "Argentinossauro", "Braquiossauro", "Giganotossauro"],
+        correct: 1
+      },
+      {
+        question: "Qual dinossauro tinha uma cauda com bola para defesa?",
+        answers: ["Velociraptor", "Anquilossauro", "Estegossauro", "Diplodoco"],
+        correct: 1
+      },
+      {
+        question: "Qual dinossauro tinha dentes de até 30cm?",
+        answers: ["Tricerátops", "Velociraptor", "T-Rex", "Compsognato"],
+        correct: 2
+      },
+      {
+        question: "Qual dinossauro tinha uma vela enorme nas costas?",
+        answers: ["Espinossauro", "T-Rex", "Alossauro", "Carnotauro"],
+        correct: 0
+      },
+      {
+        question: "Qual era o dinossauro mais rápido?",
+        answers: ["T-Rex", "Velociraptor", "Gallimimus", "Compsognato"],
+        correct: 2
+      },
+      {
+        question: "Qual dinossauro tinha as garras mais longas (1 metro)?",
+        answers: ["Velociraptor", "Therizinosaurus", "Deinonychus", "Baryonyx"],
+        correct: 1
+      },
+      {
+        question: "Qual dinossauro era chamado de 'boa mãe lagarto'?",
+        answers: ["Maiassaura", "Tricerátops", "Iguanodonte", "Oviraptor"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro tinha um crânio super grosso?",
+        answers: ["T-Rex", "Paquicefalossauro", "Carnotauro", "Alossauro"],
+        correct: 1
+      },
+      {
+        question: "Qual réptil marinho vivia nos oceanos?",
+        answers: ["Pterodáctilo", "Espinossauro", "Mosassauro", "Baryonyx"],
+        correct: 2
+      },
+      {
+        question: "Qual dinossauro tinha dois chifres como um touro?",
+        answers: ["Tricerátops", "Carnotauro", "Paquicefalossauro", "Estegossauro"],
+        correct: 1
+      },
+      {
+        question: "Qual dinossauro tinha um polegar em forma de espinho?",
+        answers: ["Iguanodonte", "Velociraptor", "Anquilossauro", "Alossauro"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro pesava até 100 toneladas?",
+        answers: ["T-Rex", "Braquiossauro", "Argentinossauro", "Diplodoco"],
+        correct: 2
+      },
+      {
+        question: "Qual era o menor dinossauro, do tamanho de uma galinha?",
+        answers: ["Compsognato", "Velociraptor", "Oviraptor", "Archaeopteryx"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro tinha uma crista sonora de 1,8 metros?",
+        answers: ["Parassaurolofus", "Carnotauro", "Paquicefalossauro", "Oviraptor"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro tinha 27 metros de comprimento?",
+        answers: ["T-Rex", "Diplodoco", "Velociraptor", "Anquilossauro"],
+        correct: 1
+      },
+      {
+        question: "Qual dinossauro tinha garras de 30cm para pescar?",
+        answers: ["Baryonyx", "Velociraptor", "Therizinosaurus", "Deinonychus"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro era maior que o T-Rex?",
+        answers: ["Velociraptor", "Alossauro", "Giganotossauro", "Carnotauro"],
+        correct: 2
+      },
+      {
+        question: "Qual dinossauro tinha penas e é considerado a primeira ave?",
+        answers: ["Archaeopteryx", "Velociraptor", "Oviraptor", "Gallimimus"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro tinha uma garra de 13cm no pé?",
+        answers: ["Deinonychus", "Compsognato", "Iguanodonte", "Kentrossauro"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro tinha espinhos afiados e vivia na África?",
+        answers: ["Estegossauro", "Kentrossauro", "Anquilossauro", "Tricerátops"],
+        correct: 1
+      },
+      {
+        question: "Qual dinossauro tinha um bico sem dentes?",
+        answers: ["T-Rex", "Oviraptor", "Alossauro", "Espinossauro"],
+        correct: 1
+      },
+      {
+        question: "Qual dinossauro construía ninhos em colônias?",
+        answers: ["Maiassaura", "T-Rex", "Velociraptor", "Giganotossauro"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro tinha armadura até nas pálpebras?",
+        answers: ["Tricerátops", "Anquilossauro", "Estegossauro", "Kentrossauro"],
+        correct: 1
+      },
+      {
+        question: "Qual dinossauro tinha narinas no topo da cabeça?",
+        answers: ["Braquiossauro", "T-Rex", "Velociraptor", "Compsognato"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro podia correr a 60 km/h?",
+        answers: ["Gallimimus", "T-Rex", "Tricerátops", "Braquiossauro"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro tinha uma segunda fileira de dentes no céu da boca?",
+        answers: ["T-Rex", "Mosassauro", "Espinossauro", "Alossauro"],
+        correct: 1
+      },
+      {
+        question: "Qual dinossauro tinha ossos ocos como as aves?",
+        answers: ["Compsognato", "Anquilossauro", "Tricerátops", "Argentinossauro"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro usava a cauda como chicote?",
+        answers: ["Diplodoco", "T-Rex", "Velociraptor", "Carnotauro"],
+        correct: 0
+      },
+      {
+        question: "Qual dinossauro era herbívoro mas tinha garras enormes?",
+        answers: ["T-Rex", "Velociraptor", "Therizinosaurus", "Alossauro"],
+        correct: 2
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+    let audioPlaying = false;
+
+    function toggleAudio() {
+      const audio = document.getElementById('background-music');
+      const button = document.getElementById('audio-toggle');
+      
+      if (audioPlaying) {
+        audio.pause();
+        button.textContent = '🔇';
+        audioPlaying = false;
+      } else {
+        audio.play().catch(err => {
+          console.error('Erro ao tocar áudio:', err);
+        });
+        button.textContent = '🔊';
+        audioPlaying = true;
+      }
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+
+    // Tentar iniciar o áudio automaticamente quando a página carregar
+    window.addEventListener('load', () => {
+      const audio = document.getElementById('background-music');
+      audio.play().then(() => {
+        audioPlaying = true;
+        document.getElementById('audio-toggle').textContent = '🔊';
+      }).catch(err => {
+        // Navegadores modernos bloqueiam autoplay, usuário precisa clicar
+        audioPlaying = false;
+        document.getElementById('audio-toggle').textContent = '🔇';
+      });
+    });
+
+    function openDinoDetail(dino) {
+      const overlay = document.getElementById('dino-detail-overlay');
+      const card = document.getElementById('dino-detail-card');
+      
+      card.innerHTML = `
+        <div class="dino-detail-header" style="background: linear-gradient(135deg, ${dino.color} 0%, ${dino.color}dd 100%);">
+          <button class="dino-detail-close" onclick="closeDinoDetail()">✕</button>
+          <div class="dino-detail-name">${dino.name}</div>
+        </div>
+        <div class="dino-detail-body">
+          <img class="dino-detail-image" src="${dino.image}" alt="${dino.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="dino-detail-image" style="display: none;">Imagem: ${dino.image}</div>
+          
+          <div class="dino-detail-section">
+            <div class="dino-detail-section-title" style="color: ${dino.color};">
+              📖 Descrição
+            </div>
+            <div class="dino-detail-text">${dino.info}</div>
+          </div>
+          
+          <div class="dino-detail-section">
+            <div class="dino-detail-section-title" style="color: ${dino.color};">
+              📊 Características
+            </div>
+            <div class="dino-detail-facts">
+              ${dino.facts.map(fact => `
+                <div class="dino-detail-fact" style="border-left-color: ${dino.color};">
+                  ✓ ${fact}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="dino-detail-section">
+            <div class="dino-detail-section-title" style="color: ${dino.color};">
+              💡 Curiosidades Incríveis
+            </div>
+            <div class="dino-detail-curiosities" style="border-color: ${dino.color};">
+              ${dino.curiosities}
+            </div>
+          </div>
+        </div>
+      `;
+      
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeDinoDetail() {
+      const overlay = document.getElementById('dino-detail-overlay');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    function closeDetailIfClickOutside(event) {
+      if (event.target.id === 'dino-detail-overlay') {
+        closeDinoDetail();
+      }
+    }
+
+    function renderDinosaurs() {
+      const grid = document.getElementById('dino-grid');
+      grid.innerHTML = '';
+      
+      dinosaurs.forEach(dino => {
+        const card = document.createElement('div');
+        card.className = 'dino-card';
+        card.style.borderColor = dino.color;
+        card.style.background = `linear-gradient(135deg, ${dino.color}40 0%, ${dino.color}20 100%)`;
+        card.onclick = () => openDinoDetail(dino);
+        
+        const img = document.createElement('img');
+        img.className = 'dino-image';
+        img.alt = dino.name;
+        img.onerror = function() {
+          this.style.display = 'none';
+          const placeholder = document.createElement('div');
+          placeholder.className = 'dino-image';
+          placeholder.textContent = `Imagem: ${dino.image}`;
+          placeholder.style.backgroundColor = dino.color + '30';
+          placeholder.style.color = dino.color;
+          placeholder.style.fontWeight = 'bold';
+          this.parentNode.insertBefore(placeholder, this);
+        };
+        img.src = dino.image;
+        
+        card.appendChild(img);
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'dino-name';
+        nameDiv.style.color = window.elementSdk?.config?.text_color || defaultConfig.text_color;
+        nameDiv.textContent = dino.name;
+        card.appendChild(nameDiv);
+        
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'dino-info';
+        infoDiv.style.color = window.elementSdk?.config?.text_color || defaultConfig.text_color;
+        infoDiv.textContent = dino.info;
+        card.appendChild(infoDiv);
+        
+        const factsDiv = document.createElement('div');
+        factsDiv.style.marginTop = '6px';
+        factsDiv.style.fontWeight = 'bold';
+        factsDiv.style.fontSize = '11px';
+        factsDiv.style.color = window.elementSdk?.config?.text_color || defaultConfig.text_color;
+        factsDiv.innerHTML = dino.facts.map(fact => `✓ ${fact}`).join('<br>');
+        card.appendChild(factsDiv);
+        
+        const curiositiesDiv = document.createElement('div');
+        curiositiesDiv.style.marginTop = '8px';
+        curiositiesDiv.style.padding = '8px';
+        curiositiesDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+        curiositiesDiv.style.borderRadius = '6px';
+        curiositiesDiv.style.fontSize = '11px';
+        curiositiesDiv.style.lineHeight = '1.4';
+        curiositiesDiv.style.color = window.elementSdk?.config?.text_color || defaultConfig.text_color;
+        curiositiesDiv.innerHTML = `<strong>💡 Curiosidades:</strong><br>${dino.curiosities}`;
+        card.appendChild(curiositiesDiv);
+        
+        grid.appendChild(card);
+      });
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      if (tab === 'learn') {
+        document.getElementById('learn-tab').classList.add('active');
+        document.getElementById('learn-content').classList.add('active');
+      } else {
+        document.getElementById('quiz-tab').classList.add('active');
+        document.getElementById('quiz-content').classList.add('active');
+        startQuiz();
+      }
+    }
+
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    let shuffledQuestions = [];
+
+    function startQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      answered = false;
+      shuffledQuestions = shuffleArray(quizQuestions);
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (currentQuestion >= shuffledQuestions.length) {
+        showFinalScore();
+        return;
+      }
+
+      const question = shuffledQuestions[currentQuestion];
+      document.getElementById('question').textContent = question.question;
+      document.getElementById('next-button').style.display = 'none';
+      document.getElementById('result-message').textContent = '';
+      document.getElementById('result-message').style.display = 'none';
+      answered = false;
+
+      const answersContainer = document.getElementById('answers');
+      answersContainer.innerHTML = '';
+
+      question.answers.forEach((answer, index) => {
+        const button = document.createElement('button');
+        button.className = 'answer-button';
+        button.textContent = answer;
+        button.style.backgroundColor = window.elementSdk?.config?.button_color || defaultConfig.button_color;
+        button.style.borderColor = window.elementSdk?.config?.accent_color || defaultConfig.accent_color;
+        button.style.color = window.elementSdk?.config?.text_color || defaultConfig.text_color;
+        button.onclick = () => checkAnswer(index, question.correct);
+        answersContainer.appendChild(button);
+      });
+    }
+
+    function checkAnswer(selected, correct) {
+      if (answered) return;
+      answered = true;
+
+      const buttons = document.querySelectorAll('.answer-button');
+      const resultMessage = document.getElementById('result-message');
+      
+      if (selected === correct) {
+        buttons[selected].classList.add('correct');
+        buttons[selected].style.backgroundColor = '#6bcf7f';
+        score++;
+        resultMessage.textContent = '🎉 Correto! Muito bem!';
+        resultMessage.style.backgroundColor = '#6bcf7f';
+        resultMessage.style.color = 'white';
+      } else {
+        buttons[selected].classList.add('incorrect');
+        buttons[selected].style.backgroundColor = '#ff6b6b';
+        buttons[correct].style.backgroundColor = '#6bcf7f';
+        resultMessage.textContent = '❌ Ops! A resposta certa era: ' + shuffledQuestions[currentQuestion].answers[correct];
+        resultMessage.style.backgroundColor = '#ff6b6b';
+        resultMessage.style.color = 'white';
+      }
+
+      resultMessage.style.display = 'block';
+      document.getElementById('next-button').style.display = 'block';
+      document.getElementById('next-button').style.backgroundColor = window.elementSdk?.config?.accent_color || defaultConfig.accent_color;
+      document.getElementById('next-button').style.color = 'white';
+
+      buttons.forEach(btn => btn.style.cursor = 'default');
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      showQuestion();
+    }
+
+    function showFinalScore() {
+      const percentage = (score / shuffledQuestions.length) * 100;
+      let message = '';
+      let emoji = '';
+
+      if (percentage === 100) {
+        message = 'Perfeito! Você acertou todas! 🏆';
+        emoji = '🌟';
+      } else if (percentage >= 70) {
+        message = 'Muito bem! Você mandou bem! 👏';
+        emoji = '🎉';
+      } else if (percentage >= 50) {
+        message = 'Bom trabalho! Continue aprendendo! 📚';
+        emoji = '👍';
+      } else {
+        message = 'Continue estudando! Volte para a aba Aprender! 💪';
+        emoji = '📖';
+      }
+
+      document.getElementById('question').textContent = `${emoji} Quiz Completo! ${emoji}`;
+      document.getElementById('answers').innerHTML = '';
+      document.getElementById('next-button').style.display = 'none';
+      
+      const resultMessage = document.getElementById('result-message');
+      resultMessage.innerHTML = `
+        <div style="font-size: 28px; margin-bottom: 20px;">${message}</div>
+        <button onclick="startQuiz()" style="margin-top: 20px; padding: 15px 30px; font-size: 18px; border: none; border-radius: 10px; cursor: pointer; font-family: 'Comic Sans MS', cursive; font-weight: bold; background-color: ${window.elementSdk?.config?.button_color || defaultConfig.button_color}; color: ${window.elementSdk?.config?.text_color || defaultConfig.text_color};">
+          🔄 Jogar Novamente
+        </button>
+      `;
+      resultMessage.style.backgroundColor = window.elementSdk?.config?.card_color || defaultConfig.card_color;
+      resultMessage.style.color = window.elementSdk?.config?.text_color || defaultConfig.text_color;
+      resultMessage.style.display = 'block';
+    }
+
+    async function onConfigChange(config) {
+      const gameTitle = document.getElementById('game-title');
+      const learnTabTitle = document.getElementById('learn-tab-title');
+      const quizTabTitle = document.getElementById('quiz-tab-title');
+      
+      gameTitle.textContent = config.game_title || defaultConfig.game_title;
+      learnTabTitle.textContent = config.learn_tab_title || defaultConfig.learn_tab_title;
+      quizTabTitle.textContent = config.quiz_tab_title || defaultConfig.quiz_tab_title;
+
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseFontStack = 'cursive, sans-serif';
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+
+      const baseSize = config.font_size || defaultConfig.font_size;
+      gameTitle.style.fontSize = `${baseSize * 2}px`;
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.style.fontSize = `${baseSize * 1.5}px`;
+      });
+      document.querySelectorAll('.dino-name').forEach(el => {
+        el.style.fontSize = `${baseSize * 1.5}px`;
+      });
+      document.querySelectorAll('.dino-info').forEach(el => {
+        el.style.fontSize = `${baseSize}px`;
+      });
+
+      document.body.style.background = `linear-gradient(180deg, #87CEEB 0%, #98D8C8 50%, ${config.background_color || defaultConfig.background_color} 100%)`;
+
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.style.backgroundColor = config.button_color || defaultConfig.button_color;
+        btn.style.color = config.text_color || defaultConfig.text_color;
+      });
+
+      document.querySelectorAll('.dino-name, .dino-info, .question, .score').forEach(el => {
+        el.style.color = config.text_color || defaultConfig.text_color;
+      });
+
+      renderDinosaurs();
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.card_color || defaultConfig.card_color,
+              set: (value) => {
+                config.card_color = value;
+                window.elementSdk.setConfig({ card_color: value });
+              }
+            },
+            {
+              get: () => config.button_color || defaultConfig.button_color,
+              set: (value) => {
+                config.button_color = value;
+                window.elementSdk.setConfig({ button_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.accent_color || defaultConfig.accent_color,
+              set: (value) => {
+                config.accent_color = value;
+                window.elementSdk.setConfig({ accent_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["game_title", config.game_title || defaultConfig.game_title],
+          ["learn_tab_title", config.learn_tab_title || defaultConfig.learn_tab_title],
+          ["quiz_tab_title", config.quiz_tab_title || defaultConfig.quiz_tab_title]
+        ])
+      });
+    }
+
+    renderDinosaurs();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99d784ed508e8b18',t:'MTc2Mjk2NjEzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
