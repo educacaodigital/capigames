@@ -1,0 +1,1299 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌴ÁRVORES DO BRASIL</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4CAF50, #81C784);
+            min-height: 100%;
+            color: #2E7D32;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2E7D32, #4CAF50);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .header-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            white-space: nowrap;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .header-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
+        }
+
+        .header-btn.audio-on {
+            background: rgba(156, 39, 176, 0.8);
+            border-color: rgba(156, 39, 176, 0.9);
+        }
+
+        .header-btn.audio-off {
+            background: rgba(117, 117, 117, 0.8);
+            border-color: rgba(117, 117, 117, 0.9);
+        }
+
+        .instructions {
+            background: #E8F5E8;
+            padding: 12px;
+            text-align: center;
+            font-size: 1rem;
+            border-bottom: 3px solid #4CAF50;
+        }
+
+        .game-area {
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .tree-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .tree-option {
+            background: #F1F8E9;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 90px;
+            font-size: 0.85rem;
+        }
+
+        .tree-option:hover {
+            background: #C8E6C9;
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .tree-option.selected {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .main-game-area {
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 1000px;
+            justify-content: center;
+        }
+
+        .growth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .info-section {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .image-container {
+            width: 300px;
+            height: 300px;
+            border: 3px solid #4CAF50;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #E8F5E8;
+            overflow: hidden;
+            position: relative;
+            transition: background-color 0.5s ease;
+        }
+
+        .image-container.planted {
+            background: #8D6E63;
+        }
+
+        .water-drop {
+            position: absolute;
+            font-size: 1.5rem;
+            color: #2196F3;
+            animation: dropFall 1s ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes dropFall {
+            0% {
+                top: -20px;
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                top: 100%;
+                opacity: 0;
+                transform: scale(0.5);
+            }
+        }
+
+        .tree-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .placeholder {
+            color: #81C784;
+            font-size: 1rem;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            max-width: 100%;
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn:disabled {
+            background: #CCCCCC;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .info-card {
+            background: #E8F5E8;
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 15px;
+            height: fit-content;
+            display: none;
+        }
+
+        .info-card.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-card h3 {
+            color: #2E7D32;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border-left: 3px solid #4CAF50;
+            font-size: 0.85rem;
+        }
+
+        .info-item strong {
+            color: #2E7D32;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .flower-fruit-section {
+            margin: 15px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #81C784;
+        }
+
+        .flower-fruit-section h4 {
+            color: #2E7D32;
+            font-size: 1rem;
+            margin: 0 0 12px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .flower-fruit-gallery {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .flower-fruit-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .flower-fruit-image-container {
+            width: 140px;
+            height: 110px;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F1F8E9;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .flower-fruit-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .flower-fruit-placeholder {
+            color: #81C784;
+            font-size: 0.7rem;
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .flower-fruit-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        .stage-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .stage-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .stage-container:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 17px;
+            right: -22px;
+            width: 30px;
+            height: 3px;
+            background: #E0E0E0;
+            z-index: 1;
+        }
+
+        .stage-container.completed::after {
+            background: #2E7D32;
+        }
+
+        .stage {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.9rem;
+            z-index: 2;
+            position: relative;
+        }
+
+        .stage.active {
+            background: #4CAF50;
+        }
+
+        .stage.completed {
+            background: #2E7D32;
+        }
+
+        .stage-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .stage-btn:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .stage-btn:disabled {
+            background: #CCCCCC;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .stage-label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        @media (max-width: 1024px) {
+            .main-game-area {
+                flex-direction: column;
+                gap: 30px;
+                align-items: center;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+                max-width: 600px;
+            }
+            
+            .btn {
+                min-width: 120px;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header-controls {
+                position: static;
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+
+            .header-btn {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            
+            .game-area {
+                padding: 15px 20px;
+            }
+            
+            .stage-indicator {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .stage-container:not(:last-child)::after {
+                width: 20px;
+                right: -15px;
+            }
+            
+            .stage-btn {
+                font-size: 0.75rem;
+                padding: 5px 10px;
+                min-width: 100px;
+            }
+            
+            .main-game-area {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+            
+            .tree-selector {
+                gap: 8px;
+            }
+            
+            .tree-option {
+                min-width: 80px;
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .image-container {
+                width: 280px;
+                height: 280px;
+            }
+            
+            .controls {
+                gap: 10px;
+                flex-wrap: wrap;
+                max-width: 100%;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-width: 110px;
+            }
+            
+            .info-card {
+                margin-top: 0;
+                width: 100%;
+            }
+            
+            .flower-fruit-image-container {
+                width: 110px;
+                height: 90px;
+            }
+            
+            .flower-fruit-placeholder {
+                font-size: 0.6rem;
+            }
+            
+            .flower-fruit-label {
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stage-indicator {
+                flex-direction: column;
+                gap: 15px;
+                align-items: center;
+            }
+            
+            .stage-container {
+                flex-direction: row;
+                gap: 12px;
+                align-items: center;
+            }
+            
+            .stage-container:not(:last-child)::after {
+                display: none;
+            }
+            
+            .stage-btn {
+                min-width: 140px;
+                font-size: 0.8rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 12px;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 250px;
+                min-width: auto;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <header class="header">
+    <div class="header-controls"><button class="header-btn" id="backBtn"> ← VOLTAR </button> <button class="header-btn" id="instructionsBtn"> 📢 ORIENTAÇÕES </button> <button class="header-btn audio-off" id="audioBtn"> <span id="audioIcon">🔇</span> <span id="audioText">ÁUDIO</span> </button>
+    </div>
+    <h1 id="gameTitle">🌳 ÁRVORES DO BRASIL 🌳</h1>
+   </header>
+   <div class="instructions">
+    <p id="instructionText">Escolha uma árvore brasileira, plante sua semente, regue com carinho e veja ela crescer! Descubra curiosidades incríveis sobre nossa flora nativa.</p>
+   </div>
+   <div class="game-area">
+    <div class="tree-selector">
+     <div class="tree-option" data-tree="ipê"><strong> IPÊ AMARELO</strong>
+     </div>
+     <div class="tree-option" data-tree="guarana"><strong> GUARANÁ</strong>
+     </div>
+     <div class="tree-option" data-tree="jequitiba"><strong> JEQUITIBÁ</strong>
+     </div>
+     <div class="tree-option" data-tree="acai"><strong> AÇAIZEIRO</strong>
+     </div>
+     <div class="tree-option" data-tree="araucaria"><strong> ARAUCÁRIA</strong>
+     </div>
+     <div class="tree-option" data-tree="jatoba"><strong> JATOBÁ</strong>
+     </div>
+     <div class="tree-option" data-tree="pau-brasil"><strong> PAU-BRASIL</strong>
+     </div>
+    </div>
+    <div class="stage-indicator">
+     <div class="stage-container">
+      <div class="stage" id="stage1">
+       1
+      </div><button class="stage-btn" id="plantBtn" disabled> <span id="plantButtonText">🌱 Plantar Semente</span> </button>
+     </div>
+     <div class="stage-container">
+      <div class="stage" id="stage2">
+       2
+      </div><button class="stage-btn" id="waterBtn" disabled> <span id="waterButtonText">💧 Regar Planta</span> </button>
+     </div>
+     <div class="stage-container">
+      <div class="stage" id="stage3">
+       3
+      </div><button class="stage-btn" id="growBtn" disabled> <span id="growButtonText">🌳 Ver Árvore Adulta</span> </button>
+     </div>
+     <div class="stage-container">
+      <div class="stage" id="stage4">
+       4
+      </div>
+      <div class="stage-label">
+       COMPLETO!
+      </div>
+     </div>
+    </div>
+    <div class="main-game-area">
+     <div class="growth-container">
+      <div class="image-container">
+       <div class="placeholder" id="placeholder">
+        SELECIONE UMA ÁRVORE PARA COMEÇAR SUA JORNADA! 🌱
+       </div><img class="tree-image" id="treeImage" style="display: none;" alt="Estágio da árvore">
+      </div>
+      <div class="controls"><button class="btn" id="resetBtn" style="background: #FF7043;"> 🔄 RECOMEÇAR </button>
+      </div>
+     </div>
+     <div class="info-section">
+      <div class="info-card" id="infoCard">
+       <h3 id="treeName"></h3><!-- Seção de imagens das flores e frutos -->
+       <div class="flower-fruit-section">
+        <h4>🌸 FLORES E FRUTOS</h4>
+        <div class="flower-fruit-gallery">
+         <div class="flower-fruit-item">
+          <div class="flower-fruit-image-container"><img id="flowerImage" class="flower-fruit-image" alt="Flores da árvore" style="display: none;">
+           <div class="flower-fruit-placeholder" id="flowerPlaceholder">
+            🌸 FLORES
+           </div>
+          </div><span class="flower-fruit-label">Flores</span>
+         </div>
+         <div class="flower-fruit-item">
+          <div class="flower-fruit-image-container"><img id="fruitImage" class="flower-fruit-image" alt="Frutos da árvore" style="display: none;">
+           <div class="flower-fruit-placeholder" id="fruitPlaceholder">
+            🍃 FRUTOS
+           </div>
+          </div><span class="flower-fruit-label">Frutos</span>
+         </div>
+        </div>
+       </div>
+       <div class="info-grid" id="infoGrid"></div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div><!-- Elemento de áudio para música de fundo -->
+  <audio id="backgroundAudio" loop preload="auto"><source src="arvore.mp3" type="audio/mpeg"> Seu navegador não suporta o elemento de áudio.
+  </audio>
+  <script>
+        // Configuração padrão
+        const defaultConfig = {
+            game_title: "🌳 ÁRVORES DO BRASIL 🌳",
+            instruction_text: "ESCOLHA UMA ÁRVORE BRASILEIRA, PLANTE SUA SEMENTE, REGUE COM CARINHO E VEJA ELA CRESCER! DESCUBRA CURIOSIDADES INCRÍVEIS SOBRE NOSSA FLORA NATIVA.",
+            plant_button_text: "🌱 PLANTAR SEMENTE",
+            water_button_text: "💧 REGAR PLANTA",
+            grow_button_text: "🌳 VER ÁRVORE ADULTA"
+        };
+
+        // Estado do jogo
+        let currentTree = null;
+        let currentStage = 0; // 0: não selecionado, 1: semente, 2: plantado, 3: regado, 4: árvore adulta
+        let audioEnabled = false;
+        let backgroundAudio = null;
+
+        let isPlayingInstructions = false;
+
+        // Dados das árvores brasileiras
+        const treesData = {
+            'ipê': {
+                name: 'IPÊ AMARELO',
+                seedImage: 'ipe_semente.jpg',
+                saplingImage: 'ipe_muda.jpg',
+                treeImage: 'ipe_arvore.jpg',
+                flowerImage: 'ipe_flores.jpg',
+                fruitImage: 'ipe_frutos.jpg',
+                info: {
+                    'Nome Científico': 'Handroanthus albus',
+                    'Família': 'Bignoniaceae',
+                    'Altura': 'Até 20 metros',
+                    'Floração': 'Julho a setembro',
+                    'Habitat': 'Cerrado e Mata Atlântica',
+                    'Curiosidade': 'Suas flores amarelas aparecem quando a árvore está sem folhas',
+                    'Uso': 'Madeira nobre para móveis e construção',
+                    'Longevidade': 'Pode viver mais de 100 anos'
+                }
+            },
+            'guarana': {
+                name: 'GUARANÁ',
+                seedImage: 'guarana_semente.jpg',
+                saplingImage: 'guarana_muda.jpg',
+                treeImage: 'guarana_arvore.jpg',
+                flowerImage: 'guarana_flores.jpg',
+                fruitImage: 'guarana_frutos.jpg',
+                info: {
+                    'Nome Científico': 'Paullinia cupana',
+                    'Família': 'Sapindaceae',
+                    'Altura': 'Até 12 metros',
+                    'Fruto': 'Cápsula vermelha com semente preta',
+                    'Habitat': 'Amazônia brasileira',
+                    'Curiosidade': 'Contém mais cafeína que o café',
+                    'Uso': 'Bebida energética e medicinal',
+                    'Cultura': 'Sagrado para os índios Sateré-Mawé'
+                }
+            },
+            'jequitiba': {
+                name: 'JEQUITIBÁ',
+                seedImage: 'jequitiba_semente.jpg',
+                saplingImage: 'jequitiba_muda.jpg',
+                treeImage: 'jequitiba_arvore.jpg',
+                flowerImage: 'jequitiba_flores.jpg',
+                fruitImage: 'jequitiba_frutos.jpg',
+                info: {
+                    'Nome Científico': 'Cariniana legalis',
+                    'Família': 'Lecythidaceae',
+                    'Altura': 'Até 60 metros',
+                    'Tronco': 'Pode ter até 4 metros de diâmetro',
+                    'Habitat': 'Mata Atlântica',
+                    'Curiosidade': 'Uma das maiores árvores nativas do Brasil',
+                    'Longevidade': 'Pode viver mais de 3000 anos',
+                    'Conservação': 'Espécie vulnerável à extinção'
+                }
+            },
+            'acai': {
+                name: 'AÇAIZEIRO',
+                seedImage: 'acai_semente.jpg',
+                saplingImage: 'acai_muda.jpg',
+                treeImage: 'acai_arvore.jpg',
+                flowerImage: 'acai_flores.jpg',
+                fruitImage: 'acai_frutos.jpg',
+                info: {
+                    'Nome Científico': 'Euterpe oleracea',
+                    'Família': 'Arecaceae (Palmeiras)',
+                    'Altura': 'Até 25 metros',
+                    'Fruto': 'Pequeno, roxo-escuro, rico em antioxidantes',
+                    'Habitat': 'Várzeas da Amazônia',
+                    'Curiosidade': 'Superfood amazônico mundialmente famoso',
+                    'Uso': 'Alimentação, cosméticos e medicina',
+                    'Economia': 'Importante fonte de renda para ribeirinhos'
+                }
+            },
+            'araucaria': {
+                name: 'ARAUCÁRIA',
+                seedImage: 'araucaria_semente.jpg',
+                saplingImage: 'araucaria_muda.jpg',
+                treeImage: 'araucaria_arvore.jpg',
+                flowerImage: 'araucaria_flores.jpg',
+                fruitImage: 'araucaria_frutos.jpg',
+                info: {
+                    'Nome Científico': 'Araucaria angustifolia',
+                    'Família': 'Araucariaceae',
+                    'Altura': 'Até 50 metros',
+                    'Fruto': 'Pinhão - semente comestível',
+                    'Habitat': 'Mata de Araucárias (Sul do Brasil)',
+                    'Curiosidade': 'Árvore símbolo do Paraná, existe há 200 milhões de anos',
+                    'Uso': 'Madeira nobre e pinhões na culinária',
+                    'Conservação': 'Criticamente ameaçada de extinção'
+                }
+            },
+            'jatoba': {
+                name: 'JATOBÁ',
+                seedImage: 'jatoba_semente.jpg',
+                saplingImage: 'jatoba_muda.jpg',
+                treeImage: 'jatoba_arvore.jpg',
+                flowerImage: 'jatoba_flores.jpg',
+                fruitImage: 'jatoba_frutos.jpg',
+                info: {
+                    'Nome Científico': 'Hymenaea courbaril',
+                    'Família': 'Fabaceae',
+                    'Altura': 'Até 40 metros',
+                    'Fruto': 'Vagem dura com polpa doce e aromática',
+                    'Habitat': 'Amazônia, Cerrado e Mata Atlântica',
+                    'Curiosidade': 'Produz resina fossilizada (âmbar brasileiro)',
+                    'Uso': 'Madeira de lei, fruto medicinal e alimentício',
+                    'Longevidade': 'Pode viver mais de 1000 anos'
+                }
+            },
+            'pau-brasil': {
+                name: 'PAU-BRASIL',
+                seedImage: 'pau_brasil_semente.jpg',
+                saplingImage: 'pau_brasil_muda.jpg',
+                treeImage: 'pau_brasil_arvore.jpg',
+                flowerImage: 'pau_brasil_flores.jpg',
+                fruitImage: 'pau_brasil_frutos.jpg',
+                info: {
+                    'Nome Científico': 'Paubrasilia echinata',
+                    'Família': 'Fabaceae',
+                    'Altura': 'Até 15 metros',
+                    'Floração': 'Setembro a outubro',
+                    'Habitat': 'Mata Atlântica',
+                    'História': 'Deu nome ao Brasil, explorado para tingir tecidos',
+                    'Conservação': 'Espécie ameaçada de extinção',
+                    'Símbolo': 'Árvore nacional do Brasil'
+                }
+            }
+        };
+
+        // Elementos DOM
+        const treeOptions = document.querySelectorAll('.tree-option');
+        const plantBtn = document.getElementById('plantBtn');
+        const waterBtn = document.getElementById('waterBtn');
+        const growBtn = document.getElementById('growBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const backBtn = document.getElementById('backBtn');
+        const instructionsBtn = document.getElementById('instructionsBtn');
+        const audioBtn = document.getElementById('audioBtn');
+        const audioIcon = document.getElementById('audioIcon');
+        const audioText = document.getElementById('audioText');
+        const treeImage = document.getElementById('treeImage');
+        const placeholder = document.getElementById('placeholder');
+        const infoCard = document.getElementById('infoCard');
+        const stages = document.querySelectorAll('.stage');
+
+        // Event listeners para seleção de árvore
+        treeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Remove seleção anterior
+                treeOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Adiciona seleção atual
+                option.classList.add('selected');
+                
+                // Define árvore atual
+                currentTree = option.dataset.tree;
+                currentStage = 1;
+                
+                // Mostra semente
+                showSeed();
+                updateUI();
+            });
+        });
+
+        // Event listeners para botões
+        plantBtn.addEventListener('click', plantSeed);
+        waterBtn.addEventListener('click', waterPlant);
+        growBtn.addEventListener('click', showAdultTree);
+        resetBtn.addEventListener('click', resetGame);
+        backBtn.addEventListener('click', goBack);
+        instructionsBtn.addEventListener('click', playInstructions);
+        audioBtn.addEventListener('click', toggleAudio);
+
+        function showSeed() {
+            if (!currentTree) return;
+            
+            const treeData = treesData[currentTree];
+            
+            // Adiciona fundo marrom para sementes
+            const imageContainer = document.querySelector('.image-container');
+            imageContainer.classList.add('planted');
+            
+            placeholder.style.display = 'none';
+            treeImage.style.display = 'block';
+            treeImage.src = treeData.seedImage;
+            treeImage.alt = `Semente de ${treeData.name}`;
+            
+            // Mostra informações da árvore imediatamente
+            showTreeInfo();
+            
+            // Tratamento de erro para imagem
+            treeImage.onerror = function() {
+                this.style.display = 'none';
+                placeholder.style.display = 'block';
+                placeholder.innerHTML = `🌰 SEMENTE DE ${treeData.name}<br><small>IMAGEM: ${treeData.seedImage}</small>`;
+            };
+        }
+
+        function plantSeed() {
+            if (currentStage !== 1) return;
+            
+            currentStage = 2;
+            
+            // Animação de plantio
+            treeImage.style.transform = 'scale(0.8)';
+            setTimeout(() => {
+                treeImage.style.transform = 'scale(1)';
+            }, 300);
+            
+            updateUI();
+        }
+
+        function waterPlant() {
+            if (currentStage !== 2) return;
+            
+            currentStage = 3;
+            
+            // Efeito de gotas de água
+            createWaterDrops();
+            
+            const treeData = treesData[currentTree];
+            
+            // Aguarda um pouco antes de mostrar a muda
+            setTimeout(() => {
+                // Remove fundo marrom e volta para verde claro
+                const imageContainer = document.querySelector('.image-container');
+                imageContainer.classList.remove('planted');
+                
+                treeImage.src = treeData.saplingImage;
+                treeImage.alt = `Muda de ${treeData.name}`;
+                
+                // Tratamento de erro para imagem
+                treeImage.onerror = function() {
+                    this.style.display = 'none';
+                    placeholder.style.display = 'block';
+                    placeholder.innerHTML = `🌱 MUDA DE ${treeData.name}<br><small>IMAGEM: ${treeData.saplingImage}</small>`;
+                };
+                
+                // Animação de crescimento
+                treeImage.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    treeImage.style.transform = 'scale(1)';
+                }, 500);
+            }, 800);
+            
+            updateUI();
+        }
+
+        function createWaterDrops() {
+            const imageContainer = document.querySelector('.image-container');
+            
+            // Cria múltiplas gotas
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const drop = document.createElement('div');
+                    drop.className = 'water-drop';
+                    drop.textContent = '💧';
+                    drop.style.left = Math.random() * 80 + 10 + '%';
+                    drop.style.animationDelay = Math.random() * 0.5 + 's';
+                    
+                    imageContainer.appendChild(drop);
+                    
+                    // Remove a gota após a animação
+                    setTimeout(() => {
+                        if (drop.parentNode) {
+                            drop.parentNode.removeChild(drop);
+                        }
+                    }, 1500);
+                }, i * 100);
+            }
+        }
+
+        function showAdultTree() {
+            if (currentStage !== 3) return;
+            
+            currentStage = 4;
+            
+            const treeData = treesData[currentTree];
+            treeImage.src = treeData.treeImage;
+            treeImage.alt = `${treeData.name} adulta`;
+            
+            // Tratamento de erro para imagem
+            treeImage.onerror = function() {
+                this.style.display = 'none';
+                placeholder.style.display = 'block';
+                placeholder.innerHTML = `🌳 ${treeData.name} ADULTA<br><small>IMAGEM: ${treeData.treeImage}</small>`;
+            };
+            
+            updateUI();
+        }
+
+        function showTreeInfo() {
+            const treeData = treesData[currentTree];
+            const treeName = document.getElementById('treeName');
+            const infoGrid = document.getElementById('infoGrid');
+            const flowerImage = document.getElementById('flowerImage');
+            const fruitImage = document.getElementById('fruitImage');
+            const flowerPlaceholder = document.getElementById('flowerPlaceholder');
+            const fruitPlaceholder = document.getElementById('fruitPlaceholder');
+            
+            treeName.textContent = treeData.name;
+            
+            // Configurar imagem das flores
+            flowerImage.src = treeData.flowerImage;
+            flowerImage.alt = `Flores de ${treeData.name}`;
+            flowerImage.style.display = 'block';
+            flowerPlaceholder.style.display = 'none';
+            
+            // Tratamento de erro para imagem das flores
+            flowerImage.onerror = function() {
+                this.style.display = 'none';
+                flowerPlaceholder.style.display = 'block';
+                flowerPlaceholder.innerHTML = `🌸<br><small>${treeData.flowerImage}</small>`;
+            };
+            
+            // Configurar imagem dos frutos
+            fruitImage.src = treeData.fruitImage;
+            fruitImage.alt = `Frutos de ${treeData.name}`;
+            fruitImage.style.display = 'block';
+            fruitPlaceholder.style.display = 'none';
+            
+            // Tratamento de erro para imagem dos frutos
+            fruitImage.onerror = function() {
+                this.style.display = 'none';
+                fruitPlaceholder.style.display = 'block';
+                fruitPlaceholder.innerHTML = `🍃<br><small>${treeData.fruitImage}</small>`;
+            };
+            
+            // Preencher informações
+            infoGrid.innerHTML = '';
+            Object.entries(treeData.info).forEach(([key, value]) => {
+                const infoItem = document.createElement('div');
+                infoItem.className = 'info-item';
+                infoItem.innerHTML = `<strong>${key}:</strong> ${value}`;
+                infoGrid.appendChild(infoItem);
+            });
+            
+            infoCard.classList.add('show');
+        }
+
+        function updateUI() {
+            // Atualiza indicadores de estágio
+            const stageContainers = document.querySelectorAll('.stage-container');
+            
+            stages.forEach((stage, index) => {
+                const container = stageContainers[index];
+                
+                stage.classList.remove('active', 'completed');
+                container.classList.remove('completed');
+                
+                if (index + 1 < currentStage) {
+                    stage.classList.add('completed');
+                    container.classList.add('completed');
+                } else if (index + 1 === currentStage) {
+                    stage.classList.add('active');
+                }
+            });
+            
+            // Atualiza botões
+            plantBtn.disabled = currentStage !== 1;
+            waterBtn.disabled = currentStage !== 2;
+            growBtn.disabled = currentStage !== 3;
+        }
+
+        function resetGame() {
+            currentTree = null;
+            currentStage = 0;
+            
+            // Reset visual
+            treeOptions.forEach(opt => opt.classList.remove('selected'));
+            treeImage.style.display = 'none';
+            placeholder.style.display = 'block';
+            placeholder.innerHTML = 'SELECIONE UMA ÁRVORE PARA COMEÇAR SUA JORNADA! 🌱';
+            infoCard.classList.remove('show');
+            
+            // Remove efeito de terra
+            const imageContainer = document.querySelector('.image-container');
+            imageContainer.classList.remove('planted');
+            
+            // Remove gotas de água restantes
+            const waterDrops = imageContainer.querySelectorAll('.water-drop');
+            waterDrops.forEach(drop => drop.remove());
+            
+            updateUI();
+        }
+
+        // Função para voltar à página anterior
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não há histórico, mostra mensagem inline
+                const originalText = backBtn.innerHTML;
+                backBtn.innerHTML = '← SEM HISTÓRICO';
+                backBtn.disabled = true;
+                
+                setTimeout(() => {
+                    backBtn.innerHTML = originalText;
+                    backBtn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Função para reproduzir orientações em áudio usando síntese de voz
+        function playInstructions() {
+            if (isPlayingInstructions) {
+                // Parar orientações
+                speechSynthesis.cancel();
+                isPlayingInstructions = false;
+                instructionsBtn.innerHTML = '📢 Orientações';
+                instructionsBtn.classList.remove('audio-on');
+                
+                // Retomar música de fundo se estava tocando
+                if (audioEnabled && backgroundAudio) {
+                    backgroundAudio.play();
+                }
+            } else {
+                // Reproduzir orientações usando síntese de voz
+                playInstructionsWithSpeech();
+            }
+        }
+
+        // Função para reproduzir orientações usando síntese de voz do navegador
+        function playInstructionsWithSpeech() {
+            if ('speechSynthesis' in window) {
+                // Primeiro, pausar música de fundo se estiver tocando
+                if (audioEnabled && backgroundAudio) {
+                    backgroundAudio.pause();
+                }
+
+                const instructionText = `
+                    Bem-vindos ao jogo Árvores do Brasil! 
+                    Aqui você vai aprender sobre nossas árvores nativas de forma divertida.
+                    
+                    Como jogar:
+                    Primeiro, escolha uma das sete árvores brasileiras: Ipê Amarelo, Guaraná, Jequitibá, Açaizeiro, Araucária, Jatobá ou Pau-Brasil.
+                    
+                    Depois, siga os três passos na linha do tempo:
+                    Passo 1: Clique em "Plantar Semente" para colocar a semente na terra.
+                    Passo 2: Clique em "Regar Planta" para ver sua muda crescer com gotinhas de água.
+                    Passo 3: Clique em "Ver Árvore Adulta" para descobrir como fica a árvore quando cresce.
+                    
+                    Enquanto joga, você pode ler informações curiosas sobre cada árvore no painel lateral.
+                    Descubra onde elas vivem, quanto tempo vivem, e curiosidades incríveis!
+                    
+                    Use o botão "Recomeçar" para tentar com outra árvore.
+                    Divirta-se aprendendo sobre nossa rica flora brasileira!
+                `;
+
+                const utterance = new SpeechSynthesisUtterance(instructionText);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                utterance.volume = 0.8;
+                
+                utterance.onstart = () => {
+                    isPlayingInstructions = true;
+                    instructionsBtn.innerHTML = '⏹️ Parar';
+                    instructionsBtn.classList.add('audio-on');
+                };
+                
+                utterance.onend = () => {
+                    isPlayingInstructions = false;
+                    instructionsBtn.innerHTML = '📢 Orientações';
+                    instructionsBtn.classList.remove('audio-on');
+                    
+                    // Retomar música de fundo se estava tocando
+                    if (audioEnabled && backgroundAudio) {
+                        backgroundAudio.play();
+                    }
+                };
+
+                utterance.onerror = () => {
+                    isPlayingInstructions = false;
+                    instructionsBtn.innerHTML = '📢 Orientações';
+                    instructionsBtn.classList.remove('audio-on');
+                    
+                    // Mostrar mensagem de erro temporária
+                    const originalText = instructionsBtn.innerHTML;
+                    instructionsBtn.innerHTML = '🚫 Erro no áudio';
+                    instructionsBtn.disabled = true;
+                    
+                    setTimeout(() => {
+                        instructionsBtn.innerHTML = originalText;
+                        instructionsBtn.disabled = false;
+                    }, 3000);
+                };
+
+                speechSynthesis.speak(utterance);
+            } else {
+                // Se não há suporte a síntese de voz, mostrar mensagem
+                const originalText = instructionsBtn.innerHTML;
+                instructionsBtn.innerHTML = '🚫 Áudio não suportado';
+                instructionsBtn.disabled = true;
+                
+                setTimeout(() => {
+                    instructionsBtn.innerHTML = originalText;
+                    instructionsBtn.disabled = false;
+                }, 3000);
+            }
+        }
+
+        // Função para controlar áudio
+        function toggleAudio() {
+            if (!backgroundAudio) {
+                backgroundAudio = document.getElementById('backgroundAudio');
+            }
+
+            if (audioEnabled) {
+                // Desligar áudio
+                backgroundAudio.pause();
+                audioEnabled = false;
+                audioIcon.textContent = '🔇';
+                audioText.textContent = 'Áudio';
+                audioBtn.classList.remove('audio-on');
+                audioBtn.classList.add('audio-off');
+            } else {
+                // Ligar áudio
+                backgroundAudio.play().then(() => {
+                    audioEnabled = true;
+                    audioIcon.textContent = '🔊';
+                    audioText.textContent = 'Áudio';
+                    audioBtn.classList.remove('audio-off');
+                    audioBtn.classList.add('audio-on');
+                }).catch(error => {
+                    // Se não conseguir tocar (arquivo não encontrado ou erro)
+                    const originalText = audioBtn.innerHTML;
+                    audioBtn.innerHTML = '🚫 Arquivo não encontrado';
+                    audioBtn.disabled = true;
+                    
+                    setTimeout(() => {
+                        audioBtn.innerHTML = originalText;
+                        audioBtn.disabled = false;
+                    }, 3000);
+                });
+            }
+        }
+
+        // Inicializar áudio quando a página carregar
+        function initializeAudio() {
+            backgroundAudio = document.getElementById('backgroundAudio');
+            
+            // Configurar volume padrão
+            backgroundAudio.volume = 0.3;
+            
+            // Event listener para quando o áudio terminar (não deveria acontecer com loop)
+            backgroundAudio.addEventListener('ended', () => {
+                if (audioEnabled) {
+                    backgroundAudio.play();
+                }
+            });
+
+            // Event listener para erros de carregamento da música de fundo
+            backgroundAudio.addEventListener('error', () => {
+                audioBtn.innerHTML = '🚫 Áudio indisponível';
+                audioBtn.disabled = true;
+            });
+        }
+
+        // Função para atualizar configurações
+        async function onConfigChange(config) {
+            document.getElementById('gameTitle').textContent = config.game_title || defaultConfig.game_title;
+            document.getElementById('instructionText').textContent = config.instruction_text || defaultConfig.instruction_text;
+            document.getElementById('plantButtonText').textContent = config.plant_button_text || defaultConfig.plant_button_text;
+            document.getElementById('waterButtonText').textContent = config.water_button_text || defaultConfig.water_button_text;
+            document.getElementById('growButtonText').textContent = config.grow_button_text || defaultConfig.grow_button_text;
+        }
+
+        // Inicialização do SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: onConfigChange,
+                mapToCapabilities: (config) => ({
+                    recolorables: [],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (config) => new Map([
+                    ["game_title", config.game_title || defaultConfig.game_title],
+                    ["instruction_text", config.instruction_text || defaultConfig.instruction_text],
+                    ["plant_button_text", config.plant_button_text || defaultConfig.plant_button_text],
+                    ["water_button_text", config.water_button_text || defaultConfig.water_button_text],
+                    ["grow_button_text", config.grow_button_text || defaultConfig.grow_button_text]
+                ])
+            });
+        }
+
+        // Inicialização
+        updateUI();
+        initializeAudio();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99e75672a19a8b1d',t:'MTc2MzEzMTk5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
