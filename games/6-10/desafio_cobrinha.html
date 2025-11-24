@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐍Desafio do Alfabeto</title>
+    <style>
+        /* --- CSS: Estilização Geral e Layout --- */
+        :root {
+            --bg-color: #121212;
+            --snake-color: #00ff9d;
+            --text-color: #ffffff;
+            --accent-color: #ff0055;
+            --ui-panel: #1e1e1e;
+            
+            /* Cores do Cabeçalho */
+            --header-bg-start: #6a11cb;
+            --header-bg-end: #2575fc;
+            --header-text: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Cabeçalho Fixo */
+        header {
+            width: 100%;
+            padding: 15px 20px;
+            background: linear-gradient(90deg, var(--header-bg-start) 0%, var(--header-bg-end) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.7);
+            z-index: 10;
+            color: var(--header-text);
+        }
+
+        h1 { font-size: 1.5rem; letter-spacing: 2px; text-shadow: 0 0 8px rgba(255,255,255,0.7); }
+
+        .controls { display: flex; gap: 10px; align-items: center; }
+
+        button {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: var(--header-text);
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        button:hover { 
+            background: rgba(255, 255, 255, 0.9); 
+            color: #2575fc; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        button:active { transform: translateY(0); }
+        
+        /* Área do Jogo */
+        #game-container {
+            position: relative;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 4px solid var(--ui-panel);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        canvas { display: block; }
+
+        /* HUD */
+        #hud {
+            margin-top: 15px;
+            font-size: 1.6rem;
+            text-align: center;
+            background: rgba(30, 30, 30, 0.8);
+            padding: 10px 25px;
+            border-radius: 50px;
+            border: 1px solid #444;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+        #target-letter {
+            color: #fff;
+            background-color: var(--accent-color);
+            padding: 0 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 2.2rem;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+        #score-display {
+            color: var(--snake-color);
+            font-weight: bold;
+        }
+
+        /* Overlays */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 20;
+            transition: opacity 0.3s;
+        }
+
+        #pause-screen {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .hidden { display: none !important; opacity: 0; pointer-events: none; }
+
+        .overlay h2 { 
+            font-size: 3rem; 
+            margin-bottom: 15px; 
+            color: var(--snake-color); 
+            text-shadow: 0 0 20px var(--snake-color);
+        }
+        
+        .overlay p { font-size: 1.3rem; margin-bottom: 25px; color: #ddd; max-width: 80%; }
+        
+        .btn-primary {
+            background-color: var(--snake-color);
+            color: #000;
+            border: none;
+            padding: 12px 35px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 0 20px var(--snake-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--snake-color); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="controls">
+            <button id="btn-back">← Sair</button>
+        </div>
+        <h1>🐍DESAFIO DO ALFABETO🔠</h1>
+        <div class="controls">
+            <button id="btn-pause">Pausar ⏸</button>
+            <button id="btn-audio">Som: LIGADO 🔊</button>
+        </div>
+    </header>
+
+    <div id="hud">
+        <div>PEGUE A LETRA: <span id="target-letter">?</span></div>
+        <div style="font-size: 1.2rem; border-left: 2px solid #555; padding-left: 20px;">Pontos: <span id="score-display">0</span></div>
+    </div>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+        <div id="start-screen" class="overlay">
+            <h2>BUSQUE A LETRA!</h2> 
+			<p>A cobra deve comer a letra correta, indicado em vermelho no cabeçalho do jogo.</p>
+            <button class="btn-primary" id="btn-start">COMEÇAR</button>
+        </div>
+
+        <div id="pause-screen" class="overlay hidden">
+            <h2>JOGO PAUSADO</h2>
+            <button class="btn-primary" id="btn-resume">CONTINUAR</button>
+        </div>
+
+        <div id="game-over-screen" class="overlay hidden">
+            <h2 style="color: var(--accent-color);">FIM DE JOGO</h2>
+            <p>Pontuação Final: <span id="final-score" style="color:white; font-weight:bold;">0</span></p>
+            <p id="death-reason" style="font-size: 1rem; color: #aaa;">Motivo</p>
+            <button class="btn-primary" id="btn-restart">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Configurações
+        const TILE_SIZE = 25; 
+        const TILE_COUNT = canvas.width / TILE_SIZE;
+        // EDITADO: Removido letras com acentos (ÁÉÍÓÚÃÕÇ)
+        const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        // Estado do Jogo
+        let snake = [];
+        let velocity = { x: 0, y: 0 };
+        let lettersOnBoard = []; 
+        let targetChar = '';
+        let score = 0;
+        let speed = 4; // EDITADO: Velocidade reduzida de 6 para 4 (mais fácil)
+        let isGameRunning = false;
+        let isPaused = false;
+        let isMuted = false;
+        let lastTime = 0;
+        let moveQueue = [];
+
+        // Áudio e Voz
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function falarLetra(letra) {
+            if (isMuted) return; 
+            
+            if (!window.speechSynthesis) return;
+
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(letra);
+            utterance.lang = 'pt-BR'; 
+            utterance.rate = 1.0;     // Velocidade da fala normal
+            utterance.pitch = 1.2;    
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function playSound(type) {
+            if (isMuted) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'eat') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime); 
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'die') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            }
+        }
+
+        // Funções de Controle de Jogo
+        function initGame() {
+            snake = [{ x: 8, y: 10 }, { x: 8, y: 11 }, { x: 8, y: 12 }];
+            velocity = { x: 0, y: -1 };
+            moveQueue = []; 
+            score = 0;
+            speed = 4; // EDITADO: Reinicia sempre com velocidade lenta (4)
+            isGameRunning = true;
+            isPaused = false;
+            updateScoreUI();
+            spawnLetters();
+            
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('pause-screen').classList.add('hidden');
+            
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function togglePause() {
+            if (!isGameRunning) return;
+            
+            isPaused = !isPaused;
+            const pauseScreen = document.getElementById('pause-screen');
+            const btnPause = document.getElementById('btn-pause');
+
+            if (isPaused) {
+                pauseScreen.classList.remove('hidden');
+                btnPause.innerText = "Continuar ▶";
+            } else {
+                pauseScreen.classList.add('hidden');
+                btnPause.innerText = "Pausar ⏸";
+                lastTime = performance.now(); 
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function spawnLetters() {
+            lettersOnBoard = [];
+            const targetIndex = Math.floor(Math.random() * ALFABETO.length);
+            targetChar = ALFABETO[targetIndex];
+            document.getElementById('target-letter').textContent = targetChar;
+
+            lettersOnBoard.push(createRandomLetter(targetChar));
+
+            const numDecoys = Math.min(3 + Math.floor(score / 4), 6); 
+            for(let i = 0; i < numDecoys; i++) {
+                let decoyChar;
+                do {
+                    decoyChar = ALFABETO[Math.floor(Math.random() * ALFABETO.length)];
+                } while (decoyChar === targetChar);
+                lettersOnBoard.push(createRandomLetter(decoyChar));
+            }
+        }
+
+        function createRandomLetter(char) {
+            let pos;
+            let safe = false;
+            while(!safe) {
+                pos = {
+                    x: Math.floor(Math.random() * TILE_COUNT),
+                    y: Math.floor(Math.random() * TILE_COUNT),
+                    char: char
+                };
+                safe = true;
+                if (snake.some(s => s.x === pos.x && s.y === pos.y)) safe = false;
+                if (lettersOnBoard.some(l => l.x === pos.x && l.y === pos.y)) safe = false;
+            }
+            return pos;
+        }
+
+        function gameLoop(currentTime) {
+            if (!isGameRunning) return;
+            if (isPaused) return;
+
+            window.requestAnimationFrame(gameLoop);
+
+            const secondsSinceLastRender = (currentTime - lastTime) / 1000;
+            if (secondsSinceLastRender < 1 / speed) return;
+
+            lastTime = currentTime;
+            update();
+            draw();
+        }
+
+        function update() {
+            if (moveQueue.length > 0) velocity = moveQueue.shift();
+
+            const head = { x: snake[0].x + velocity.x, y: snake[0].y + velocity.y };
+
+            // Colisões
+            if (head.x < 0 || head.x >= TILE_COUNT || head.y < 0 || head.y >= TILE_COUNT || 
+                snake.some(part => part.x === head.x && part.y === head.y)) {
+                gameOver("Colisão detectada!");
+                return;
+            }
+
+            snake.unshift(head);
+
+            // Comer Letra
+            const letterIndex = lettersOnBoard.findIndex(l => l.x === head.x && l.y === head.y);
+            
+            if (letterIndex !== -1) {
+                const eaten = lettersOnBoard[letterIndex];
+                if (eaten.char === targetChar) {
+                    playSound('eat');       
+                    falarLetra(eaten.char); 
+                    score++;
+                    // Aumenta a velocidade levemente, mas mantém o jogo acessível
+                    speed += 0.2; 
+                    updateScoreUI();
+                    spawnLetters();
+                } else {
+                    gameOver(`Pegou '${eaten.char}' ao invés de '${targetChar}'!`);
+                }
+            } else {
+                snake.pop();
+            }
+        }
+
+        function draw() {
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#FF512F'); 
+            gradient.addColorStop(0.5, '#DD2476');
+            gradient.addColorStop(1, '#8E2DE2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grade
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            for(let i=0; i<TILE_COUNT; i++) {
+                ctx.beginPath(); ctx.moveTo(i*TILE_SIZE, 0); ctx.lineTo(i*TILE_SIZE, canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i*TILE_SIZE); ctx.lineTo(canvas.width, i*TILE_SIZE); ctx.stroke();
+            }
+
+            // Letras com contraste
+            ctx.font = "bold 18px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            lettersOnBoard.forEach(item => {
+                const cx = item.x * TILE_SIZE + TILE_SIZE/2;
+                const cy = item.y * TILE_SIZE + TILE_SIZE/2;
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, TILE_SIZE/2 - 2, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(0, 0, 0, 0.75)"; 
+                ctx.fill();
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+                ctx.stroke();
+
+                ctx.fillStyle = "#FFFFFF"; 
+                ctx.fillText(item.char, cx, cy + 1); 
+            });
+
+            // Cobra
+            snake.forEach((part, index) => {
+                const px = part.x * TILE_SIZE;
+                const py = part.y * TILE_SIZE;
+                const size = TILE_SIZE - 2;
+
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fillRect(px + 2, py + 2, size, size);
+
+                ctx.fillStyle = index === 0 ? '#00FF00' : '#88FF88'; 
+                ctx.fillRect(px, py, size, size);
+                
+                if (index === 0) {
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(px + 4, py + 4, 4, 4);
+                    ctx.fillRect(px + size - 8, py + 4, 4, 4);
+                }
+            });
+        }
+
+        function updateScoreUI() { document.getElementById('score-display').innerText = score; }
+
+        function gameOver(reason) {
+            isGameRunning = false;
+            playSound('die');
+            document.getElementById('death-reason').innerText = reason;
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('game-over-screen').classList.remove('hidden');
+        }
+
+        // Inputs
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyP' || e.code === 'Space') {
+                togglePause();
+                return;
+            }
+            if (!isGameRunning || isPaused) return;
+
+            const intent = moveQueue.length > 0 ? moveQueue[moveQueue.length - 1] : velocity;
+            switch(e.key) {
+                case 'ArrowUp': case 'w': case 'W': if (intent.y === 0) moveQueue.push({x:0, y:-1}); break;
+                case 'ArrowDown': case 's': case 'S': if (intent.y === 0) moveQueue.push({x:0, y:1}); break;
+                case 'ArrowLeft': case 'a': case 'A': if (intent.x === 0) moveQueue.push({x:-1, y:0}); break;
+                case 'ArrowRight': case 'd': case 'D': if (intent.x === 0) moveQueue.push({x:1, y:0}); break;
+            }
+        });
+
+        document.getElementById('btn-start').onclick = () => { audioCtx.resume(); initGame(); };
+        document.getElementById('btn-restart').onclick = initGame;
+        document.getElementById('btn-resume').onclick = togglePause;
+        document.getElementById('btn-pause').onclick = togglePause;
+        
+        document.getElementById('btn-back').onclick = () => {
+            isGameRunning = false;
+            isPaused = false;
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('pause-screen').classList.add('hidden');
+            draw(); 
+        };
+
+        document.getElementById('btn-audio').onclick = (e) => {
+            isMuted = !isMuted;
+            if (isMuted) {
+                window.speechSynthesis.cancel(); 
+            }
+            e.target.innerText = isMuted ? "Som: OFF 🔇" : "Som: ON 🔊";
+        };
+
+        draw();
+    </script>
+</body>
+</html>
