@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔢SUDOKU - DESAFIO LÓGICO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container d-flex flex-column align-items-center justify-content-center min-vh-100 py-4">
+        
+        <header class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-primary gradient-text">SUDOKU <span class="text-secondary">LÓGICO</span></h1>
+            <p class="lead text-muted">
+                Exercite sua mente.
+            </p>
+        </header>
+
+        <div id="menu-screen" class="card shadow-lg border-0 p-4 text-center animate-fade-in">
+            <h3 class="mb-4">Escolha o Nível</h3>
+            <div class="d-grid gap-3 mb-3">
+                <button class="btn btn-lg btn-outline-primary hover-scale" onclick="startGame(4)">
+                    🟦 Fácil (4x4)
+                </button>
+                <button class="btn btn-lg btn-outline-danger hover-scale" onclick="startGame(6)">
+                    🟥 Difícil (6x6)
+                </button>
+            </div>
+            <button class="btn btn-sm btn-link text-decoration-none text-muted" data-bs-toggle="modal" data-bs-target="#rulesModal">
+                ❓ Como jogar?
+            </button>
+        </div>
+
+        <div id="game-screen" class="d-none flex-column align-items-center animate-fade-in w-100">
+            
+            <div class="d-flex justify-content-between align-items-center mb-3" style="width: 100%; max-width: 350px;">
+                <span id="level-indicator" class="fw-bold text-primary">Nível: --</span>
+                <button class="btn btn-sm btn-outline-info rounded-pill" data-bs-toggle="modal" data-bs-target="#rulesModal">
+                    ❓ Como jogar?
+                </button>
+            </div>
+
+            <p class="text-secondary mb-3 fst-italic small">
+                💡 Dica: Clique várias vezes para trocar o número.
+            </p>
+
+            <div id="sudoku-board" class="sudoku-grid mb-4 shadow">
+                </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-secondary" onclick="backToMenu()">Voltar</button>
+                <button class="btn btn-success px-4 fw-bold" onclick="checkWin()">Verificar ✅</button>
+            </div>
+
+            <div id="message-box" class="mt-3 fw-bold"></div>
+        </div>
+
+    </div> <div class="modal fade" id="rulesModal" tabindex="-1" aria-labelledby="rulesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+        
+                <div class="modal-header bg-primary text-white" style="border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title fw-bold" id="rulesModalLabel">🎮 Como Jogar Sudoku</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+        
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-3">O objetivo é preencher todos os espaços vazios com números.</p>
+                
+                    <ul class="list-group list-group-flush text-start mb-4">
+                        <li class="list-group-item">
+                            👉 <strong>Linhas (Deitadas):</strong> Não pode repetir o mesmo número na horizontal.
+                        </li>
+                        <li class="list-group-item">
+                            👇 <strong>Colunas (Em pé):</strong> Não pode repetir o mesmo número na vertical.
+                        </li>
+                        <li class="list-group-item">
+                            🔳 <strong>Quadrados:</strong> Dentro de cada "região", os números também não podem se repetir.
+                        </li>
+                    </ul>
+
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <span class="me-2 fs-4">👆</span>
+                        <div>
+                            <strong>Como controlar:</strong> Clique várias vezes no quadradinho para trocar o número.
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-primary px-4 fw-bold rounded-pill" data-bs-dismiss="modal">Entendi, vamos lá!</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

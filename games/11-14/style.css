@@ -1,0 +1,119 @@
+:root {
+    --bg-color: #f0f2f5;
+    --primary-color: #4e54c8;
+    --secondary-color: #8f94fb;
+    --accent-color: #ff6b6b;
+    --board-bg: #ffffff;
+    --cell-border: #dde1e7;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+
+    /* --- CONFIGURAÇÃO DO BACKGROUND --- */
+    
+    background-image: 
+        /* Camada 1: Filtro Branco (92% de opacidade) para o texto ficar legível */
+        linear-gradient(rgba(245, 247, 250, 0.92), rgba(245, 247, 250, 0.92)),
+        
+        /* Camada 2: A imagem de fundo (Textura de Matemática/Números) */
+        url('images/numbers2.jpg'); 
+        
+    background-size: cover;       /* Faz a imagem cobrir a tela toda */
+    background-position: center;  /* Centraliza a imagem */
+    background-attachment: fixed; /* O fundo fica parado enquanto a tela rola */
+    background-repeat: no-repeat;
+}
+
+/* Texto com gradiente */
+.gradient-text {
+    /* Define o gradiente de fundo */
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    background: -webkit-linear-gradient(45deg, var(--primary-color), var(--accent-color)); 
+    
+    /* Recorta o fundo para ter o formato do texto (Padrão WebKit/Chrome/Safari) */
+    -webkit-background-clip: text;
+    
+    /* Recorta o fundo (Padrão Oficial para outros navegadores) */
+    background-clip: text;
+    
+    /* Deixa a cor do texto transparente para o fundo aparecer */
+    -webkit-text-fill-color: transparent;
+    color: transparent; /* Fallback padrão */
+}
+
+/* Animações suaves */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hover-scale {
+    transition: transform 0.2s;
+}
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* Configuração do Grid do Sudoku */
+.sudoku-grid {
+    display: grid;
+    background-color: var(--primary-color); /* Cor das bordas grossas */
+    padding: 4px;
+    gap: 1px; /* Espaço entre células cria as bordas */
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Células do Tabuleiro */
+.cell {
+    width: 90px; 
+    height: 90px;
+    background-color: var(--board-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s, transform 0.1s; /* Adicionei um efeito suave */
+}
+
+.cell:hover {
+    background-color: #f8f9fa;
+}
+
+/* Células iniciais (fixas) */
+.cell.fixed {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: default;
+}
+
+/* Cores de feedback */
+.cell.correct {
+    background-color: #d4edda !important; /* Verde claro */
+    color: #155724;
+}
+
+.cell.wrong {
+    background-color: #f8d7da !important; /* Vermelho claro */
+    color: #721c24;
+}
+
+/* Responsividade para telas pequenas */
+@media (max-width: 500px) {
+    .cell {
+        /* Mantém o tamanho menor para mobile */
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+}
