@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐜 LABIRINTO DO ALFABETO</title>
+    <style>
+        /* --- ESTILOS GERAIS --- */
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background-color: #81c784;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        /* FUNDO FLORESTA */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('floresta.png');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            z-index: -2;
+        }
+
+        /* --- CONTAINER DAS FORMIGAS DE FUNDO --- */
+        #background-ants-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        /* ESTILO DA FORMIGA DE FUNDO */
+        .bg-ant {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.4;
+            will-change: transform;
+        }
+
+        /* --- TELA INICIAL --- */
+        .start-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .btn-start-big {
+            padding: 20px 50px;
+            font-size: 2rem;
+            background-color: #ff9800;
+            color: white;
+            border: 4px solid white;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            animation: pulse 1.5s infinite;
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- CABEÇALHO --- */
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px 30px;
+            border-radius: 20px;
+            border: 3px solid #388e3c;
+            box-shadow: 0 4px 0 #1b5e20;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #1b5e20;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .level-indicator {
+            background-color: #fbc02d;
+            color: #3e2723;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .instruction {
+            color: #2e7d32;
+            font-size: 1.1rem;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
+        .current-letter-display {
+            font-size: 1.5rem;
+            color: #d84315;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        /* --- O LABIRINTO --- */
+        .maze-container {
+            display: grid;
+            grid-template-columns: repeat(5, 65px); 
+            grid-template-rows: repeat(5, 65px);
+            gap: 8px;
+            background-color: rgba(0, 0, 0, 0.25);
+            padding: 15px;
+            border-radius: 15px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* --- CÉLULAS --- */
+        .cell {
+            width: 65px;
+            height: 65px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+            background-color: #ffe0b2;
+            border: 2px solid #fff;
+        }
+
+        .cell.wall {
+            background-color: #2e7d32;
+            cursor: default;
+            border: 2px solid #1b5e20;
+        }
+
+        .cell.path {
+            color: #e65100;
+            font-weight: bold;
+        }
+        
+        .cell.path:hover { filter: brightness(1.1); }
+
+        .cell.end {
+            background-color: #fff9c4;
+            border: 3px solid #fbc02d;
+        }
+
+        /* --- FORMIGA DO JOGADOR --- */
+        .ant {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            z-index: 10;
+            transform: scaleX(-1);
+            animation: bounce 0.6s infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes bounce {
+            from { transform: scaleX(-1) translateY(0); }
+            to { transform: scaleX(-1) translateY(-5px); }
+        }
+
+        .shake {
+            animation: shake 0.4s;
+            background-color: #ffcdd2 !important;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* --- BOTÕES E MODAL --- */
+        .btn-back {
+            position: absolute;
+            top: 20px; left: 20px;
+            padding: 8px 15px;
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #e65100;
+            z-index: 100;
+        }
+        .btn-back:active { transform: translateY(4px); box-shadow: none; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(to bottom, #fffde7, #fff);
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            border: 5px solid #fbc02d;
+            box-shadow: 0 0 25px rgba(255, 235, 59, 0.5);
+            width: 320px;
+            animation: popIn 0.4s;
+        }
+        
+        @keyframes popIn { from { transform: scale(0.5); } to { transform: scale(1); } }
+
+        .btn-modal {
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            background-color: #43a047;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #2e7d32;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .btn-modal:active { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 500px) {
+            .maze-container { grid-template-columns: repeat(5, 50px); grid-template-rows: repeat(5, 50px); gap: 5px; }
+            .cell { width: 50px; height: 50px; font-size: 1.5rem; }
+            .ant { font-size: 2rem; }
+            h1 { font-size: 1.4rem; }
+            .btn-start-big { font-size: 1.5rem; padding: 15px 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="background-ants-container"></div>
+
+    <div class="start-screen" id="startScreen">
+        <h1>AVENTURA DA FORMIGA</h1>
+        <div style="font-size: 4rem;">🐜</div>
+        <p>LIGUE O SOM E VAMOS BRINCAR!</p>
+        <button class="btn-start-big" onclick="startApp()">COMEÇAR</button>
+    </div>
+
+    <audio id="bgMusic" src="formiga.mp3" loop></audio>
+    <audio id="soundMatch" src="acerto.mp3"></audio>
+    <audio id="soundWin" src="vitoria.mp3"></audio>
+
+    <button class="btn-back" onclick="window.history.back()">⬅ VOLTAR</button>
+
+    <header>
+        <div class="level-indicator" id="levelDisplay">NÍVEL 1</div>
+        <h1>AVENTURA DA FORMIGA</h1>
+        <div class="instruction">LEVE A FORMIGA ATÉ A CASA!</div>
+        <div class="current-letter-display" id="instructionText">CLIQUE NA LETRA: <b>B</b></div>
+    </header>
+
+    <div class="maze-container" id="mazeBoard"></div>
+
+    <div class="modal-overlay" id="gameModal">
+        <div class="modal-content">
+            <h2 id="modalTitle" style="color: #e65100; margin:0;">MUITO BEM!</h2>
+            <div id="modalIcon" style="font-size: 4rem; margin: 10px 0;">🏡🐜</div>
+            <p id="modalText" style="font-size: 1.1rem; color: #555;">FASE COMPLETADA!</p>
+            <button class="btn-modal" id="modalBtn" onclick="nextLevel()">PRÓXIMA FASE ➡</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÃO DOS NÍVEIS ---
+        const rawLevels = [
+            [{r:0,c:0},{r:0,c:1},{r:0,c:2},{r:1,c:2},{r:1,c:3},{r:1,c:4},{r:2,c:4},{r:3,c:4},{r:4,c:4}],
+            [{r:0,c:0},{r:1,c:0},{r:2,c:0},{r:3,c:0},{r:4,c:0},{r:4,c:1},{r:4,c:2},{r:4,c:3},{r:4,c:4},{r:3,c:4},{r:2,c:4},{r:1,c:4},{r:0,c:4}],
+            [{r:0,c:0},{r:0,c:1},{r:0,c:2},{r:1,c:2},{r:1,c:1},{r:1,c:0},{r:2,c:0},{r:2,c:1},{r:2,c:2},{r:3,c:2},{r:3,c:3},{r:3,c:4},{r:4,c:4}],
+            [{r:2,c:2},{r:2,c:1},{r:1,c:1},{r:1,c:2},{r:1,c:3},{r:2,c:3},{r:3,c:3},{r:3,c:2},{r:3,c:1},{r:3,c:0},{r:4,c:0},{r:4,c:1},{r:4,c:2}],
+            [{r:0,c:0},{r:1,c:0},{r:2,c:0},{r:2,c:1},{r:1,c:1},{r:0,c:1},{r:0,c:2},{r:1,c:2},{r:2,c:2},{r:2,c:3},{r:3,c:3},{r:4,c:3},{r:4,c:4}],
+            [{r:0,c:0},{r:0,c:1},{r:0,c:2},{r:0,c:3},{r:0,c:4},{r:1,c:4},{r:2,c:4},{r:3,c:4},{r:4,c:4},{r:4,c:3},{r:4,c:2},{r:4,c:1},{r:4,c:0}],
+            [{r:4,c:0},{r:4,c:1},{r:3,c:1},{r:3,c:2},{r:2,c:2},{r:2,c:3},{r:1,c:3},{r:1,c:4},{r:0,c:4}],
+            [{r:2,c:0},{r:2,c:1},{r:2,c:2},{r:1,c:2},{r:0,c:2},{r:0,c:3},{r:0,c:4},{r:1,c:4},{r:2,c:4},{r:3,c:4},{r:4,c:4}],
+            [{r:0,c:4},{r:0,c:3},{r:1,c:3},{r:1,c:2},{r:0,c:2},{r:0,c:1},{r:1,c:1},{r:2,c:1},{r:2,c:0},{r:3,c:0},{r:4,c:0},{r:4,c:1},{r:4,c:2}],
+            [{r:0,c:0},{r:0,c:1},{r:1,c:1},{r:1,c:2},{r:2,c:2},{r:2,c:3},{r:3,c:3},{r:3,c:4},{r:4,c:4}],
+            [{r:0,c:2},{r:0,c:1},{r:1,c:1},{r:1,c:2},{r:1,c:3},{r:0,c:3},{r:0,c:4},{r:1,c:4},{r:2,c:4},{r:2,c:3},{r:2,c:2},{r:3,c:2},{r:4,c:2}],
+            [{r:0,c:0},{r:1,c:0},{r:2,c:0},{r:3,c:0},{r:4,c:0},{r:4,c:1},{r:3,c:1},{r:2,c:1},{r:1,c:1},{r:0,c:1},{r:0,c:2},{r:0,c:3},{r:0,c:4},{r:1,c:4},{r:2,c:4},{r:3,c:4},{r:4,c:4}]
+        ];
+
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; 
+
+        const levels = rawLevels.map(path => {
+            return path.map((pos, index) => {
+                let char = '';
+                if (index === path.length - 1) char = '🏡';
+                else char = alphabet[index % alphabet.length];
+                return { r: pos.r, c: pos.c, l: char };
+            });
+        });
+
+        // --- VARIÁVEIS DE CONTROLE DO JOGO ---
+        let currentLevelIdx = 0;
+        let currentStepIndex = 0;
+        let antPosition = { r: 0, c: 0 };
+        const rows = 5;
+        const cols = 5;
+
+        const mazeBoard = document.getElementById('mazeBoard');
+        const instructionText = document.getElementById('instructionText');
+        const levelDisplay = document.getElementById('levelDisplay');
+        const gameModal = document.getElementById('gameModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
+        const modalBtn = document.getElementById('modalBtn');
+        const startScreen = document.getElementById('startScreen');
+        
+        const bgMusic = document.getElementById('bgMusic');
+        const soundMatch = document.getElementById('soundMatch');
+        const soundWin = document.getElementById('soundWin');
+        
+        bgMusic.volume = 0.3;
+        soundMatch.volume = 1.0;
+
+        // --- INÍCIO DO JOGO ---
+        function startApp() {
+            bgMusic.play().catch(e => console.log("Erro ao tocar áudio:", e));
+            startScreen.style.display = 'none';
+            initLevel();
+            initBgAnts(); // Inicia as formigas de fundo organizadas
+        }
+
+        function initLevel() {
+            const path = levels[currentLevelIdx];
+            currentStepIndex = 0;
+            antPosition = { r: path[0].r, c: path[0].c };
+            levelDisplay.innerText = `NÍVEL ${currentLevelIdx + 1}`;
+            gameModal.style.display = 'none';
+            generateGrid(path);
+            updateInstruction(path);
+        }
+
+        function generateGrid(path) {
+            mazeBoard.innerHTML = '';
+            let displayMap = Array(rows).fill().map(() => Array(cols).fill('🌲'));
+
+            path.forEach(step => {
+                displayMap[step.r][step.c] = step.l;
+            });
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cellValue = displayMap[r][c];
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    
+                    if (cellValue === '🌲') {
+                        cell.classList.add('wall');
+                        cell.innerText = '🌲';
+                    } else if (cellValue === '🏡') {
+                        cell.classList.add('end');
+                        cell.innerText = '🏡';
+                    } else {
+                        cell.classList.add('path');
+                        cell.innerText = cellValue;
+                    }
+
+                    cell.addEventListener('click', () => handleCellClick(r, c, cellValue, cell));
+
+                    if (r === antPosition.r && c === antPosition.c) {
+                        renderAnt(cell);
+                    }
+
+                    mazeBoard.appendChild(cell);
+                }
+            }
+        }
+
+        function renderAnt(cellElement) {
+            const ant = document.createElement('div');
+            ant.classList.add('ant');
+            ant.innerText = '🐜';
+            cellElement.appendChild(ant);
+        }
+
+        function handleCellClick(r, c, value, cellElement) {
+            if (value === '🌲') return;
+            if (r === antPosition.r && c === antPosition.c) return;
+
+            const isNeighbor = (Math.abs(r - antPosition.r) + Math.abs(c - antPosition.c)) === 1;
+            if (!isNeighbor) return;
+
+            const currentPath = levels[currentLevelIdx];
+            const nextStep = currentPath[currentStepIndex + 1];
+
+            if (nextStep && r === nextStep.r && c === nextStep.c) {
+                const oldAnt = document.querySelector('.ant');
+                if (oldAnt) oldAnt.remove();
+                
+                antPosition = { r, c };
+                renderAnt(cellElement);
+                currentStepIndex++;
+
+                if (value === '🏡') {
+                    handleLevelComplete();
+                } else {
+                    try { soundMatch.currentTime = 0; soundMatch.play(); } catch(e){}
+                    updateInstruction(currentPath);
+                }
+            } else {
+                cellElement.classList.add('shake');
+                setTimeout(() => cellElement.classList.remove('shake'), 400);
+            }
+        }
+
+        function updateInstruction(path) {
+            const nextLetter = path[currentStepIndex + 1];
+            if (nextLetter) {
+                if (nextLetter.l === '🏡') {
+                    instructionText.innerHTML = "VÁ PARA A <b>CASA (🏡)</b>!";
+                } else {
+                    instructionText.innerHTML = `CLIQUE NA LETRA: <b>${nextLetter.l}</b>`;
+                }
+            }
+        }
+
+        function handleLevelComplete() {
+            try { soundWin.play(); } catch(e){}
+            
+            if (currentLevelIdx < levels.length - 1) {
+                modalTitle.innerText = "MUITO BEM!";
+                modalText.innerText = "PRONTO PARA O PRÓXIMO?";
+                modalBtn.innerText = "PRÓXIMA FASE ➡";
+                modalBtn.onclick = nextLevel;
+            } else {
+                modalTitle.innerText = "PARABÉNS!";
+                modalText.innerText = "VOCÊ VENCEU O JOGO!";
+                modalBtn.innerText = "JOGAR NOVAMENTE ↺";
+                modalBtn.onclick = restartGame;
+            }
+            
+            setTimeout(() => {
+                gameModal.style.display = 'flex';
+            }, 300);
+        }
+
+        function nextLevel() {
+            currentLevelIdx++;
+            initLevel();
+        }
+
+        function restartGame() {
+            currentLevelIdx = 0;
+            initLevel();
+        }
+
+        /* --- FORMIGAS DE FUNDO LENTAS E ORGANIZADAS --- */
+        const bgAntsData = [];
+        const bgContainer = document.getElementById('background-ants-container');
+        let winW = window.innerWidth;
+        let winH = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            winW = window.innerWidth;
+            winH = window.innerHeight;
+        });
+
+        function initBgAnts() {
+            bgContainer.innerHTML = ''; 
+            bgAntsData.length = 0;
+
+            const columnSpacing = 100;
+            const numberOfColumns = Math.ceil(winW / columnSpacing);
+            const antsPerColumn = 4;
+
+            for (let c = 0; c < numberOfColumns; c++) {
+                const colX = (c * columnSpacing) + (columnSpacing / 2);
+
+                for (let a = 0; a < antsPerColumn; a++) {
+                    const antEl = document.createElement('div');
+                    antEl.classList.add('bg-ant');
+                    antEl.innerText = '🐜';
+                    bgContainer.appendChild(antEl);
+
+                    const startY = Math.random() * winH;
+                    
+                    // VELOCIDADE REDUZIDA AQUI:
+                    // Entre 0.1 e 0.3 (Muito lento e suave)
+                    const speed = 0.1 + Math.random() * 0.2;
+
+                    bgAntsData.push({
+                        el: antEl,
+                        x: colX,
+                        y: startY,
+                        speed: speed
+                    });
+                }
+            }
+            animateBgAnts();
+        }
+
+        function animateBgAnts() {
+            bgAntsData.forEach(ant => {
+                ant.y -= ant.speed;
+
+                if (ant.y < -50) {
+                    ant.y = winH + 50;
+                }
+
+                const rotationDeg = 90;
+                ant.el.style.transform = `translate3d(${ant.x}px, ${ant.y}px, 0) rotate(${rotationDeg}deg)`;
+            });
+
+            requestAnimationFrame(animateBgAnts);
+        }
+
+    </script>
+</body>
+</html>
