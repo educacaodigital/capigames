@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦊JOGO DA MEMÓRIA - AVENTURA NA FLORESTA</title>
+    <style>
+        /* --- Estilos Gerais --- */
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background-color: #e0f7fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Fundo Floresta com Transparência */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('floresta.png'); /* Sua imagem aqui */
+            background-size: cover;
+            background-position: center;
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        h1 {
+            color: #2e7d32; /* Verde Floresta */
+            margin-bottom: 10px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 3px solid #81c784;
+            box-shadow: 0 4px 0 #2e7d32;
+        }
+
+        p {
+            color: #1b5e20;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 15px;
+            border-radius: 10px;
+        }
+
+        /* --- Botão Voltar --- */
+        .btn-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #e65100;
+            transition: transform 0.1s;
+        }
+        .btn-back:active { transform: translateY(4px); box-shadow: none; }
+
+        /* --- Tabuleiro --- */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 600px;
+            padding: 10px;
+        }
+
+        /* --- Cartas --- */
+        .card {
+            width: 80px;
+            height: 80px;
+            background-color: #ff7043; /* Laranja tijolo */
+            border: 3px solid #fff;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+            user-select: none;
+        }
+
+        .card:hover { transform: scale(1.05); }
+
+        .card.flipped {
+            background-color: #ffffff;
+            cursor: default;
+            transform: rotateY(180deg);
+            border-color: #4caf50;
+        }
+
+        .card .content { display: none; }
+        .card.flipped .content { display: block; transform: rotateY(180deg); }
+
+        /* --- Botão Reiniciar (Padrão) --- */
+        .btn-restart {
+            margin-top: 30px;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 4px 0 #0d47a1;
+        }
+        .btn-restart:hover { background-color: #1976d2; }
+
+        /* --- MODAL DE VITÓRIA (Flutuante) --- */
+        .modal-overlay {
+            display: none; /* Escondido por padrão */
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Fundo escuro transparente */
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(to bottom, #fff9c4, #fff); /* Gradiente Amarelo claro */
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            border: 5px solid #ffeb3b;
+            box-shadow: 0 0 20px rgba(255, 235, 59, 0.6);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efeito de pulo */
+            max-width: 90%;
+            width: 400px;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: #e65100;
+            margin: 0;
+        }
+
+        .modal-stars {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+
+        .modal-text {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 25px;
+        }
+
+        .btn-modal {
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #2e7d32;
+            transition: transform 0.1s;
+        }
+        
+        .btn-modal:active {
+            transform: translateY(5px);
+            box-shadow: none;
+        }
+
+        @media (max-width: 500px) {
+            .card { width: 60px; height: 60px; font-size: 2rem; }
+            .game-board { gap: 10px; }
+            .modal-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="soundMatch" src="acerto.mp3"></audio>
+    <audio id="soundWin" src="vitoria.mp3"></audio>
+
+    <button class="btn-back" onclick="window.history.back()">⬅ VOLTAR</button>
+
+    <h1> 🐻 AVENTURA NA FLORESTA!🌳</h1>
+    <p>Encontre os pares na floresta!</p>
+
+    <div class="game-board" id="gameBoard"></div>
+
+    <button class="btn-restart" onclick="startGame()">REINICIAR JOGO</button>
+
+    <div class="modal-overlay" id="victoryModal">
+        <div class="modal-content">
+            <h2 class="modal-title">PARABÉNS!</h2>
+            <div class="modal-stars">⭐⭐⭐</div>
+            <p class="modal-text">Você completou o desafio da floresta!</p>
+            <button class="btn-modal" onclick="closeModalAndRestart()">JOGAR DE NOVO</button>
+        </div>
+    </div>
+
+    <script>
+        const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
+        let cards = [];
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+        let matchesFound = 0;
+
+        const gameBoard = document.getElementById('gameBoard');
+        const victoryModal = document.getElementById('victoryModal');
+        const soundMatch = document.getElementById('soundMatch');
+        const soundWin = document.getElementById('soundWin');
+
+        function startGame() {
+            gameBoard.innerHTML = '';
+            matchesFound = 0;
+            hasFlippedCard = false;
+            lockBoard = false;
+            firstCard = null;
+            secondCard = null;
+
+            // Embaralha
+            cards = [...emojis, ...emojis];
+            shuffle(cards);
+
+            // Cria cartas
+            cards.forEach(emoji => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                
+                const contentElement = document.createElement('div');
+                contentElement.classList.add('content');
+                contentElement.innerText = emoji;
+                
+                cardElement.appendChild(contentElement);
+                cardElement.addEventListener('click', flipCard);
+                cardElement.dataset.emoji = emoji; 
+
+                gameBoard.appendChild(cardElement);
+            });
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.add('flipped');
+
+            if (!hasFlippedCard) {
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.emoji === secondCard.dataset.emoji;
+            isMatch ? disableCards() : unflipCards();
+        }
+
+        function disableCards() {
+            // Toca som de acerto (com tratamento de erro caso arquivo não exista)
+            try { soundMatch.currentTime = 0; soundMatch.play(); } catch(e){}
+
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            matchesFound++;
+            resetBoard();
+
+            if (matchesFound === emojis.length) {
+                setTimeout(showVictoryModal, 500);
+            }
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+
+        // --- Funções do Modal ---
+        function showVictoryModal() {
+            // Toca som de vitória
+            try { soundWin.currentTime = 0; soundWin.play(); } catch(e){}
+            
+            victoryModal.style.display = 'flex'; // Torna visível (flex para centralizar)
+        }
+
+        function closeModalAndRestart() {
+            victoryModal.style.display = 'none'; // Esconde modal
+            startGame(); // Reinicia lógica
+        }
+
+        // Inicia
+        startGame();
+    </script>
+</body>
+</html>
