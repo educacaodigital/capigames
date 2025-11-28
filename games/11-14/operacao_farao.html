@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕵🏽‍♂️DETETIVE HISTÓRICO: MISTÉRIOS DO EGITO</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Orbitron:wght@500;700&display=swap');
+
+        /* --- CONFIGURAÇÃO GERAL --- */
+        body {
+            background-color: #050505;
+            color: #e0e0e0;
+            font-family: 'Courier Prime', monospace;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Fundo - Tenta carregar fundo.jpg */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('fundo.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            background-color: #111;
+        }
+
+        /* --- INTERFACE DO JOGO --- */
+        .game-shell {
+            width: 95%;
+            max-width: 1000px;
+            height: 90vh;
+            background: #111;
+            border: 2px solid #c0a062;
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(192, 160, 98, 0.2);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header {
+            background: #1a1a1a;
+            padding: 15px 20px;
+            border-bottom: 1px solid #c0a062;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .case-title { font-family: 'Orbitron', sans-serif; color: #c0a062; font-size: 1.2rem; }
+        .energy-bar { display: inline-block; width: 150px; height: 10px; background: #333; border: 1px solid #555; margin-left: 10px; }
+        .energy-fill { height: 100%; background: #00e676; width: 100%; transition: width 0.5s; }
+
+        .main-stage { flex: 1; display: flex; padding: 20px; gap: 20px; overflow: hidden; }
+
+        .visual-panel {
+            flex: 1; background: #000; border: 1px solid #444;
+            display: flex; align-items: center; justify-content: center;
+            min-width: 300px;
+        }
+
+        .visual-img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s; }
+        .visual-img.visible { opacity: 1; }
+
+        .interaction-panel { flex: 1.2; display: flex; flex-direction: column; gap: 15px; }
+
+        .dialogue-box {
+            background: rgba(30, 30, 30, 0.8);
+            border-left: 4px solid #c0a062;
+            padding: 20px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .speaker-name { color: #c0a062; font-weight: bold; display: block; margin-bottom: 5px; font-family: 'Orbitron'; font-size: 0.9rem; }
+
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 10px; overflow-y: auto; padding-right: 5px; }
+
+        .btn-choice {
+            background: #222; border: 1px solid #444; color: #ccc;
+            padding: 15px; cursor: pointer; font-family: 'Courier Prime';
+            text-align: left; transition: 0.3s; position: relative;
+        }
+        .btn-choice:hover { border-color: #c0a062; background: #333; color: white; padding-left: 25px; }
+
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 5, 0.98); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px;
+        }
+
+        .big-btn {
+            padding: 15px 40px; background: #c0a062; color: #000; font-weight: bold;
+            font-family: 'Orbitron'; font-size: 1.2rem; border: none; cursor: pointer;
+            box-shadow: 0 0 15px #c0a062; margin-top: 20px;
+        }
+        .big-btn:hover { background: #fff; }
+
+        .progress-dots { display: flex; gap: 5px; margin-top: 5px; }
+        .dot { width: 8px; height: 8px; background: #333; border-radius: 50%; }
+        .dot.active { background: #c0a062; box-shadow: 0 0 5px #c0a062; }
+
+        @media (max-width: 800px) {
+            .main-stage { flex-direction: column; }
+            .visual-panel { height: 200px; min-height: 200px; }
+            .game-shell { height: 100vh; width: 100%; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="float-btn" style="position:fixed; top:15px; left:10px; background:#000; color:#c0a062; border:1px solid #c0a062; padding:5px 15px; cursor:pointer; z-index:200;" onclick="window.history.back()">⬅ VOLTAR</button>
+    <button class="float-btn" style="position:fixed; top:15px; right:10px; background:#000; color:#c0a062; border:1px solid #c0a062; padding:5px 15px; cursor:pointer; z-index:200;" onclick="toggleAudio()">🎵 SOM: ON</button>
+
+    <audio id="bgMusic" src="misterio.mp3" loop></audio>
+    <audio id="sfxCorrect" src="certo.mp3"></audio>
+    <audio id="sfxWrong" src="errado.mp3"></audio>
+
+    <div class="game-shell">
+        <header>
+            <div>
+                <div class="case-title" id="caseTitle">CASO 1: O NILO</div>
+                <div class="progress-dots" id="progressDots"></div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <span class="stats">ENERGIA</span>
+                <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
+            </div>
+        </header>
+
+        <div class="main-stage">
+            <div class="visual-panel">
+                <img id="mainImg" class="visual-img" alt="Cena" onerror="this.style.opacity=0;">
+            </div>
+            
+            <div class="interaction-panel">
+                <div class="dialogue-box">
+                    <span class="speaker-name" id="speakerName">NARRADOR</span>
+                    <span id="dialogueText"></span>
+                </div>
+                <div class="options-grid" id="optionsGrid"></div>
+            </div>
+        </div>
+
+        <div class="overlay" id="startScreen">
+            <h1 style="color:#c0a062; font-family:'Orbitron'">CRÔNICAS DO EGITO</h1>
+            <p style="max-width:600px; color:#aaa">Viajante Temporal, bem-vindo.<br>Resolva os mistérios usando lógica e fatos históricos.</p>
+            <button class="big-btn" onclick="startGame()">INICIAR JORNADA</button>
+        </div>
+
+        <div class="overlay" id="levelCompleteScreen" style="display: none;">
+            <h1 style="color:#c0a062; font-family:'Orbitron'">CASO ENCERRADO</h1>
+            <p id="levelFeedback">Excelente trabalho.</p>
+            <div style="background:#222; padding:15px; border:1px dashed #666; margin:20px 0; max-width:500px; color:#ddd">
+                <b style="color:#c0a062">FATO HISTÓRICO:</b><br><span id="historicalFact">...</span>
+            </div>
+            <button class="big-btn" onclick="nextCase()">PRÓXIMO CASO ➡</button>
+        </div>
+    </div>
+
+    <script>
+        // --- BANCO DE IMAGENS (OFFLINE) ---
+        const imgs = {
+            mapa: 'mapa.jpg',
+            nilo: 'nilo.jpg',
+            papiro: 'papiro.jpg',
+            mercado: 'mercado.jpg',
+            escriba: 'escriba.jpg',
+            mumia: 'mumia.jpg',
+            anubis: 'anubis.jpg',
+            piramide: 'piramide.jpg',
+            farao: 'farao.jpg',
+            templo: 'templo.jpg'
+        };
+
+        const cases = [
+            {
+                title: "CASO 1: O RASTRO NO NILO",
+                fact: "O Nilo corre do Sul para o Norte. 'Kemet' (Terra Negra) era o nome dado à terra fértil.",
+                steps: [
+                    { speaker: "ESCRIBA REAL", text: "O ladrão fugiu de barco seguindo a correnteza natural do Nilo. Para onde ele foi?", img: imgs.nilo, options: [{ text: "Sul (Alto Egito)", correct: false, error: "O Nilo corre para o Norte!" }, { text: "Norte (Delta)", correct: true }] },
+                    { speaker: "CAPITÃO", text: "Achamos o barco numa plantação usada para fazer papel. Que planta é essa?", img: imgs.papiro, options: [{ text: "Lótus", correct: false, error: "Lótus é uma flor." }, { text: "Papiro", correct: true }] },
+                    { speaker: "CAMPONÊS", text: "Ele comia o alimento mais comum do povo. O que era?", img: imgs.mercado, options: [{ text: "Arroz", correct: false, error: "Não havia arroz lá." }, { text: "Pão e Cerveja", correct: true }] },
+                    { speaker: "INVESTIGAÇÃO", text: "Estamos na terra de barro preto fértil. Como os egípcios a chamavam?", img: imgs.mapa, options: [{ text: "Deshret (Vermelha)", correct: false, error: "Deshret é o deserto." }, { text: "Kemet (Negra)", correct: true }] },
+                    { speaker: "CONFRONTO", text: "Ele reza para Sobek no rio. Quem é esse deus?", img: imgs.nilo, options: [{ text: "Deus Crocodilo", correct: true }, { text: "Deus Falcão", correct: false, error: "Falcão é Hórus." }] }
+                ]
+            },
+            {
+                title: "CASO 2: A ALMA PERDIDA",
+                fact: "O coração era mantido no corpo para o julgamento final. O cérebro era descartado.",
+                steps: [
+                    { speaker: "SUMO SACERDOTE", text: "Sabotagem na mumificação! Qual órgão deve ficar DENTRO do corpo?", img: imgs.mumia, options: [{ text: "Cérebro", correct: false, error: "Cérebro era jogado fora." }, { text: "Coração", correct: true }] },
+                    { speaker: "EMBALSAMADOR", text: "Precisamos secar o corpo. O que usamos?", img: imgs.mumia, options: [{ text: "Natrão (Sal)", correct: true }, { text: "Areia", correct: false, error: "Usamos sal especial Natrão." }] },
+                    { speaker: "AJUDANTE", text: "Onde coloco o fígado e estômago?", img: imgs.anubis, options: [{ text: "Vasos Canópicos", correct: true }, { text: "No rio", correct: false, error: "Jamais! As partes são sagradas." }] },
+                    { speaker: "ESPÍRITO", text: "Preciso de um guia de feitiços para o além. O que levo?", img: imgs.papiro, options: [{ text: "Livro dos Mortos", correct: true }, { text: "Pedra de Roseta", correct: false, error: "Isso é de muito depois." }] },
+                    { speaker: "JULGAMENTO", text: "Se o coração for pesado de pecados, quem o come?", img: imgs.anubis, options: [{ text: "Anúbis", correct: false, error: "Anúbis segura a balança." }, { text: "Ammit", correct: true }] }
+                ]
+            },
+            {
+                title: "CASO 3: PODER REAL",
+                fact: "O Vizir governava o país pelo Faraó. Cartuchos protegiam o nome real.",
+                steps: [
+                    { speaker: "GUARDA", text: "Quem é a pessoa mais poderosa depois do Faraó?", img: imgs.farao, options: [{ text: "O Vizir", correct: true }, { text: "O Pedreiro", correct: false, error: "Não." }] },
+                    { speaker: "VIZIR", text: "A traidora admira a Faraó mulher que usou barba falsa. Quem?", img: imgs.templo, options: [{ text: "Cleópatra", correct: false, error: "Foi Hatshepsut." }, { text: "Hatshepsut", correct: true }] },
+                    { speaker: "INVESTIGAÇÃO", text: "Quem sabia escrever na sociedade?", img: imgs.escriba, options: [{ text: "Todos", correct: false, error: "A maioria não sabia." }, { text: "Escribas", correct: true }] },
+                    { speaker: "MENSAGEIRO", text: "Qual o nome do anel oval em volta do nome do rei?", img: imgs.papiro, options: [{ text: "Cartucho", correct: true }, { text: "Selo", correct: false, error: "Chama-se Cartucho." }] },
+                    { speaker: "CONFRONTO", text: "O traidor está na Grande Pirâmide. De quem é?", img: imgs.piramide, options: [{ text: "Khufu (Quéops)", correct: true }, { text: "Ramsés", correct: false, error: "Não." }] }
+                ]
+            }
+        ];
+
+        let currentCaseIdx = 0;
+        let currentStepIdx = 0;
+        let energy = 100;
+        let audioOn = true;
+
+        const ui = {
+            caseTitle: document.getElementById('caseTitle'),
+            progressDots: document.getElementById('progressDots'),
+            energyFill: document.getElementById('energyFill'),
+            mainImg: document.getElementById('mainImg'),
+            speakerName: document.getElementById('speakerName'),
+            dialogueText: document.getElementById('dialogueText'),
+            optionsGrid: document.getElementById('optionsGrid'),
+            startScreen: document.getElementById('startScreen'),
+            levelCompleteScreen: document.getElementById('levelCompleteScreen'),
+            levelFeedback: document.getElementById('levelFeedback'),
+            historicalFact: document.getElementById('historicalFact'),
+            bgMusic: document.getElementById('bgMusic'),
+            sfxCorrect: document.getElementById('sfxCorrect'),
+            sfxWrong: document.getElementById('sfxWrong')
+        };
+
+        function startGame() {
+            ui.startScreen.style.display = 'none';
+            currentCaseIdx = 0;
+            energy = 100;
+            updateEnergy();
+            safePlay(ui.bgMusic);
+            loadCase(0);
+        }
+
+        function loadCase(index) {
+            currentCaseIdx = index;
+            currentStepIdx = 0;
+            ui.caseTitle.innerText = cases[index].title;
+            ui.progressDots.innerHTML = '';
+            for(let i=0; i<5; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                ui.progressDots.appendChild(dot);
+            }
+            loadStep();
+        }
+
+        function loadStep() {
+            const stepData = cases[currentCaseIdx].steps[currentStepIdx];
+            
+            // Lógica de imagem: define o src e torna visível
+            ui.mainImg.style.opacity = 0; // Esconde enquanto troca
+            
+            // Pequeno delay para efeito visual
+            setTimeout(() => {
+                ui.mainImg.src = stepData.img;
+                ui.mainImg.onload = () => { ui.mainImg.style.opacity = 1; };
+                ui.mainImg.onerror = () => { ui.mainImg.style.opacity = 0; }; // Se der erro, só esconde, não grita
+            }, 100);
+
+            ui.speakerName.innerText = stepData.speaker;
+            ui.dialogueText.innerText = "";
+            ui.optionsGrid.innerHTML = "";
+
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((d, i) => i <= currentStepIdx ? d.classList.add('active') : d.classList.remove('active'));
+
+            let i = 0;
+            function type() {
+                if (i < stepData.text.length) {
+                    ui.dialogueText.innerHTML += stepData.text.charAt(i);
+                    i++;
+                    setTimeout(type, 15);
+                } else {
+                    showOptions(stepData.options);
+                }
+            }
+            type();
+        }
+
+        function showOptions(options) {
+            options.forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = 'btn-choice';
+                btn.innerText = opt.text;
+                btn.onclick = () => handleChoice(opt);
+                ui.optionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleChoice(opt) {
+            if (opt.correct) {
+                safePlay(ui.sfxCorrect);
+                currentStepIdx++;
+                if (currentStepIdx >= 5) setTimeout(showLevelComplete, 500);
+                else loadStep();
+            } else {
+                safePlay(ui.sfxWrong);
+                energy -= 20;
+                updateEnergy();
+                ui.dialogueText.innerHTML = `<span style='color:#ff5252'>[ERRO TEMPORAL]</span> ${opt.error}`;
+                ui.optionsGrid.innerHTML = "";
+                
+                if (energy <= 0) {
+                    setTimeout(() => { alert("TENTE NOVAMENTE - VAMOS DESVENDAR ESTE MISTÉRIO!"); location.reload(); }, 2000);
+                } else {
+                    setTimeout(() => {
+                        const btn = document.createElement('div');
+                        btn.className = 'btn-choice';
+                        btn.innerText = "↩ Tentar Novamente";
+                        btn.onclick = loadStep;
+                        ui.optionsGrid.appendChild(btn);
+                    }, 1000);
+                }
+            }
+        }
+
+        function showLevelComplete() {
+            ui.levelCompleteScreen.style.display = 'flex';
+            ui.historicalFact.innerText = cases[currentCaseIdx].fact;
+            if (currentCaseIdx >= cases.length - 1) {
+                ui.levelFeedback.innerText = "PARABÉNS! JOGO COMPLETO.";
+                document.querySelector('#levelCompleteScreen button').innerText = "REINICIAR";
+                document.querySelector('#levelCompleteScreen button').onclick = () => location.reload();
+            } else {
+                ui.levelFeedback.innerText = "Mistério resolvido.";
+            }
+        }
+
+        function nextCase() {
+            ui.levelCompleteScreen.style.display = 'none';
+            loadCase(currentCaseIdx + 1);
+        }
+
+        function updateEnergy() {
+            ui.energyFill.style.width = energy + "%";
+            ui.energyFill.style.background = energy < 30 ? "#ff5252" : "#00e676";
+        }
+
+        function toggleAudio(forceOn = false) {
+            if (forceOn) {
+                ui.bgMusic.volume = 0.3;
+                safePlay(ui.bgMusic);
+                audioOn = true;
+            } else {
+                if (audioOn) {
+                    ui.bgMusic.pause();
+                    audioOn = false;
+                } else {
+                    safePlay(ui.bgMusic);
+                    audioOn = true;
+                }
+            }
+        }
+
+        function safePlay(audioElement) {
+            try {
+                const playPromise = audioElement.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => console.log("Erro de áudio (ignorável):", error));
+                }
+            } catch (e) { console.log("Erro de áudio ignorado."); }
+        }
+    </script>
+</body>
+</html>
