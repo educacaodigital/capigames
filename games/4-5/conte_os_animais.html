@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐰 CONTE OS ANIMAIS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+body {
+  box-sizing: border-box;
+}
+
+/* ===== RESET E BASE ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Fredoka', sans-serif;
+  background: linear-gradient(180deg, #FFD9A0, #FFBC80);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+html, body {
+  height: 100%;
+}
+
+/* ===== TELAS ===== */
+.screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* ===== CARTÕES (CARD) ===== */
+.card {
+  background: #fff;
+  border-radius: 32px;
+  box-shadow: 0 10px 30px rgba(255, 165, 0, 0.25);
+  padding: 50px 60px;
+  max-width: 700px;
+  width: 90%;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+/* ===== TÍTULOS E SUBTÍTULOS ===== */
+.title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 54px;
+  font-weight: 700;
+  color: #FF914D;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: #000;
+  font-weight: 600;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.sound-icon {
+  width: 40px;
+  height: 40px;
+  background: #A8D5E2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(168, 213, 226, 0.3);
+  transition: all 0.3s ease;
+}
+
+.sound-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(168, 213, 226, 0.5);
+}
+
+.sound-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
+}
+
+/* ===== EXEMPLOS DE PARES NA TELA INICIAL ===== */
+.example-pairs {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.example-pairs span {
+  font-size: 72px;
+}
+
+/* ===== BOTÃO PRINCIPAL ===== */
+.start-button {
+  background: linear-gradient(90deg, #FF914D, #FFBE6B);
+  color: #fff;
+  border: none;
+  border-radius: 40px;
+  font-size: 22px;
+  font-weight: 700;
+  padding: 18px 60px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 6px 20px rgba(255, 145, 77, 0.3);
+}
+
+.start-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(255, 145, 77, 0.5);
+}
+
+/* ===== BOTÕES DE NAVEGAÇÃO ===== */
+.nav-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #FFB6D9;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 25px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0 3px 10px rgba(168, 213, 226, 0.3);
+  transition: all 0.3s ease;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(168, 213, 226, 0.4);
+}
+
+.nav-button .arrow {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* ===== BOTÃO VOLTAR ===== */
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #FFB6D9;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 25px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0 3px 10px rgba(168, 213, 226, 0.3);
+  transition: all 0.3s ease;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(168, 213, 226, 0.4);
+}
+
+.back-button .arrow {
+  font-size: 16px;
+}
+
+/* ===== ÁREA DO JOGO ===== */
+.pairs-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  margin: 30px 0;
+}
+
+.pairs-container span {
+  font-size: 48px;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 15px;
+  position: relative;
+}
+
+.pairs-container span:hover {
+  transform: scale(1.2);
+  background: rgba(255, 145, 77, 0.1);
+}
+
+.pairs-container span.clicked {
+  transform: scale(0.9);
+  opacity: 0.6;
+  background: rgba(255, 145, 77, 0.2);
+}
+
+.pairs-container span.clicked::after {
+  content: '✓';
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* ===== PERGUNTA E RESPOSTA ===== */
+.question-section {
+  margin-top: 30px;
+}
+
+.question {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 15px;
+}
+
+.answer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.answer-input {
+  width: 80px;
+  padding: 10px;
+  font-size: 18px;
+  text-align: center;
+  border-radius: 12px;
+  border: 2px solid #FF6F00;
+  font-weight: 600;
+  outline: none;
+  transition: 0.3s ease;
+}
+
+.answer-input:focus {
+  border-color: #FFBE6B;
+  box-shadow: 0 0 10px rgba(255, 190, 107, 0.5);
+}
+
+/* ===== BOTÕES DE NÚMEROS ===== */
+.answer-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.number-button {
+  background: linear-gradient(90deg, #FF914D, #FFBE6B);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 145, 77, 0.3);
+}
+
+.number-button:hover {
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 0 8px 20px rgba(255, 145, 77, 0.5);
+}
+
+/* ===== MÚSICA ===== */
+.music-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 10px 15px;
+  border-radius: 25px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.music-btn {
+  background: #A8D5E2;
+  color: white;
+  border: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.music-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 10px rgba(168, 213, 226, 0.4);
+}
+
+/* ===== TELAS DE FEEDBACK ===== */
+.feedback-card {
+  max-width: 600px;
+  padding: 60px;
+}
+
+.feedback-emoji {
+  font-size: 90px;
+  margin-bottom: 25px;
+  animation: bounce 1s ease infinite;
+}
+
+.feedback-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 40px;
+  font-weight: 800;
+  color: #FF914D;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  line-height: 1.3;
+}
+
+.feedback-subtitle {
+  font-size: 18px;
+  color: #666;
+  font-weight: 600;
+  margin-bottom: 35px;
+  line-height: 1.5;
+}
+
+/* ===== BOTÕES DE AÇÃO ===== */
+.action-button {
+  background: linear-gradient(90deg, #FF914D, #FFBE6B);
+  color: white;
+  border: none;
+  padding: 16px 45px;
+  border-radius: 28px;
+  font-size: 19px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0 5px 20px rgba(255, 145, 77, 0.4);
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 145, 77, 0.6);
+}
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 1024px) {
+  .card { padding: 40px; }
+  .title { font-size: 44px; }
+  .pairs-container { gap: 25px; }
+  .pairs-container span { font-size: 40px; }
+}
+
+@media (max-width: 768px) {
+  .screen { padding: 15px; }
+  .card { padding: 30px 25px; }
+  .title { font-size: 34px; }
+  .subtitle { font-size: 14px; }
+  .pairs-container { gap: 20px; }
+  .pairs-container span { font-size: 36px; }
+  .question { font-size: 18px; }
+  .feedback-title { font-size: 30px; }
+}
+
+/* ===== TÍTULO DO JOGO ===== */
+.game-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 52px;
+  font-weight: 700;
+  color: #FF914D;
+  text-align: center;
+  text-transform: uppercase;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  letter-spacing: 1px;
+}
+
+/* ===== SUAVIZAÇÃO DE TRANSIÇÃO ===== */
+@view-transition {
+  navigation: auto;
+}
+</style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><!-- CONTROLES DE MÚSICA -->
+  <div class="music-controls"><button class="music-btn" id="vol-down-home">−</button> <button class="music-btn play-pause" id="play-pause-home">▶</button> <button class="music-btn" id="vol-up-home">+</button>
+  </div><!-- 🏠 Tela Inicial -->
+  <section id="home-screen" class="screen active"><!-- BOTÃO MENU --> <button class="nav-button" id="menu-home">🎮 MENU</button>
+   <div class="card home-card">
+    <h1 class="title">Conte os Animais</h1><!-- SUBTÍTULO -->
+    <p class="subtitle"><span class="sound-icon" id="sound-subtitle">
+      <svg viewbox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+      </svg></span> <span id="subtitle-text">APRENDA A CONTAR BRINCANDO COM OS BICHINHOS!</span></p>
+    <div class="example-pairs"><span>🐶</span> <span>🐱</span> <span>🐸</span>
+    </div><button class="start-button" id="start-button">COMEÇAR O JOGO</button>
+   </div>
+  </section><!-- 🎯 Tela do Jogo -->
+  <section id="game-screen" class="screen"><!-- BOTÃO VOLTAR --> <button class="back-button" id="back-to-home"> <span class="arrow">←</span> VOLTAR </button>
+   <div style="display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%;">
+    <h1 class="game-title">CONTE OS ANIMAIS</h1>
+    <div class="card game-card"><!-- SUBTÍTULO -->
+     <p class="subtitle"><span class="sound-icon" id="sound-subtitle-game">
+       <svg viewbox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+       </svg></span> <span>CLIQUE EM CADA UM ENQUANTO CONTA!</span></p>
+     <div class="pairs-container" id="pairs-container"></div>
+     <div class="question-section">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 15px;"><span class="sound-icon" id="sound-question">
+        <svg viewbox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+        </svg></span>
+       <p class="question">QUAL A QUANTIDADE DE ANIMAIS?</p>
+      </div>
+      <div class="answer-buttons"><button class="number-button" data-number="1">1</button> <button class="number-button" data-number="2">2</button> <button class="number-button" data-number="3">3</button> <button class="number-button" data-number="4">4</button> <button class="number-button" data-number="5">5</button>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section><!-- ✅ Tela de Acerto -->
+  <section id="correct-screen" class="screen"><!-- BOTÃO VOLTAR --> <button class="back-button" id="back-game"> <span class="arrow">←</span> VOLTAR </button>
+   <div class="card feedback-card">
+    <div class="feedback-emoji">
+     🎉
+    </div>
+    <h2 class="feedback-title">Muito bem!</h2>
+    <p class="feedback-subtitle">Você acertou o número de pares! Continue assim!</p><button class="action-button" id="next-level">Próxima Fase</button>
+   </div>
+  </section><!-- ❌ Tela de Erro -->
+  <section id="wrong-screen" class="screen"><!-- BOTÃO VOLTAR --> <button class="back-button" id="back-game-wrong"> <span class="arrow">←</span> VOLTAR </button>
+   <div class="card feedback-card">
+    <div class="feedback-emoji">
+     😅
+    </div>
+    <h2 class="feedback-title">Ops!</h2>
+    <p class="feedback-subtitle">Você errou, mas pode tentar novamente!</p><button class="action-button" id="try-again">Tentar Novamente</button>
+   </div>
+  </section><!-- 🏁 Tela Final -->
+  <section id="completion-screen" class="screen"><!-- BOTÃO VOLTAR --> <button class="back-button" id="back-game-completion"> <span class="arrow">←</span> VOLTAR </button>
+   <div class="card feedback-card">
+    <div class="feedback-emoji">
+     🏆
+    </div>
+    <h2 class="feedback-title">Parabéns!</h2>
+    <p class="feedback-subtitle">Você completou todas as fases! Excelente trabalho!</p><button class="action-button" id="restart-game">Jogar Novamente</button>
+   </div>
+  </section>
+  <script>
+  // 🔹 Configuração inicial
+  const animals = ['🐶', '🐱', '🐰', '🐸', '🐮', '🐦'];
+  let currentPairs = 0;
+  let roundsPlayed = 0;
+  const totalRounds = 5;
+
+  // 🔹 Função para alternar telas
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // 🔹 Gera animais aleatórios
+  function generatePairs() {
+    const container = document.getElementById('pairs-container');
+    container.innerHTML = '';
+    const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+    currentPairs = Math.floor(Math.random() * 5) + 1;
+
+    // Atualiza a pergunta baseada no animal
+    const animalNames = {
+      '🐶': 'CACHORROS',
+      '🐱': 'GATOS', 
+      '🐰': 'COELHOS',
+      '🐸': 'SAPOS',
+      '🐮': 'VACAS',
+      '🐦': 'PÁSSAROS'
+    };
+    
+    const questionText = document.querySelector('.question');
+    questionText.textContent = `QUAL A QUANTIDADE DE ${animalNames[randomAnimal]}?`;
+
+    for (let i = 0; i < currentPairs; i++) {
+      const animalSpan = document.createElement('span');
+      animalSpan.textContent = randomAnimal;
+      animalSpan.onclick = () => {
+        animalSpan.classList.toggle('clicked');
+      };
+      container.appendChild(animalSpan);
+    }
+  }
+
+  // 🔹 Inicia o jogo
+  document.getElementById('start-button').onclick = () => {
+    roundsPlayed = 0;
+    generatePairs();
+    showScreen('game-screen');
+    
+    // Inicia a música automaticamente quando começar o jogo
+    if (!isPlaying) {
+      playCleanSoft();
+      isPlaying = true;
+      document.getElementById('play-pause-home').textContent = '⏸';
+    }
+  };
+
+  // 🔹 Verifica resposta
+  document.querySelectorAll('.number-button').forEach(button => {
+    button.onclick = () => {
+      const answer = parseInt(button.dataset.number);
+      if (answer === currentPairs) {
+        showScreen('correct-screen');
+      } else {
+        showScreen('wrong-screen');
+      }
+    };
+  });
+
+  // 🔹 Próxima fase
+  document.getElementById('next-level').onclick = () => {
+    roundsPlayed++;
+    if (roundsPlayed < totalRounds) {
+      generatePairs();
+      showScreen('game-screen');
+    } else {
+      showScreen('completion-screen');
+    }
+  };
+
+  // 🔹 Tentar novamente
+  document.getElementById('try-again').onclick = () => {
+    generatePairs();
+    showScreen('game-screen');
+  };
+
+  // 🔹 Reiniciar jogo
+  document.getElementById('restart-game').onclick = () => showScreen('home-screen');
+  document.getElementById('menu-home').onclick = () => showScreen('home-screen');
+  
+  // 🔹 Botões voltar
+  document.getElementById('back-to-home').onclick = () => showScreen('home-screen');
+  document.getElementById('back-game').onclick = () => showScreen('game-screen');
+  document.getElementById('back-game-wrong').onclick = () => showScreen('game-screen');
+  document.getElementById('back-game-completion').onclick = () => showScreen('home-screen');
+
+  // 🔊 Música de fundo personalizada com Web Audio API
+  let audioContext = null;
+  let isPlaying = false;
+  let musicVolume = 0.5;
+  let musicInterval = null;
+
+  // Função para criar música suave e rítmica
+  function playCleanSoft() {
+    if (audioContext) {
+      audioContext.close();
+    }
+    
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioContext.currentTime;
+    const tempo = 0.5;   // intervalo entre batidas
+    const duration = 60; // 1 minuto
+
+    // --- Sons individuais ---
+
+    // 🔸 Palma leve
+    function clap(time) {
+      const noise = audioContext.createBufferSource();
+      const buffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.1, audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      const gain = audioContext.createGain();
+      gain.gain.setValueAtTime(0.15 * musicVolume, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+      noise.buffer = buffer;
+      noise.connect(gain).connect(audioContext.destination);
+      noise.start(time);
+    }
+
+    // 🔸 Tambor leve
+    function drum(time, freq = 100) {
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, time);
+      gain.gain.setValueAtTime(0.2 * musicVolume, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+      osc.connect(gain).connect(audioContext.destination);
+      osc.start(time);
+      osc.stop(time + 0.3);
+    }
+
+    // 🔸 Risadinha curta (toque divertido)
+    function laugh(time) {
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(400 + Math.random() * 100, time);
+      gain.gain.setValueAtTime(0.05 * musicVolume, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+      osc.connect(gain).connect(audioContext.destination);
+      osc.start(time);
+      osc.stop(time + 0.2);
+    }
+
+    // --- Padrão Rítmico Organizado ---
+    let t = now;
+    for (let i = 0; i < duration * 2; i++) {
+      // Base: tambor e palma alternando
+      if (i % 2 === 0) drum(t);
+      if (i % 2 === 1) clap(t + 0.1);
+
+      // Risadinhas leves a cada 4 compassos
+      if (i % 8 === 0) laugh(t + 0.2);
+
+      t += tempo;
+    }
+
+    // Reinicia a música automaticamente após 1 minuto
+    setTimeout(() => {
+      if (isPlaying) {
+        playCleanSoft();
+      }
+    }, duration * 1000);
+  }
+
+  // Controle de play/pause
+  document.getElementById('play-pause-home').onclick = () => {
+    const playBtn = document.getElementById('play-pause-home');
+    if (!isPlaying) {
+      playCleanSoft();
+      isPlaying = true;
+      playBtn.textContent = '⏸';
+    } else {
+      if (audioContext) {
+        audioContext.close();
+        audioContext = null;
+      }
+      isPlaying = false;
+      playBtn.textContent = '▶';
+    }
+  };
+
+  // Controle de volume
+  document.getElementById('vol-up-home').onclick = () => {
+    if (musicVolume < 1) {
+      musicVolume = Math.min(1, musicVolume + 0.1);
+      // Se a música estiver tocando, reinicia com novo volume
+      if (isPlaying) {
+        playCleanSoft();
+      }
+    }
+  };
+
+  document.getElementById('vol-down-home').onclick = () => {
+    if (musicVolume > 0) {
+      musicVolume = Math.max(0, musicVolume - 0.1);
+      // Se a música estiver tocando, reinicia com novo volume
+      if (isPlaying) {
+        playCleanSoft();
+      }
+    }
+  };
+
+  // 🔊 Função para falar texto usando Web Speech API
+  let originalMusicVolume = musicVolume;
+  let speechActive = false;
+
+  function speakText(text) {
+    if ('speechSynthesis' in window) {
+      // Para a fala atual se estiver falando
+      window.speechSynthesis.cancel();
+      
+      // Salva o volume original e diminui a música
+      if (!speechActive) {
+        originalMusicVolume = musicVolume;
+        musicVolume = musicVolume * 0.3; // Reduz para 30% do volume original
+        speechActive = true;
+        
+        // Se a música estiver tocando, reinicia com volume reduzido
+        if (isPlaying) {
+          playCleanSoft();
+        }
+      }
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR'; // Português brasileiro
+      utterance.rate = 0.8; // Velocidade mais lenta para crianças
+      utterance.pitch = 1.2; // Tom mais agudo e amigável
+      utterance.volume = 0.8; // Volume alto
+      
+      // Quando a fala terminar, restaura o volume da música
+      utterance.onend = () => {
+        musicVolume = originalMusicVolume;
+        speechActive = false;
+        
+        // Se a música estiver tocando, reinicia com volume original
+        if (isPlaying) {
+          playCleanSoft();
+        }
+      };
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  // Ícone de som no subtítulo (tela inicial)
+  document.getElementById('sound-subtitle').onclick = () => {
+    speakText('Aprenda a contar brincando com os bichinhos!');
+  };
+
+  // Ícone de som no subtítulo (tela do jogo)
+  document.getElementById('sound-subtitle-game').onclick = () => {
+    speakText('Clique em cada um enquanto conta!');
+  };
+
+  // Ícone de som na pergunta
+  document.getElementById('sound-question').onclick = () => {
+    const questionText = document.querySelector('.question').textContent;
+    speakText(questionText);
+  };
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99de791a13648b15',t:'MTc2MzAzOTA0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
