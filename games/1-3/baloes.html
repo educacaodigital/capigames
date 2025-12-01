@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎈MEU BALÃO COLORIDO</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #87CEEB;
+            font-family: 'Fredoka One', cursive, sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+            text-transform: uppercase;
+        }
+
+        /* CABEÇALHO ESTILIZADO */
+        #game-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to bottom, #ffeef2 0%, #ffdbe6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        #header-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .title-gold {
+            font-size: 32px;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 #DAA520, 4px 4px 0 #B8860B, 3px 3px 5px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+            margin-bottom: -5px;
+        }
+
+        .title-colorful {
+            font-size: 24px;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .c-pink { color: #FF69B4; }
+        .c-green { color: #2ECC40; }
+        .c-purple { color: #9B30FF; }
+        .c-orange { color: #FF851B; }
+        .c-blue-light { color: #00BFFF; }
+        .c-yellow { color: #FFDC00; }
+        .c-blue-dark { color: #0000FF; }
+
+        #back-btn {
+            background: #FFD700;
+            color: #B8860B;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            font-family: inherit;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.2), 2px 2px 5px rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+        }
+
+        #back-btn:active {
+            transform: scale(0.95);
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #header-spacer { width: 80px; }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: calc(100vh - 100px);
+            margin-top: 100px;
+            overflow: hidden;
+        }
+
+        #color-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            font-weight: bold;
+            color: white; /* Cor padrão, será sobrescrita pelo JS */
+            text-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+
+        .balloon {
+            position: absolute;
+            bottom: -150px;
+            width: 110px;
+            height: 130px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            cursor: pointer;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.1);
+            animation: floatUp linear forwards;
+            display: flex;
+            justify-content: center;
+        }
+
+        .balloon::before {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 20%;
+            width: 25px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            transform: rotate(45deg);
+        }
+
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid inherit;
+        }
+
+        .string {
+            position: absolute;
+            bottom: -60px;
+            width: 2px;
+            height: 60px;
+            background: rgba(0,0,0,0.3);
+            transform-origin: top center;
+            animation: wiggle 3s ease-in-out infinite alternate;
+        }
+
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,238,242, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        #start-screen h1 {
+            color: #FF69B4;
+            font-size: 40px;
+            text-shadow: 2px 2px 0px #fff, 4px 4px 0px rgba(0,0,0,0.1);
+        }
+
+        #start-btn {
+            padding: 20px 40px;
+            font-size: 28px;
+            background-color: #2ECC40;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: pulse 1.5s infinite;
+            margin-top: 20px;
+            font-family: inherit;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-120vh); }
+        }
+
+        @keyframes popAnim {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.8; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        @keyframes wiggle {
+            0% { transform: rotate(-5deg); }
+            100% { transform: rotate(5deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.6;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" src="balao.mp3" loop></audio>
+
+    <header id="game-header">
+        <button id="back-btn">⬅ VOLTAR</button>
+        <div id="header-title">
+            <div class="title-gold">BALÃO</div>
+            <div class="title-colorful">
+                <span class="c-pink">C</span><span class="c-green">O</span><span class="c-purple">L</span><span class="c-orange">O</span><span class="c-blue-light">R</span><span class="c-yellow">I</span><span class="c-blue-dark">D</span><span class="c-pink">O</span>
+            </div>
+        </div>
+        <div id="header-spacer"></div>
+    </header>
+
+    <div id="game-container">
+        <div class="cloud" style="width: 200px; height: 60px; top: 10%; left: 10%;"></div>
+        <div class="cloud" style="width: 150px; height: 50px; top: 25%; left: 70%;"></div>
+        <div class="cloud" style="width: 180px; height: 70px; top: 60%; left: 40%;"></div>
+
+        <div id="color-display"></div>
+    </div>
+
+    <div id="start-screen">
+        <h1>ESTOURAR BALÕES</h1>
+        <p style="font-size: 18px; color: #666;">TOQUE PARA COMEÇAR E OUVIR AS CORES!</p>
+        <button id="start-btn">JOGAR</button>
+    </div>
+
+    <script>
+        const container = document.getElementById('game-container');
+        const display = document.getElementById('color-display');
+        const startScreen = document.getElementById('start-screen');
+        const bgMusic = document.getElementById('bg-music');
+        let gameActive = false;
+        let audioCtx;
+
+        const colors = [
+            { name: "VERMELHO", hex: "#FF4136" },
+            { name: "AZUL", hex: "#0074D9" },
+            { name: "AMARELO", hex: "#FFDC00" },
+            { name: "VERDE", hex: "#2ECC40" }
+        ];
+
+        function speakColor(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text.toLowerCase());
+                utterance.lang = 'pt-BR';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function playPopSound() {
+            if (!audioCtx) return;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function spawnBalloon() {
+            if (!gameActive) return;
+
+            const balloon = document.createElement('div');
+            const string = document.createElement('div');
+            string.classList.add('string');
+
+            const colorData = colors[Math.floor(Math.random() * colors.length)];
+            
+            balloon.classList.add('balloon');
+            balloon.style.backgroundColor = colorData.hex;
+            balloon.style.borderBottomColor = colorData.hex; 
+            
+            const randomLeft = Math.floor(Math.random() * (window.innerWidth - 110));
+            balloon.style.left = randomLeft + 'px';
+
+            const duration = Math.random() * 4 + 8; 
+            balloon.style.animationDuration = duration + 's';
+
+            balloon.appendChild(string);
+            container.appendChild(balloon);
+
+            const popEvent = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                playPopSound();
+                speakColor(colorData.name);
+                
+                display.innerText = colorData.name;
+                
+                // CORRIGIDO: Agora a cor do texto sempre será a cor do balão
+                display.style.color = colorData.hex; 
+                
+                // Sombra preta forte para garantir leitura do amarelo
+                display.style.textShadow = "2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000";
+                
+                display.style.opacity = 1;
+
+                setTimeout(() => { display.style.opacity = 0; }, 1200);
+
+                balloon.style.animation = 'popAnim 0.2s ease-out forwards';
+                
+                setTimeout(() => {
+                    if(balloon.parentNode) balloon.remove();
+                }, 200);
+            };
+
+            balloon.addEventListener('mousedown', popEvent);
+            balloon.addEventListener('touchstart', popEvent);
+
+            balloon.addEventListener('animationend', () => {
+                if (balloon.parentNode && balloon.style.animationName === 'floatUp') {
+                    balloon.remove();
+                }
+            });
+        }
+
+        document.getElementById('back-btn').addEventListener('click', () => {
+            window.history.back();
+        });
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            gameActive = true;
+            
+            bgMusic.play().catch(error => console.log("Erro ao tocar música de fundo:", error));
+
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+
+            setInterval(spawnBalloon, 1200);
+        });
+
+    </script>
+</body>
+</html>
