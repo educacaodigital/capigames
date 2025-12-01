@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>⭐LUZES SENSORIAIS</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: none; /* Impede zoom e rolagem no mobile */
+        }
+
+        /* Cabeçalho */
+        #header {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            pointer-events: none; /* Permite clicar através do texto */
+            z-index: 10;
+        }
+
+        #mainTitle {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FFD700; /* Amarelo Ouro */
+            text-shadow: 0 0 10px #FFD700, 0 0 20px #FFA500; /* Brilho neon */
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Botão Voltar */
+        #backBtn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        #backBtn:hover {
+            background-color: rgba(255, 215, 0, 0.3);
+            border-color: #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Canvas */
+        canvas {
+            display: block;
+        }
+
+        /* Instrução inicial sutil */
+        #hint {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            pointer-events: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+            100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+
+    <button id="backBtn" onclick="goBack()">&#8592; Voltar</button>
+    
+    <div id="header">
+        <h1 id="mainTitle">⭐LUZES SENSORIAIS⭐</h1>
+    </div>
+
+    <div id="hint">Toque para criar fogos e ouvir as cores</div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // --- Configuração do Canvas ---
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // --- Lógica do Botão Voltar ---
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                console.log("Sem histórico para voltar");
+            }
+        }
+
+        // --- Configuração de Cores e Nomes ---
+        const colorPalette = [
+            { hex: '#FF0000', name: 'Vermelho' },
+            { hex: '#00FF00', name: 'Verde' },
+            { hex: '#0000FF', name: 'Azul' },
+            { hex: '#FFFF00', name: 'Amarelo' },
+            { hex: '#FFA500', name: 'Laranja' },
+            { hex: '#800080', name: 'Roxo' },
+            { hex: '#FFC0CB', name: 'Rosa' },
+            { hex: '#00FFFF', name: 'Azul Claro' },
+            { hex: '#FFD700', name: 'Dourado' },
+            { hex: '#FFFFFF', name: 'Branco' }
+        ];
+
+        // --- Sistema de Áudio (Sintetizador de Tons) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'explosion') {
+                // Som de explosão suave
+                oscillator.type = 'triangle'; // Menos agressivo que sawtooth
+                oscillator.frequency.setValueAtTime(100, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5);
+            } else {
+                // Som suave do rastro (cintilante)
+                oscillator.type = 'sine';
+                // Notas aleatórias agudas para brilho
+                oscillator.frequency.value = 600 + Math.random() * 600; 
+                
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5);
+            }
+        }
+
+        // --- Sistema de Fala (Text-to-Speech) ---
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                // Cancela fala anterior para não sobrepor se clicar rápido demais
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 1.0; 
+                utterance.pitch = 1.1; // Levemente agudo para soar animado
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // --- Sistema de Partículas ---
+        const particles = [];
+
+        class Particle {
+            constructor(x, y, color, isExplosion = false) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                
+                if (isExplosion) {
+                    // Explosão radial (fogos clássicos)
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 5 + 2; // Velocidade variada para espalhar
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                    
+                    this.size = Math.random() * 4 + 2;
+                    this.decay = Math.random() * 0.015 + 0.01; // Fade out
+                    this.gravity = 0.05; // Leve gravidade para cair bonito
+                    this.life = 1.0;
+                } else {
+                    // Rastro suave (estrelas flutuantes)
+                    this.vx = (Math.random() - 0.5) * 1.5;
+                    this.vy = (Math.random() - 0.5) * 1.5;
+                    this.size = Math.random() * 3 + 1;
+                    this.decay = Math.random() * 0.02 + 0.01;
+                    this.gravity = 0;
+                    this.life = 0.8;
+                }
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity; // Aplica gravidade
+                this.size *= 0.96; 
+                this.life -= this.decay;
+            }
+
+            draw() {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Brilho extra
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function createExplosion(x, y) {
+            // 1. Escolher UMA cor para toda a explosão
+            const colorObj = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+            
+            // 2. Tocar som e Falar a cor
+            playSound('explosion');
+            speak(colorObj.name);
+
+            // 3. Criar partículas radiais
+            const particleCount = 40; 
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle(x, y, colorObj.hex, true));
+            }
+        }
+
+        function createTrail(x, y) {
+            // Rastro suave
+            if (Math.random() > 0.5) playSound('soft'); // Som intermitente para não saturar
+            
+            // Escolhe uma cor aleatória apenas para visual (sem falar)
+            const randomColor = colorPalette[Math.floor(Math.random() * colorPalette.length)].hex;
+            particles.push(new Particle(x, y, randomColor, false));
+        }
+
+        // --- Loop de Animação ---
+        function animate() {
+            // Rastro (Trail effect)
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- Event Listeners ---
+
+        // Mouse Move (Rastro de estrelas)
+        window.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.2) { 
+                createTrail(e.clientX, e.clientY);
+            }
+            const hint = document.getElementById('hint');
+            if(hint) hint.style.display = 'none';
+        });
+
+        // Mouse Click (Explosão Única + Fala)
+        window.addEventListener('mousedown', (e) => {
+            initAudio(); 
+            createExplosion(e.clientX, e.clientY);
+            
+            const hint = document.getElementById('hint');
+            if(hint) hint.style.display = 'none';
+        });
+
+        // Touch Move (Rastro)
+        window.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            for (let i = 0; i < e.touches.length; i++) {
+                if (Math.random() > 0.2) {
+                    createTrail(e.touches[i].clientX, e.touches[i].clientY);
+                }
+            }
+        }, { passive: false });
+
+        // Touch Start (Explosão + Fala)
+        window.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            initAudio();
+            
+            const hint = document.getElementById('hint');
+            if(hint) hint.style.display = 'none';
+
+            // Gera explosão para cada toque novo
+            // Nota: Se houver multitoque simultâneo, falará apenas a última ou sobreporá. 
+            // O ideal para TTS é um por vez, mas o efeito visual ocorre em todos.
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                createExplosion(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+            }
+        }, { passive: false });
+
+    </script>
+</body>
+</html>
