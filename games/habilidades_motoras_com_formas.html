@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>⭐LUZES E FORMAS SENSORIAIS</title>
+    <style>
+        /* Reset básico para garantir tela cheia */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Impede barras de rolagem */
+            background-color: #020b26; /* Azul escuro profundo */
+            touch-action: none; /* Impede gestos de zoom/scroll do navegador */
+            cursor: none; /* Esconde o cursor padrão */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* Área de texto educativo */
+        #learning-label {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            pointer-events: none;
+            user-select: none;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        /* Dica visual inicial que desaparece */
+        #hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.5rem;
+            pointer-events: none;
+            user-select: none;
+            transition: opacity 1s;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="hint">Toque para aprender</div>
+    <div id="learning-label"></div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const hint = document.getElementById('hint');
+        const learningLabel = document.getElementById('learning-label');
+
+        let width, height;
+        let particles = [];
+        let labelTimeout;
+
+        // Paleta de Cores Educativas (Cores Primárias/Secundárias claras)
+        const colors = [
+            { h: 0, name: 'Vermelho' },
+            { h: 30, name: 'Laranja' },
+            { h: 60, name: 'Amarelo' },
+            { h: 120, name: 'Verde' },
+            { h: 180, name: 'Ciano' },
+            { h: 240, name: 'Azul' },
+            { h: 280, name: 'Roxo' },
+            { h: 320, name: 'Rosa' }
+        ];
+
+        // Formas Geométricas
+        const shapes = [
+            { type: 'circle', name: 'Círculo' },
+            { type: 'square', name: 'Quadrado' },
+            { type: 'triangle', name: 'Triângulo' }
+        ];
+
+        // Configura o tamanho do canvas
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Classe Base para Partículas
+        class Particle {
+            constructor(x, y, type, specificColorObj = null, specificShapeObj = null) {
+                this.x = x;
+                this.y = y;
+                this.type = type; // 'trail' ou 'firework'
+                
+                // Escolhe cor e forma
+                this.colorObj = specificColorObj || colors[Math.floor(Math.random() * colors.length)];
+                this.shapeObj = specificShapeObj || shapes[Math.floor(Math.random() * shapes.length)];
+                
+                // CORES MAIS VIBRANTES: Alterado de 70% para 50% de luminosidade (cor pura)
+                this.color = `hsl(${this.colorObj.h}, 100%, 50%)`;
+                
+                // Rotação para formas
+                this.angle = Math.random() * Math.PI * 2;
+                this.spin = (Math.random() - 0.5) * 0.2;
+
+                if (type === 'trail') {
+                    this.size = Math.random() * 8 + 4;
+                    this.speedX = Math.random() * 2 - 1;
+                    this.speedY = Math.random() * 2 - 1;
+                    this.shrink = 0.08; 
+                } else {
+                    // Explosão
+                    this.size = Math.random() * 10 + 6;
+                    const angle = Math.random() * Math.PI * 2;
+                    
+                    // VELOCIDADE REDUZIDA: Para facilitar a visualização da forma
+                    const velocity = Math.random() * 3 + 1; 
+                    
+                    this.speedX = Math.cos(angle) * velocity;
+                    this.speedY = Math.sin(angle) * velocity;
+                    
+                    // DURAÇÃO AUMENTADA: Desaparecem mais devagar (menor valor = dura mais)
+                    this.shrink = 0.08; 
+                }
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.size -= this.shrink;
+                this.angle += this.spin;
+
+                // Gravidade leve na explosão
+                if (this.type === 'firework') {
+                    // GRAVIDADE REDUZIDA: Flutuam mais suavemente
+                    this.speedY += 0.05; 
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+
+                ctx.beginPath();
+                
+                if (this.shapeObj.type === 'circle') {
+                    ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                } else if (this.shapeObj.type === 'square') {
+                    ctx.rect(-this.size, -this.size, this.size * 2, this.size * 2);
+                } else if (this.shapeObj.type === 'triangle') {
+                    ctx.moveTo(0, -this.size * 1.5);
+                    ctx.lineTo(this.size, this.size);
+                    ctx.lineTo(-this.size, this.size);
+                    ctx.closePath();
+                }
+
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Adiciona partículas ao array (Rastro)
+        function addTrail(x, y) {
+            if(hint.style.opacity !== '0') hint.style.opacity = '0';
+
+            // No rastro, as formas e cores são aleatórias e misturadas
+            for (let i = 0; i < 2; i++) {
+                particles.push(new Particle(x, y, 'trail'));
+            }
+        }
+
+        // Cria explosão educativa
+        function createExplosion(x, y) {
+            // Escolhe UMA cor e UMA forma para a explosão inteira (foco pedagógico)
+            const chosenColor = colors[Math.floor(Math.random() * colors.length)];
+            const chosenShape = shapes[Math.floor(Math.random() * shapes.length)];
+
+            // Atualiza o texto na tela com a nova cor vibrante
+            updateLabel(chosenShape.name + " " + chosenColor.name, `hsl(${chosenColor.h}, 100%, 50%)`);
+
+            // Cria partículas iguais
+            for (let i = 0; i < 30; i++) {
+                particles.push(new Particle(x, y, 'firework', chosenColor, chosenShape));
+            }
+        }
+
+        function updateLabel(text, color) {
+            learningLabel.textContent = text;
+            learningLabel.style.color = color;
+            learningLabel.style.opacity = '1';
+            
+            // Reinicia o timer para sumir o texto
+            clearTimeout(labelTimeout);
+            labelTimeout = setTimeout(() => {
+                learningLabel.style.opacity = '0';
+            }, 2000);
+        }
+
+        // --- Eventos de Mouse ---
+        canvas.addEventListener('mousemove', (e) => {
+            addTrail(e.clientX, e.clientY);
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            createExplosion(e.clientX, e.clientY);
+        });
+
+        // --- Eventos de Touch ---
+        canvas.addEventListener('touchmove', (e) => {
+            for (let i = 0; i < e.touches.length; i++) {
+                addTrail(e.touches[i].clientX, e.touches[i].clientY);
+            }
+        }, { passive: true });
+
+        canvas.addEventListener('touchstart', (e) => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                createExplosion(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+                addTrail(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+            }
+        }, { passive: true });
+
+
+        // --- Loop de Animação ---
+        function animate() {
+            ctx.fillStyle = 'rgba(2, 11, 38, 0.25)'; 
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.globalCompositeOperation = 'lighter';
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                if (particles[i].size <= 0.2) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            ctx.globalCompositeOperation = 'source-over';
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
