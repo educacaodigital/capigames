@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🟧JOGO DAS FORMAS</title>
+    <style>
+        /* --- CSS: Visual e Animações --- */
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #E0F7FA;
+            font-family: 'Fredoka One', cursive;
+            overflow: hidden;
+            touch-action: none;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* --- Botões de Navegação (Voltar e Voz) --- */
+        .nav-btn {
+            position: absolute;
+            top: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            z-index: 200; /* Acima do header */
+            transition: transform 0.1s;
+        }
+        .nav-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .btn-back {
+            background-color: #FF5252;
+            left: 15px;
+        }
+
+        .btn-speak {
+            background-color: #448AFF;
+            right: 15px;
+        }
+
+        /* --- Cabeçalho --- */
+        header {
+            background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+            height: 120px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: 
+                radial-gradient(circle at 10px -5px, transparent 12px, #E0F7FA 13px) 0 0,
+                radial-gradient(circle at 10px -5px, transparent 12px, #E0F7FA 13px) 20px 0;
+            background-size: 40px 40px;
+            transform: rotate(180deg);
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 2.2rem;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+            margin: 0;
+            letter-spacing: 2px;
+            z-index: 2;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            z-index: 1;
+        }
+        .c1 { width: 60px; height: 30px; top: 20px; left: 20%; }
+        .c2 { width: 80px; height: 40px; top: 50px; right: 25%; }
+
+        /* --- Área do Jogo --- */
+        #game-area {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        /* Alvos */
+        .target {
+            width: 140px;
+            height: 140px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 4px dashed rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Peças */
+        .shape {
+            width: 130px;
+            height: 130px;
+            cursor: grab;
+            position: absolute;
+            touch-action: none;
+            transition: transform 0.1s linear;
+            filter: drop-shadow(0 8px 5px rgba(0,0,0,0.2));
+            z-index: 100;
+        }
+        .shape:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+            z-index: 1000 !important;
+        }
+
+        /* Formas */
+        .square { border-radius: 15px; }
+        .target.square { border-radius: 20px; }
+        .shape.square { background-color: #FF5252; border: 4px solid #fff; }
+
+        .circle { border-radius: 50%; }
+        .shape.circle { background-color: #448AFF; border: 4px solid #fff; }
+
+        .triangle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            width: 140px; height: 120px; 
+        }
+        .shape.triangle {
+            background-color: #FFD740;
+            background-image: linear-gradient(to bottom, #FFD740, #FFC107);
+        }
+        .target.triangle { border: none; background-color: transparent; }
+        .target-triangle-bg {
+             width: 140px; height: 120px;
+             background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3cpolygon points='70,2 2,118 138,118' style='fill:rgba(0,0,0,0.2);stroke:rgba(0,0,0,0.3);stroke-width:4;stroke-dasharray:10' /%3e%3c/svg%3e");
+             background-repeat: no-repeat;
+        }
+
+        .matched {
+            filter: drop-shadow(0 0 20px #FFF) brightness(1.2);
+            pointer-events: none;
+            z-index: 50;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Tela de Vitória */
+        #win-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .big-star {
+            font-size: 10rem;
+            color: #FFD740;
+            animation: spin 3s infinite linear;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .action-btn {
+            background: #00E676;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            color: white;
+            border-radius: 50px;
+            font-family: inherit;
+            box-shadow: 0 6px #00C853;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .action-btn:active { transform: translateY(4px); box-shadow: 0 2px #00C853; }
+
+        /* Overlay Start */
+        #start-btn-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000; display: flex; justify-content: center; align-items: center;
+            color: white; font-size: 2rem; text-align: center;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="formas.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="start-btn-overlay" onclick="initGame()">
+        <div>
+            <div style="font-size: 4rem;">▶️</div>
+            <br>TOQUE PARA JOGAR
+        </div>
+    </div>
+
+    <!-- Botões Superiores -->
+    <button class="nav-btn btn-back" onclick="goBack()" aria-label="Voltar">⬅️</button>
+    <button class="nav-btn btn-speak" onclick="playInstructions()" aria-label="Ouvir Instruções">📢</button>
+
+    <header>
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <h1>🟩JOGO DAS FORMAS🟣</h1>
+    </header>
+
+    <div id="game-area">
+        <div class="row" id="targets-row"></div>
+        <div class="row" id="shapes-row" style="height: 150px; align-items: center;"></div>
+    </div>
+
+    <div id="win-overlay">
+        <div class="big-star">★</div>
+        <h1 style="color: #FF9A9E; margin-top:0;">PARABÉNS!</h1>
+        <button class="action-btn" onclick="restartGame()">Jogar Novamente</button>
+    </div>
+
+    <script>
+        const shapes = [
+            { type: 'square', color: 'red' },
+            { type: 'circle', color: 'blue' },
+            { type: 'triangle', color: 'yellow' }
+        ];
+
+        let completed = 0;
+        const gameArea = document.getElementById('game-area');
+        const startOverlay = document.getElementById('start-btn-overlay');
+        const music = document.getElementById('bg-music');
+        
+        let activeItem = null;
+        let activeItemOffsetX = 0;
+        let activeItemOffsetY = 0;
+
+        // --- Funcionalidades de Voz e Controle ---
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                alert("Esta é a primeira página!");
+            }
+        }
+
+        function initGame() {
+            startOverlay.style.display = 'none';
+            // Inicia música com volume baixo
+            music.volume = 0.3;
+            music.play().catch(e => console.log("Erro áudio: ", e));
+            setupLevel();
+            setTimeout(playInstructions, 500);
+        }
+
+        // Função genérica para falar qualquer texto
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                // Cancela falas anteriores
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 1.0; 
+                utterance.pitch = 1.1; 
+
+                // Abaixa a música
+                const originalVolume = music.volume;
+                music.volume = 0.1;
+
+                utterance.onend = function() {
+                    // Restaura volume suavemente se não houver outra fala pendente
+                    if (!window.speechSynthesis.speaking) {
+                        music.volume = originalVolume;
+                    }
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function playInstructions() {
+            speak("Arraste as formas coloridas até a sombra preta igualzinha a elas!");
+        }
+
+        // --- Lógica do Jogo ---
+
+        function setupLevel() {
+            completed = 0;
+            document.getElementById('win-overlay').style.display = 'none';
+            
+            const targetsRow = document.getElementById('targets-row');
+            const shapesRow = document.getElementById('shapes-row');
+            
+            targetsRow.innerHTML = '';
+            shapesRow.innerHTML = '';
+
+            // 1. Criar Alvos
+            shapes.forEach(s => {
+                const target = document.createElement('div');
+                if(s.type === 'triangle') {
+                    target.className = `target-triangle-bg`;
+                    target.dataset.type = 'triangle';
+                } else {
+                    target.className = `target ${s.type}`;
+                    target.dataset.type = s.type;
+                }
+                target.id = `target-${s.type}`;
+                targetsRow.appendChild(target);
+            });
+
+            // 2. Criar Peças
+            const shuffled = [...shapes].sort(() => Math.random() - 0.5);
+            shuffled.forEach(s => {
+                const shape = document.createElement('div');
+                shape.className = `shape ${s.type}`;
+                shape.dataset.type = s.type;
+                shape.style.left = '0px'; 
+                shape.style.top = '0px';
+                shape.style.position = 'absolute'; 
+                gameArea.appendChild(shape);
+                addInteraction(shape);
+            });
+
+            setTimeout(arrangeShapesAtBottom, 100);
+        }
+
+        function arrangeShapesAtBottom() {
+            const shapesEls = document.querySelectorAll('.shape');
+            const areaRect = gameArea.getBoundingClientRect();
+            const widthPerItem = areaRect.width / shapesEls.length;
+            
+            shapesEls.forEach((el, index) => {
+                if(el.classList.contains('matched')) return;
+                const centerX = (widthPerItem * index) + (widthPerItem / 2);
+                const startLeft = centerX - (el.offsetWidth / 2);
+                const startTop = areaRect.height - 180;
+
+                el.style.transform = `translate(${startLeft}px, ${startTop}px)`;
+                el.dataset.startX = startLeft;
+                el.dataset.startY = startTop;
+            });
+        }
+
+        function addInteraction(el) {
+            el.addEventListener('mousedown', onStart);
+            el.addEventListener('touchstart', onStart, {passive: false});
+        }
+
+        function onStart(e) {
+            if (e.target.classList.contains('matched')) return;
+            e.preventDefault();
+
+            activeItem = e.target;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const style = window.getComputedStyle(activeItem);
+            const matrix = new WebKitCSSMatrix(style.transform);
+            
+            activeItemOffsetX = clientX - matrix.m41;
+            activeItemOffsetY = clientY - matrix.m42;
+
+            activeItem.style.transition = 'none'; 
+            activeItem.style.zIndex = 1000;
+
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('touchmove', onMove, {passive: false});
+            document.addEventListener('mouseup', onEnd);
+            document.addEventListener('touchend', onEnd);
+        }
+
+        function onMove(e) {
+            if (!activeItem) return;
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const newX = clientX - activeItemOffsetX;
+            const newY = clientY - activeItemOffsetY;
+            activeItem.style.transform = `translate(${newX}px, ${newY}px)`;
+        }
+
+        function onEnd(e) {
+            if (!activeItem) return;
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('mouseup', onEnd);
+            document.removeEventListener('touchend', onEnd);
+            checkDrop(activeItem);
+            activeItem = null;
+        }
+
+        function checkDrop(item) {
+            const type = item.dataset.type;
+            const target = document.getElementById(`target-${type}`);
+            
+            if (target) {
+                const itemRect = item.getBoundingClientRect();
+                const itemCX = itemRect.left + itemRect.width / 2;
+                const itemCY = itemRect.top + itemRect.height / 2;
+                const targetRect = target.getBoundingClientRect();
+                const targetCX = targetRect.left + targetRect.width / 2;
+                const targetCY = targetRect.top + targetRect.height / 2;
+                const dist = Math.hypot(targetCX - itemCX, targetCY - itemCY);
+
+                if (dist < 80) {
+                    snapToTarget(item, targetRect);
+                } else {
+                    returnToStart(item);
+                }
+            } else {
+                returnToStart(item);
+            }
+        }
+
+        function snapToTarget(item, targetRect) {
+            const gameRect = gameArea.getBoundingClientRect();
+            const finalLeft = (targetRect.left - gameRect.left) + (targetRect.width/2) - (item.offsetWidth/2);
+            const finalTop = (targetRect.top - gameRect.top) + (targetRect.height/2) - (item.offsetHeight/2);
+
+            item.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            item.style.transform = `translate(${finalLeft}px, ${finalTop}px)`;
+            item.classList.add('matched');
+            
+            // --- NOVA PARTE: Falar o nome da forma ---
+            const type = item.dataset.type;
+            let nomeForma = "";
+            if (type === 'square') nomeForma = "Quadrado!";
+            if (type === 'circle') nomeForma = "Círculo!";
+            if (type === 'triangle') nomeForma = "Triângulo!";
+            
+            speak(nomeForma);
+            // ----------------------------------------
+            
+            completed++;
+            if (completed === shapes.length) {
+                setTimeout(() => {
+                    document.getElementById('win-overlay').style.display = 'flex';
+                    speak("Parabéns! Você conseguiu!");
+                }, 1000); // Espera um pouco para falar Parabéns
+            }
+        }
+
+        function returnToStart(item) {
+            const startX = item.dataset.startX;
+            const startY = item.dataset.startY;
+            item.style.transition = 'transform 0.3s ease-out';
+            item.style.transform = `translate(${startX}px, ${startY}px)`;
+            item.style.zIndex = 100;
+        }
+
+        function restartGame() {
+            const items = document.querySelectorAll('.shape');
+            items.forEach(el => el.remove());
+            setupLevel();
+            speak("Vamos jogar de novo!");
+        }
+
+        window.addEventListener('resize', () => {
+            if(completed < 3) arrangeShapesAtBottom();
+        });
+
+    </script>
+</body>
+</html>
