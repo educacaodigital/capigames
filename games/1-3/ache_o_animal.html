@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦒ENCONTRE O ANIMAL</title>
+    <style>
+        /* --- Cores e Fontes --- */
+        :root {
+            --bg-color-fallback: #FFF5F7; /* Cor de fundo caso a imagem não carregue */
+            --header-bg: linear-gradient(135deg, #FFD1DC 0%, #A0E7E5 100%); /* Gradiente vibrante */
+            --header-text-color: #5d4a4d;
+            --card-bg: rgba(255, 255, 255, 0.8); /* Fundo dos cards semi-transparente */
+            --text-color: #555;
+            --highlight-color: #A0E7E5;
+            --correct-color: rgba(180, 248, 200, 0.9); /* Verde pastel semi-transparente */
+            --button-shadow: 0 8px 0 rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            background-color: var(--bg-color-fallback);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+            
+            /* Fundo com Imagem e Camada Branca para Transparência */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('fundo_animais.png');
+            background-size: cover; /* Cobre a tela inteira */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Imagem fixa ao rolar */
+        }
+
+        /* --- Cabeçalho --- */
+        header {
+            width: 100%;
+            background: var(--header-bg);
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Sombra mais suave e colorida */
+            margin-bottom: 20px;
+            position: relative; /* Para o efeito de brilho */
+            overflow: hidden;
+            border-bottom: 3px solid rgba(255,255,255,0.5);
+        }
+
+        /* --- Cabeçalho --- */
+        header {
+            width: 100%;
+            background: var(--header-bg);
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Sombra mais suave e colorida */
+            margin-bottom: 20px;
+            position: relative; /* Para o efeito de brilho */
+            overflow: hidden;
+        }
+
+        header::before { /* Efeito de brilho */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 30%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: skewX(-20deg);
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: -100%; }
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.2rem; /* Maior e mais divertido */
+            color: var(--header-text-color);
+            text-align: center;
+            flex-grow: 1;
+            text-transform: uppercase; /* Caixa Alta */
+            letter-spacing: 2px;
+            font-weight: 900;
+            /* Sombra branca para destacar as letras coloridas */
+            text-shadow: 2px 2px 0px #FFFFFF, 4px 4px 0px rgba(0,0,0,0.1);
+        }
+
+        /* Animação suave para as letras do título */
+        h1 span {
+            display: inline-block;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        h1 span:hover {
+            transform: translateY(-5px) rotate(5deg);
+        }
+
+        /* Botão de Voltar */
+        .back-btn {
+            background-color: #FFF;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #ddd;
+            transition: transform 0.1s;
+            color: #6d5c60;
+        }
+        .back-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* --- Área do Jogo --- */
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 600px;
+            flex-grow: 1;
+        }
+
+        /* Pergunta e Áudio */
+        .question-container {
+            background-color: rgba(255, 255, 255, 0.9); /* Mais opaco para leitura fácil */
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08); /* Sombra um pouco mais forte */
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        #question-text {
+            font-size: 1.8rem;
+            margin: 0 0 15px 0;
+            color: #444;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+
+        .speak-btn {
+            background-color: var(--highlight-color);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #76c4c2;
+            color: #333;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .speak-btn:active {
+            transform: translateY(6px);
+            box-shadow: none;
+        }
+
+        /* Grid dos Animais */
+        .animals-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .animal-card {
+            background-color: var(--card-bg);
+            border-radius: 30px;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 0 #eee;
+            border: 4px solid transparent;
+            transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .animal-card:active {
+            transform: scale(0.95);
+        }
+
+        /* --- Feedback Visual --- */
+        #feedback-msg {
+            margin-top: 30px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4CAF50;
+            opacity: 0;
+            transition: opacity 0.3s;
+            height: 50px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* --- Animações --- */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes jump {
+            0% { transform: scale(1) translateY(0); }
+            30% { transform: scale(1.1) translateY(-30px); }
+            50% { transform: scale(1.1) translateY(0); }
+            70% { transform: scale(1.1) translateY(-15px); }
+            100% { transform: scale(1) translateY(0); }
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px) rotate(-5deg); }
+            50% { transform: translateX(10px) rotate(5deg); }
+            75% { transform: translateX(-10px) rotate(-5deg); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Classes de estado */
+        .correct {
+            animation: jump 1s ease;
+            background-color: var(--correct-color) !important;
+            border-color: #81c784 !important;
+        }
+
+        .wrong {
+            animation: shake 0.5s ease;
+            background-color: rgba(255, 235, 235, 0.8); /* Vermelho muito leve semi-transparente */
+        }
+
+        /* Confetes Simples */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: fall linear forwards;
+            top: -10px;
+            z-index: 999;
+            border-radius: 50%; /* Confetes redondos */
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Ajustes para telas pequenas */
+        @media (max-width: 500px) {
+            .animal-card {
+                width: 100px;
+                height: 100px;
+                font-size: 3.5rem;
+            }
+            #question-text {
+                font-size: 1.4rem;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="back-btn" onclick="history.back()">⬅ Voltar</button>
+        <h1 id="game-title">Safari Divertido</h1>
+        <div style="width: 40px;"></div>
+    </header>
+
+    <main>
+        <div class="question-container">
+            <p id="question-text">ENCONTRE O GATO</p>
+            <button class="speak-btn" onclick="repeatQuestion()">
+                🔊 Ouvir
+            </button>
+        </div>
+
+        <div class="animals-grid" id="grid">
+            <!-- Animais inseridos via JS --></div>
+
+        <div id="feedback-msg">Muito Bem! 🎉</div>
+    </main>
+
+    <script>
+        const animals = [
+            { emoji: '🦁', name: 'o Leão', findQuestion: 'ENCONTRE O LEÃO' },
+            { emoji: '🐶', name: 'o Cachorro', findQuestion: 'ENCONTRE O CACHORRO' },
+            { emoji: '🐱', name: 'o Gato', findQuestion: 'ENCONTRE O GATO' },
+            { emoji: '🐮', name: 'a Vaca', findQuestion: 'ENCONTRE A VACA' },
+            { emoji: '🐷', name: 'o Porco', findQuestion: 'ENCONTRE O PORCO' },
+            { emoji: '🐸', 'name': 'o Sapo', findQuestion: 'ENCONTRE O SAPO' },
+            { emoji: '🐔', name: 'a Galinha', findQuestion: 'ENCONTRE A GALINHA' },
+            { emoji: '🐵', name: 'o Macaco', findQuestion: 'ENCONTRE O MACACO' },
+            { emoji: '🦉', name: 'a Coruja', findQuestion: 'ENCONTRE A CORUJA' },
+            { emoji: '🐘', name: 'o Elefante', findQuestion: 'ENCONTRE O ELEFANTE' },
+            { emoji: '🦒', name: 'a Girafa', findQuestion: 'ENCONTRE A GIRAFA' },
+            { emoji: '🦓', name: 'a Zebra', findQuestion: 'ENCONTRE A ZEBRA' }
+        ];
+
+        let currentCorrectAnimal = null;
+        let currentQuestionText = "";
+        let isLocked = false;
+
+        const synth = window.speechSynthesis;
+        let voices = [];
+
+        function loadVoices() {
+            voices = synth.getVoices();
+        }
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        function speak(text) {
+            synth.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+            synth.speak(utterance);
+        }
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function initGame() {
+            isLocked = false;
+            document.getElementById('feedback-msg').style.opacity = '0';
+            
+            const shuffledAnimals = shuffle([...animals]);
+            const roundAnimals = shuffledAnimals.slice(0, 3);
+            
+            currentCorrectAnimal = roundAnimals[Math.floor(Math.random() * roundAnimals.length)];
+            
+            currentQuestionText = currentCorrectAnimal.findQuestion;
+
+            document.getElementById('question-text').innerText = currentQuestionText;
+            
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            roundAnimals.forEach(animal => {
+                const card = document.createElement('div');
+                card.className = 'animal-card';
+                card.innerText = animal.emoji;
+                card.onclick = () => checkAnswer(animal, card);
+                grid.appendChild(card);
+            });
+
+            setTimeout(() => speak(currentQuestionText.toLowerCase()), 500);
+        }
+
+        function repeatQuestion() {
+            speak(currentQuestionText.toLowerCase());
+        }
+
+        function checkAnswer(animal, cardElement) {
+            if (isLocked) return;
+
+            if (animal === currentCorrectAnimal) {
+                isLocked = true;
+                
+                cardElement.classList.add('correct');
+                document.getElementById('feedback-msg').style.opacity = '1';
+                
+                speak("Muito bem!");
+                
+                createConfetti();
+
+                setTimeout(initGame, 2500);
+
+            } else {
+                cardElement.classList.add('wrong');
+                
+                setTimeout(() => {
+                    cardElement.classList.remove('wrong');
+                }, 500);
+            }
+        }
+
+        function createConfetti() {
+            const colors = ['#ffc0cb', '#87ceeb', '#98fb98', '#ffffba', '#e6e6fa'];
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                document.body.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        // --- Função para Colorir o Título ---
+        function decorateTitle() {
+            const titleElement = document.getElementById('game-title');
+            const text = titleElement.innerText;
+            titleElement.innerHTML = ''; // Limpa o texto original
+            
+            // Paleta de cores divertidas
+            const colors = ['#FF6B6B', '#4ECDC4', '#FF9F43', '#54A0FF', '#5F27CD', '#FF9FF3', '#0ABDE3'];
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const span = document.createElement('span');
+                
+                // Se for espaço, mantém o espaço
+                if (char === ' ') {
+                    span.innerHTML = '&nbsp;';
+                } else {
+                    span.innerText = char;
+                    span.style.color = colors[i % colors.length]; // Alterna as cores
+                }
+                
+                titleElement.appendChild(span);
+            }
+        }
+
+        // Inicia o jogo e decora o título
+        window.onload = function() {
+            decorateTitle();
+            initGame();
+        };
+
+    </script>
+</body>
+</html>
