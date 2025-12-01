@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>🚗CORRIDA DAS PALAVRAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- ESTILOS GERAIS (TEMA CÉU MÁGICO) --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #89f7fe;
+            background-image: linear-gradient(to bottom, #89f7fe, #66a6ff);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- BOTÕES SUPERIORES --- */
+        .top-controls {
+            position: absolute;
+            top: 20px;
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .btn-nav {
+            pointer-events: auto;
+            background-color: #a29bfe;
+            color: #fff;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 16px;
+            text-transform: uppercase;
+            box-shadow: 0 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.1s;
+        }
+        .btn-nav:hover { transform: scale(1.05); background-color: #6c5ce7; }
+        .btn-nav:active { transform: scale(0.95); }
+        
+        .icon-arrow::before { content: "←"; font-size: 20px; margin-right: 5px; }
+        .icon-menu::before { content: "☰"; font-size: 20px; margin-right: 5px; }
+
+        .media-group {
+            pointer-events: auto;
+            background-color: white;
+            padding: 5px;
+            border-radius: 30px;
+            display: flex;
+            gap: 5px;
+            box-shadow: 0 4px rgba(0,0,0,0.1);
+        }
+        .media-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            background-color: #00cec9;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .media-btn:hover { background-color: #00b894; }
+
+        /* --- TÍTULO PRINCIPAL (FORA DO CARTÃO) --- */
+        .game-main-title {
+            font-size: 55px;
+            color: #ff9f43;
+            font-weight: 900;
+            text-align: center;
+            text-transform: uppercase;
+            line-height: 1;
+            text-shadow: 3px 3px 0px #ee5253, 5px 5px 0px rgba(0,0,0,0.15);
+            letter-spacing: 2px;
+            margin-top: 60px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* --- CARTÃO CENTRAL --- */
+        #main-card {
+            background-color: white;
+            width: 900px;
+            height: 550px;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- ESTILOS DA TELA DE CONCLUSÃO --- */
+        .completion-icon {
+            font-size: 80px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+        }
+
+        .completion-title {
+            color: #ff9f43;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            line-height: 1.2;
+            text-align: center;
+        }
+
+        .completion-subtitle {
+            color: #576574;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .btn-orange-gradient {
+            background: linear-gradient(to bottom, #ff9f43, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(238, 90, 36, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+        }
+        .btn-orange-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(238, 90, 36, 0.4);
+            background: linear-gradient(to bottom, #ffaf40, #ff6b6b);
+        }
+
+        /* --- ELEMENTOS GERAIS --- */
+        .instruction-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .instruction-text {
+            color: #2d3436;
+            font-weight: 800;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .btn-action {
+            background-color: #00b894;
+            color: white;
+            font-size: 24px;
+            font-weight: 800;
+            padding: 15px 60px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px #00a884;
+            transition: all 0.2s;
+            margin-top: 30px;
+        }
+        .btn-action:hover { background-color: #00cec9; transform: translateY(-2px); }
+
+        /* --- HUD (A CAIXA BRANCA DE TEXTO NO JOGO) --- */
+        #hud-container {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        /* Painel Branco Unificado */
+        .game-info-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 30px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            pointer-events: auto;
+            border: 2px solid #eef1f5;
+            min-width: 400px;
+        }
+
+        /* Linha 1: Instrução */
+        .panel-row-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px dashed #dfe6e9;
+            padding-bottom: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Linha 2: Palavra e Áudio */
+        .panel-row-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            padding-top: 5px;
+        }
+
+        .icon-circle {
+            background-color: #81ecec;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 2px #00cec9;
+            cursor: pointer;
+        }
+
+        .word-speaker-button {
+            background-color: #a29bfe; 
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px #6c5ce7;
+            transition: transform 0.1s;
+        }
+        .word-speaker-button:hover { transform: scale(1.1); }
+        .word-speaker-button:active { transform: scale(0.9); }
+
+        .hud-word {
+            font-size: 40px;
+            color: #0984e3;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+            line-height: 1;
+        }
+
+        .speaker-btn {
+            background-color: #a29bfe;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 3px #6c5ce7;
+        }
+
+        canvas {
+            background-color: #55efc4;
+            border-radius: 20px;
+            display: none;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .char-got { color: #00b894; } 
+        .char-need { text-decoration: underline; text-decoration-color: #d63031; text-decoration-thickness: 5px; }
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+    <div class="top-controls">
+        <button id="btn-menu" class="btn-nav"><span class="icon-menu"></span> MENU</button>
+        <button id="btn-back" class="btn-nav hidden" onclick="Game.quitGame()"><span class="icon-arrow"></span> VOLTAR</button>
+
+        <div class="media-group">
+            <button class="media-btn" onclick="RetroSynth.toggleMute()">🔇</button>
+            <button class="media-btn" onclick="RetroSynth.toggle()" id="playPauseBtn">❚❚</button>
+        </div>
+    </div>
+
+    <h1 class="game-main-title">CORRIDA DAS<br>PALAVRAS</h1>
+
+    <div id="main-card">
+        
+        <div id="start-screen" class="screen">
+            <div class="instruction-row">
+                <button class="speaker-btn" onclick="speakText('Aprenda a ler brincando!')">🔊</button>
+                <div class="instruction-text">APRENDA A LER BRINCANDO!</div>
+            </div>
+            <div style="font-size: 70px; margin: 10px 0;">🚗 💨</div>
+            <button class="btn-action" onclick="Game.init()">COMEÇAR O JOGO</button>
+        </div>
+
+        <div id="level-screen" class="screen hidden">
+            <div class="completion-icon">🎉</div>
+            <h1 class="completion-title">PARABÉNS! VOCÊ<br>FORMOU A PALAVRA!</h1>
+            <p class="completion-subtitle">Excelente! Continue praticando para a próxima!</p>
+            <button class="btn-orange-gradient" onclick="Game.nextLevel()">PRÓXIMA FASE</button>
+        </div>
+
+        <div id="win-screen" class="screen hidden">
+            <div class="completion-icon">🏆</div>
+            <h1 class="completion-title">CAMPEÃO!</h1>
+            <p class="completion-subtitle">VOCÊ COMPLETOU TODAS AS FASES!</p>
+            <button class="btn-orange-gradient" onclick="Game.resetGame()">JOGAR DE NOVO</button>
+        </div>
+
+        <div id="hud-container">
+            <div class="game-info-panel">
+                
+                <div class="panel-row-top">
+                    <div class="icon-circle" onclick="speakText('Use as setas para a esquerda e para a direita para guiar o carro e pegar as letras.')">🔊</div>
+                    <div class="instruction-text" style="font-size: 14px;">USE AS SETAS ⬅️ E ➡️</div>
+                </div>
+
+                <div class="panel-row-bottom">
+                    <button class="word-speaker-button" onclick="speakCurrentWord()">🔊</button>
+                    <div id="word-container" class="hud-word"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="900" height="550"></canvas>
+    </div>
+
+    <script>
+        // --- SINTETIZADOR E ÁUDIO ---
+        const RetroSynth = {
+            ctx: null, isPlaying: false, tempo: 150, noteIndex: 0, nextNoteTime: 0, timerID: null, isMuted: false,
+            sequence: [
+                {f: 110, t: 'bass'}, {f: null}, {f: 110, t: 'bass'}, {f: 110, t: 'bass'}, 
+                {f: 130.8, t: 'lead'}, {f: null}, {f: 110, t: 'bass'}, {f: null},
+                {f: 164.8, t: 'lead'}, {f: null}, {f: 110, t: 'bass'}, {f: 110, t: 'bass'},
+                {f: 196, t: 'lead'}, {f: null}, {f: 110, t: 'bass'}, {f: null},
+                {f: 87.3, t: 'bass'}, {f: null}, {f: 87.3, t: 'bass'}, {f: 87.3, t: 'bass'}, 
+                {f: 130.8, t: 'lead'}, {f: null}, {f: 87.3, t: 'bass'}, {f: null},
+                {f: 174.6, t: 'lead'}, {f: null}, {f: 87.3, t: 'bass'}, {f: 87.3, t: 'bass'},
+                {f: 261.6, t: 'lead'}, {f: null}, {f: 87.3, t: 'bass'}, {f: null}
+            ],
+            init: function() {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
+            },
+            playTone: function(freq, type) {
+                if (this.isMuted || !freq) return;
+                const osc = this.ctx.createOscillator();
+                const gainNode = this.ctx.createGain();
+                osc.type = type === 'bass' ? 'square' : 'sawtooth';
+                osc.frequency.value = freq;
+                gainNode.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+                osc.connect(gainNode);
+                gainNode.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.2);
+            },
+            playErrorSound: function() {
+                if(this.isMuted) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(50, this.ctx.currentTime + 0.4); 
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.4);
+            },
+            scheduleNote: function() {
+                const secondsPerBeat = 60.0 / this.tempo;
+                const noteDuration = secondsPerBeat / 4; 
+                while (this.nextNoteTime < this.ctx.currentTime + 0.1) {
+                    const note = this.sequence[this.noteIndex % this.sequence.length];
+                    this.playTone(note.f, note.t);
+                    if (this.noteIndex % 8 === 0) this.playKick();
+                    if (this.noteIndex % 8 === 4) this.playSnare();
+                    if (this.noteIndex % 2 === 0) this.playHiHat();
+                    this.nextNoteTime += noteDuration;
+                    this.noteIndex++;
+                }
+                this.timerID = requestAnimationFrame(this.scheduleNote.bind(this));
+            },
+            playKick: function() {
+                if(this.isMuted) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.5);
+            },
+            playSnare: function() {
+                if(this.isMuted) return;
+                const bufferSize = this.ctx.sampleRate * 0.1;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                noise.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start();
+            },
+            playHiHat: function() {
+                if(this.isMuted) return;
+                const bufferSize = this.ctx.sampleRate * 0.05;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = "highpass";
+                filter.frequency.value = 5000;
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start();
+            },
+            start: function() {
+                if (!this.ctx) this.init();
+                if (this.isPlaying) return;
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                this.isPlaying = true;
+                this.noteIndex = 0;
+                this.nextNoteTime = this.ctx.currentTime;
+                this.scheduleNote();
+                document.getElementById('playPauseBtn').innerText = "❚❚";
+            },
+            stop: function() {
+                this.isPlaying = false;
+                cancelAnimationFrame(this.timerID);
+                document.getElementById('playPauseBtn').innerText = "▶";
+            },
+            toggle: function() {
+                if (this.isPlaying) this.stop();
+                else this.start();
+            },
+            toggleMute: function() {
+                this.isMuted = !this.isMuted;
+            }
+        };
+
+        // --- VOZ ---
+        function speakText(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.9; 
+            utterance.pitch = 1.1; 
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakCurrentWord() {
+            if(Game.currentWord) speakText(Game.currentWord);
+        }
+
+        // --- JOGO ---
+        const WORD_POOL = [
+            "CEU", "MAR", "AZUL", "LAGO", "RIO", "AGUA", "BOTO", 
+            "SAPATO", "BONECA", "ESCOLA", "LAPIS", "PAPEL", 
+            "AMIGO", "FAMILIA", "JARDIM", "BRASIL", "VIAGEM", "VERMELHO"
+        ];
+
+        // CONFIGURAÇÕES WIDESCREEN
+        const CANVAS_WIDTH = 900;
+        const CANVAS_HEIGHT = 550;
+        const ROAD_WIDTH = 650; 
+        const ROAD_X = (CANVAS_WIDTH - ROAD_WIDTH) / 2;
+
+        const Game = {
+            canvas: document.getElementById('gameCanvas'),
+            ctx: null,
+            level: 1,
+            maxLevels: 5,
+            currentWord: "",
+            usedWords: [],
+            lettersCaughtIdx: 0,
+            isRunning: false,
+            animationFrame: null,
+            lastSpawnedChar: null,
+
+            car: { x: 0, y: 0, w: 60, h: 90, speed: 10, skidTime: 0 },
+            fallingLetters: [],
+            roadOffset: 0,
+            keys: { left: false, right: false },
+
+            setup: function() {
+                this.ctx = this.canvas.getContext('2d');
+                this.car.y = CANVAS_HEIGHT - 120;
+                this.car.x = ROAD_X + (ROAD_WIDTH / 2) - (this.car.w / 2);
+
+                window.addEventListener('keydown', e => {
+                    if (e.key === "ArrowLeft") this.keys.left = true;
+                    if (e.key === "ArrowRight") this.keys.right = true;
+                });
+                window.addEventListener('keyup', e => {
+                    if (e.key === "ArrowLeft") this.keys.left = false;
+                    if (e.key === "ArrowRight") this.keys.right = false;
+                });
+            },
+
+            init: function() {
+                RetroSynth.start();
+                this.level = 1;
+                this.usedWords = [];
+                
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('win-screen').classList.add('hidden');
+                document.getElementById('gameCanvas').style.display = 'block';
+                document.getElementById('hud-container').style.display = 'flex';
+                
+                document.getElementById('btn-menu').classList.add('hidden');
+                document.getElementById('btn-back').classList.remove('hidden');
+
+                this.startLevel();
+            },
+
+            quitGame: function() {
+                this.isRunning = false;
+                cancelAnimationFrame(this.animationFrame);
+                RetroSynth.stop();
+
+                document.getElementById('start-screen').classList.remove('hidden');
+                document.getElementById('gameCanvas').style.display = 'none';
+                document.getElementById('hud-container').style.display = 'none';
+                document.getElementById('level-screen').classList.add('hidden');
+                document.getElementById('win-screen').classList.add('hidden');
+
+                document.getElementById('btn-menu').classList.remove('hidden');
+                document.getElementById('btn-back').classList.add('hidden');
+            },
+
+            resetGame: function() {
+                this.init();
+            },
+
+            startLevel: function() {
+                this.isRunning = true;
+                this.lettersCaughtIdx = 0;
+                this.fallingLetters = [];
+                this.lastSpawnedChar = null;
+                this.car.x = ROAD_X + (ROAD_WIDTH / 2) - (this.car.w / 2);
+                
+                let availableWords = WORD_POOL.filter(w => !this.usedWords.includes(w));
+                if(availableWords.length === 0) {
+                    this.usedWords = [];
+                    availableWords = WORD_POOL;
+                }
+                this.currentWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+                this.usedWords.push(this.currentWord);
+
+                document.getElementById('level-screen').classList.add('hidden');
+                
+                // Exibe HUD durante o jogo
+                document.getElementById('hud-container').style.display = 'flex';
+                
+                this.updateWordDisplay();
+                this.spawnLetter(true);
+
+                if(this.animationFrame) cancelAnimationFrame(this.animationFrame);
+                this.loop();
+            },
+
+            nextLevel: function() {
+                if(this.level >= this.maxLevels) {
+                    document.getElementById('level-screen').classList.add('hidden');
+                    document.getElementById('win-screen').classList.remove('hidden');
+                    document.getElementById('gameCanvas').style.display = 'none';
+                    document.getElementById('hud-container').style.display = 'none';
+                    document.getElementById('btn-back').classList.add('hidden');
+                    document.getElementById('btn-menu').classList.remove('hidden');
+                    speakText("Parabéns! Você é um campeão!");
+                } else {
+                    this.level++;
+                    this.startLevel();
+                }
+            },
+
+            updateWordDisplay: function() {
+                const container = document.getElementById('word-container');
+                container.innerHTML = "";
+                for(let i=0; i<this.currentWord.length; i++) {
+                    const span = document.createElement("span");
+                    span.innerText = this.currentWord[i];
+                    if(i < this.lettersCaughtIdx) {
+                        span.className = "char-got";
+                    } else if(i === this.lettersCaughtIdx) {
+                        span.className = "char-need";
+                    } else {
+                        span.className = "";
+                    }
+                    container.appendChild(span);
+                }
+            },
+
+            spawnLetter: function(force = false) {
+                const chance = 0.015 + (this.level * 0.002); 
+                
+                if (force || Math.random() < chance) {
+                    let char;
+                    const needed = this.currentWord[this.lettersCaughtIdx];
+                    let attempts = 0;
+                    do {
+                        if(Math.random() < 0.60 && needed) char = needed;
+                        else {
+                            const abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                            char = abc[Math.floor(Math.random() * abc.length)];
+                        }
+                        attempts++;
+                    } while (char === this.lastSpawnedChar && attempts < 10);
+
+                    this.lastSpawnedChar = char;
+
+                    const minX = ROAD_X + 20;
+                    const maxX = ROAD_X + ROAD_WIDTH - 60;
+                    const randomX = Math.random() * (maxX - minX) + minX;
+
+                    this.fallingLetters.push({
+                        x: randomX,
+                        y: -50,
+                        char: char,
+                        speed: 4 + (this.level * 0.7)
+                    });
+                }
+            },
+
+            update: function() {
+                if(!this.isRunning) return;
+
+                if (this.keys.left) this.car.x -= this.car.speed;
+                if (this.keys.right) this.car.x += this.car.speed;
+
+                if (this.car.x < ROAD_X) this.car.x = ROAD_X;
+                if (this.car.x > ROAD_X + ROAD_WIDTH - this.car.w) {
+                    this.car.x = ROAD_X + ROAD_WIDTH - this.car.w;
+                }
+
+                this.roadOffset = (this.roadOffset + 8) % 60; 
+                this.spawnLetter();
+
+                for (let i = this.fallingLetters.length - 1; i >= 0; i--) {
+                    let l = this.fallingLetters[i];
+                    l.y += l.speed;
+
+                    // Colisão
+                    if (
+                        l.x < this.car.x + this.car.w &&
+                        l.x + 30 > this.car.x &&
+                        l.y < this.car.y + this.car.h &&
+                        l.y + 30 > this.car.y
+                    ) {
+                        const needed = this.currentWord[this.lettersCaughtIdx];
+                        
+                        if(l.char === needed) {
+                            this.lettersCaughtIdx++;
+                            this.updateWordDisplay();
+                            if(this.lettersCaughtIdx >= this.currentWord.length) {
+                                this.isRunning = false;
+                                
+                                // ESCONDE O HUD E MOSTRA TELA DE VITORIA
+                                document.getElementById('hud-container').style.display = 'none';
+                                
+                                speakText("Muito bem! " + this.currentWord);
+                                setTimeout(() => {
+                                    document.getElementById('level-screen').classList.remove('hidden');
+                                }, 600);
+                            }
+                        } else {
+                            this.car.skidTime = 20; 
+                            RetroSynth.playErrorSound();
+                        }
+                        
+                        this.fallingLetters.splice(i, 1);
+                        continue;
+                    }
+
+                    if (l.y > CANVAS_HEIGHT) {
+                        this.fallingLetters.splice(i, 1);
+                    }
+                }
+            },
+
+            drawRoad: function() {
+                this.ctx.fillStyle = "#55efc4"; 
+                this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+                this.ctx.fillStyle = "#636e72"; 
+                this.ctx.fillRect(ROAD_X, 0, ROAD_WIDTH, CANVAS_HEIGHT);
+                
+                this.ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+                this.ctx.lineWidth = 4;
+                this.ctx.setLineDash([30, 30]);
+                this.ctx.lineDashOffset = -this.roadOffset;
+                
+                this.ctx.beginPath();
+                const laneW = ROAD_WIDTH / 4;
+                let lineX = ROAD_X + laneW;
+                this.ctx.moveTo(lineX, 0); this.ctx.lineTo(lineX, CANVAS_HEIGHT);
+                lineX += laneW;
+                this.ctx.moveTo(lineX, 0); this.ctx.lineTo(lineX, CANVAS_HEIGHT);
+                lineX += laneW;
+                this.ctx.moveTo(lineX, 0); this.ctx.lineTo(lineX, CANVAS_HEIGHT);
+                this.ctx.stroke();
+
+                this.ctx.setLineDash([]);
+                this.ctx.strokeStyle = "#FFFFFF";
+                this.ctx.lineWidth = 6;
+                this.ctx.beginPath();
+                this.ctx.moveTo(ROAD_X, 0); 
+                this.ctx.lineTo(ROAD_X, CANVAS_HEIGHT);
+                this.ctx.moveTo(ROAD_X + ROAD_WIDTH, 0); 
+                this.ctx.lineTo(ROAD_X + ROAD_WIDTH, CANVAS_HEIGHT);
+                this.ctx.stroke();
+            },
+
+            drawRealisticCar: function(x, y, w, h) {
+                this.ctx.save();
+                if (this.car.skidTime > 0) {
+                    this.car.skidTime--;
+                    this.ctx.translate(x + w/2, y + h/2);
+                    this.ctx.rotate((Math.random() - 0.5) * 0.4);
+                    this.ctx.translate(-(x + w/2), -(y + h/2));
+                }
+
+                this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+                this.ctx.beginPath();
+                this.ctx.ellipse(x + w/2, y + h - 5, w/2 + 5, 10, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                let grad = this.ctx.createLinearGradient(x, y, x + w, y);
+                grad.addColorStop(0, "#e74c3c"); 
+                grad.addColorStop(0.5, "#ff7979"); 
+                grad.addColorStop(1, "#c0392b");
+
+                this.roundRect(x, y, w, h, 12, grad);
+
+                this.ctx.fillStyle = "#c0392b"; 
+                this.ctx.fillRect(x + 5, y + 20, w - 10, 25);
+                
+                this.ctx.fillStyle = "#2d3436"; 
+                this.ctx.fillRect(x + 7, y + 25, w - 14, 15);
+
+                this.ctx.fillStyle = "rgba(255,255,255,0.2)";
+                this.ctx.fillRect(x + 10, y + 55, w - 20, 20);
+
+                this.ctx.fillStyle = "#ffeaa7"; 
+                this.ctx.beginPath();
+                this.ctx.arc(x + 8, y + 5, 5, 0, Math.PI * 2); 
+                this.ctx.arc(x + w - 8, y + 5, 5, 0, Math.PI * 2); 
+                this.ctx.fill();
+
+                this.ctx.restore();
+            },
+
+            roundRect: function(x, y, w, h, radius, fillStyle) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x + radius, y);
+                this.ctx.lineTo(x + w - radius, y);
+                this.ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+                this.ctx.lineTo(x + w, y + h - radius);
+                this.ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+                this.ctx.lineTo(x + radius, y + h);
+                this.ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+                this.ctx.lineTo(x, y + radius);
+                this.ctx.quadraticCurveTo(x, y, x + radius, y);
+                this.ctx.closePath();
+                this.ctx.fillStyle = fillStyle;
+                this.ctx.fill();
+            },
+
+            drawLetters: function() {
+                this.ctx.textAlign = "center";
+                this.ctx.textBaseline = "middle";
+                this.ctx.font = "bold 28px Poppins"; 
+
+                this.fallingLetters.forEach(l => {
+                    this.ctx.fillStyle = "#FFF"; 
+                    this.ctx.beginPath();
+                    this.ctx.arc(l.x + 15, l.y + 15, 22, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    this.ctx.strokeStyle = "#2d3436";
+                    this.ctx.lineWidth = 3;
+                    this.ctx.stroke();
+                    
+                    this.ctx.fillStyle = "#000000"; 
+                    this.ctx.fillText(l.char, l.x + 15, l.y + 18);
+                });
+            },
+
+            draw: function() {
+                this.drawRoad();
+                this.drawRealisticCar(this.car.x, this.car.y, this.car.w, this.car.h);
+                this.drawLetters();
+            },
+
+            loop: function() {
+                Game.update();
+                Game.draw();
+                if(Game.isRunning) {
+                    Game.animationFrame = requestAnimationFrame(Game.loop);
+                }
+            }
+        };
+
+        Game.setup();
+    </script>
+</body>
+</html>
