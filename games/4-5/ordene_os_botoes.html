@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸JOGO DE ORDENAR BOTÕES</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(180deg, #FFE4E1 0%, #E0FFFF 100%);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+            color: #5D5D5D;
+        }
+
+        .text-shadow {
+            text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.5);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(100, 100, 111, 0.1), 0 8px 10px -6px rgba(100, 100, 111, 0.1);
+        }
+
+        .btn-3d {
+            transition: all 0.1s;
+            box-shadow: 0px 4px 0px 0px rgba(0,0,0,0.1);
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.05);
+        }
+
+        .drop-zone {
+            transition: all 0.3s ease;
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23A5B4FC' stroke-width='3' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e");
+        }
+
+        .drop-zone.hovered {
+            background-color: rgba(224, 231, 255, 0.4);
+            transform: scale(1.02);
+        }
+
+        .draggable-item {
+            touch-action: none;
+            cursor: grab;
+            transition: transform 0.2s, filter 0.2s;
+            filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.05));
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+            z-index: 50;
+            filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.1));
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        /* Animação de erro */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .animate-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4">
+
+    <div id="back-button-container" class="hidden absolute top-8 left-8 z-50">
+        <button onclick="goBack()" class="bg-white px-6 py-3 rounded-full text-purple-600 font-bold hover:bg-purple-50 shadow-md transition btn-3d tracking-widest border-2 border-purple-50 flex items-center gap-2 group" title="Voltar ao Início">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-1 transition-transform">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            VOLTAR
+        </button>
+    </div>
+
+    <div id="start-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/60 backdrop-blur-md">
+        
+        <div class="absolute top-8 left-8 z-50">
+            <button onclick="toggleMenu()" class="bg-white px-6 py-3 rounded-full text-purple-600 font-bold hover:bg-purple-50 shadow-md transition btn-3d tracking-widest border-2 border-purple-50" title="Menu">
+                MENU
+            </button>
+            
+            <div id="main-menu" class="hidden absolute top-16 left-0 bg-white rounded-2xl shadow-xl w-48 overflow-hidden animate-pop border-2 border-purple-100 origin-top-left mt-2 p-2">
+                 <p class="text-center text-gray-400 text-sm font-bold">Versão 1.2</p>
+            </div>
+        </div>
+
+        <div class="absolute top-8 right-8 z-50">
+            <button onclick="toggleMusic()" class="music-toggle-btn bg-white p-3 rounded-full text-pink-500 font-bold hover:bg-pink-50 shadow-md transition btn-3d border-2 border-pink-50 opacity-50" title="Música">
+                <svg class="icon-music-on hidden" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+                <svg class="icon-music-off" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                    <path d="M9 9v3a3 3 0 0 0 5.12 2.12"></path>
+                    <path d="M15.07 15.07A3 3 0 0 1 14 21a3 3 0 0 1-3-3V5l12-2v6.6"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                </svg>
+            </button>
+        </div>
+
+        <div class="bg-[#FFF5F7] p-12 rounded-[3rem] shadow-xl text-center max-w-2xl w-full border-b-8 border-purple-100 animate-pop relative">
+            <h1 class="text-6xl font-bold text-purple-500 mb-6 text-shadow tracking-wider">ORDENE OS BOTÕES</h1>
+            
+            <div class="flex items-center justify-center gap-3 mb-12">
+                <button onclick="playInstruction('Ajude a organizar a bagunça!')" class="bg-blue-200 hover:bg-blue-300 text-blue-700 p-2 rounded-full transition-transform hover:scale-110 shadow-sm" title="Ouvir instrução">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                </button>
+                <p class="text-2xl text-gray-600 font-semibold">AJUDE A ORGANIZAR A BAGUNÇA!</p>
+            </div>
+            
+            <div class="flex justify-center gap-6 mb-12" id="demo-icons"></div>
+
+            <button onclick="startGame()" class="bg-purple-400 hover:bg-purple-500 text-white text-3xl font-bold py-6 px-16 rounded-full btn-3d shadow-lg transform transition uppercase tracking-widest">
+                JOGAR AGORA
+            </button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="hidden w-full max-w-5xl h-[85vh] bg-white rounded-[3rem] shadow-2xl flex flex-col overflow-hidden relative">
+        
+        <div class="pt-10 pb-2 px-4 shrink-0 flex justify-center items-center z-10 relative">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#5D5D5D] text-center tracking-wide">
+                ORDENE OS BOTÕES
+            </h1>
+
+            <div class="absolute top-8 right-8">
+                <button onclick="toggleMusic()" class="music-toggle-btn bg-gray-100 p-3 rounded-full text-pink-500 font-bold hover:bg-pink-50 transition transform hover:scale-105 opacity-50" title="Música">
+                    <svg class="icon-music-on hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                    <svg class="icon-music-off" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                        <path d="M9 9v3a3 3 0 0 0 5.12 2.12"></path>
+                        <path d="M15.07 15.07A3 3 0 0 1 14 21a3 3 0 0 1-3-3V5l12-2v6.6"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 flex flex-col p-6 relative overflow-y-auto">
+             
+            <div class="flex items-center justify-center gap-3 mb-8">
+                 <button id="level-audio-btn" class="bg-purple-100 p-3 rounded-full text-purple-600 hover:bg-purple-200 transition shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                </button>
+                <h2 id="level-instruction" class="text-xl md:text-2xl font-bold text-gray-600 uppercase tracking-wider text-center">
+                    </h2>
+            </div>
+
+            <div id="spawn-area" class="h-48 mb-8 flex flex-wrap gap-4 items-center justify-center content-center p-6 bg-gray-50/80 rounded-[2rem] border-2 border-dashed border-gray-200 min-h-[180px]"></div>
+
+            <div class="flex-1 grid grid-cols-2 gap-8" id="drop-container">
+                <div class="flex flex-col h-full">
+                    <div class="flex items-center justify-center gap-2 mb-3">
+                        <button id="btn-audio-left" class="text-purple-500 hover:text-purple-700 transition-colors p-1 rounded-full active:bg-purple-50" title="Ouvir categoria"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
+                        <span id="label-left" class="text-lg font-bold text-gray-600 uppercase tracking-wider">CATEGORIA 1</span>
+                    </div>
+                    <div id="drop-left" class="drop-zone flex-1 rounded-3xl bg-purple-50/30 border-2 border-dashed border-purple-200 flex flex-wrap content-start p-4 gap-2 relative transition-all hover:bg-purple-50/50"></div>
+                </div>
+
+                <div class="flex flex-col h-full">
+                    <div class="flex items-center justify-center gap-2 mb-3">
+                        <button id="btn-audio-right" class="text-purple-500 hover:text-purple-700 transition-colors p-1 rounded-full active:bg-purple-50" title="Ouvir categoria"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
+                        <span id="label-right" class="text-lg font-bold text-gray-600 uppercase tracking-wider">CATEGORIA 2</span>
+                    </div>
+                    <div id="drop-right" class="drop-zone flex-1 rounded-3xl bg-purple-50/30 border-2 border-dashed border-purple-200 flex flex-wrap content-start p-4 gap-2 relative transition-all hover:bg-purple-50/50"></div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-center">
+                <button onclick="checkAnswer()" id="check-btn" class="bg-[#A7F3D0] hover:bg-[#6EE7B7] text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg hover:shadow-xl transform transition hover:-translate-y-1 active:translate-y-0 uppercase tracking-widest">
+                    ENVIAR RESPOSTA
+                </button>
+            </div>
+
+            <div id="feedback-overlay" class="absolute inset-0 bg-white/95 z-20 hidden flex-col items-center justify-center backdrop-blur-sm rounded-[3rem]">
+                <div id="feedback-icon" class="text-8xl mb-4 animate-bounce">✨</div>
+                <h2 id="feedback-text" class="text-4xl font-bold text-purple-600 uppercase mb-4 tracking-widest">PERFEITO!</h2>
+                <button onclick="nextLevel()" id="next-btn" class="bg-blue-300 hover:bg-blue-400 text-white text-2xl font-bold py-4 px-10 rounded-full btn-3d shadow-md uppercase tracking-wider">
+                    PRÓXIMO NÍVEL
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="end-screen" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md">
+        <div class="text-center animate-pop p-6">
+            <div class="text-8xl mb-6">🏆</div>
+            <h1 class="text-6xl font-bold text-yellow-400 mb-4 text-shadow uppercase tracking-widest">MARAVILHOSO!</h1>
+            <p class="text-2xl text-gray-600 mb-8 font-bold uppercase tracking-wide">VOCÊ ORGANIZOU TUDO!</p>
+            
+            <button onclick="location.reload()" class="bg-blue-300 hover:bg-blue-400 text-white text-2xl font-bold py-4 px-12 rounded-full btn-3d shadow-lg uppercase transition-transform hover:scale-105 tracking-wider">
+                JOGAR NOVAMENTE
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class MusicSystem {
+            constructor() {
+                this.audioCtx = null;
+                this.isPlaying = false;
+                this.intervalId = null;
+                this.noteIndex = 0;
+                
+                // Melodia simples e feliz
+                this.melody = [
+                    { note: 329.63, dur: 0.3 }, { note: 392.00, dur: 0.3 }, { note: 493.88, dur: 0.4 }, { note: 440.00, dur: 0.2 },
+                    { note: 392.00, dur: 0.2 }, { note: 369.99, dur: 0.2 }, { note: 329.63, dur: 0.2 }, { note: 369.99, dur: 0.2 },
+                    { note: 392.00, dur: 0.2 }, { note: 440.00, dur: 0.8 },
+                    { note: 0,      dur: 0.1 }, 
+                    { note: 293.66, dur: 0.3 }, { note: 329.63, dur: 0.2 }, { note: 369.99, dur: 0.2 }, { note: 392.00, dur: 0.2 },
+                    { note: 440.00, dur: 0.2 }, { note: 493.88, dur: 0.8 },
+                    { note: 0,      dur: 0.5 }
+                ];
+            }
+
+            init() {
+                if (!this.audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.audioCtx = new AudioContext();
+                }
+                if (this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+            }
+
+            playNote(freq, duration) {
+                if (!this.audioCtx) return;
+                const osc = this.audioCtx.createOscillator();
+                const gainNode = this.audioCtx.createGain();
+                
+                osc.type = 'triangle';
+                
+                if(freq === 0) {
+                    gainNode.gain.value = 0;
+                } else {
+                    osc.frequency.value = freq;
+                    const now = this.audioCtx.currentTime;
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05); 
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration); 
+                }
+                
+                osc.connect(gainNode);
+                gainNode.connect(this.audioCtx.destination);
+                
+                osc.start();
+                osc.stop(this.audioCtx.currentTime + duration);
+            }
+
+            loop() {
+                if (!this.isPlaying) return;
+                const currentNote = this.melody[this.noteIndex];
+                this.playNote(currentNote.note, currentNote.dur);
+                this.noteIndex = (this.noteIndex + 1) % this.melody.length;
+                this.intervalId = setTimeout(() => this.loop(), currentNote.dur * 1000);
+            }
+
+            start() {
+                this.init();
+                if (this.isPlaying) return;
+                this.isPlaying = true;
+                this.noteIndex = 0;
+                this.loop();
+            }
+
+            stop() {
+                this.isPlaying = false;
+                clearTimeout(this.intervalId);
+            }
+        }
+
+        const music = new MusicSystem();
+
+        /* --- ATUALIZAÇÃO DE CORES AQUI --- */
+        /* Vermelho agora é mais vivo/alaranjado, Rosa é mais chiclete/frio */
+        const COLORS = {
+            red:    { main: '#FF4747', light: '#FF7E7E', dark: '#CC0000' }, // Vermelho Vivo (Não pastel)
+            blue:   { main: '#99CCFF', light: '#CCE6FF', dark: '#66B3FF' },
+            green:  { main: '#B5EAD7', light: '#DDF4E8', dark: '#88D8B6' },
+            yellow: { main: '#FFEB99', light: '#FFF5CC', dark: '#FFE066' },
+            pink:   { main: '#FF85C1', light: '#FFB6DB', dark: '#FF5CA8' }, // Rosa Chiclete (Distinto do vermelho)
+            purple: { main: '#D0A9F5', light: '#E6CFFC', dark: '#B075EA' }
+        };
+
+        const SHAPES = ['circle', 'square', 'triangle', 'star', 'flower', 'heart'];
+        
+        const SHAPE_NAMES = {
+            'circle': 'CÍRCULOS', 'square': 'QUADRADOS', 'triangle': 'TRIÂNGULOS',
+            'star': 'ESTRELAS', 'flower': 'FLORES', 'heart': 'CORAÇÕES'
+        };
+        const COLOR_NAMES = {
+            'red': 'VERMELHO', 'blue': 'AZUL', 'green': 'VERDE', 
+            'yellow': 'AMARELO', 'pink': 'ROSA', 'purple': 'ROXO'
+        };
+
+        let LEVELS = [];
+
+        function generateRandomLevels() {
+            const levels = [];
+            const shapes = Object.keys(SHAPE_NAMES);
+            const colors = Object.keys(COLOR_NAMES);
+            const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+            const randExcluding = (arr, exclude) => {
+                let item;
+                do { item = rand(arr); } while (exclude.includes(item));
+                return item;
+            };
+
+            for (let i = 0; i < 5; i++) {
+                let type;
+                if (i === 2) type = Math.random() > 0.5 ? 'negation' : 'negation-color';
+                else type = i % 2 === 0 ? 'shape' : 'color';
+
+                let items = [];
+                let config = {};
+
+                if (type === 'shape') {
+                    const s1 = rand(shapes);
+                    const s2 = randExcluding(shapes, [s1]);
+                    config = {
+                        instruction: `SEPARE: ${SHAPE_NAMES[s1]} E ${SHAPE_NAMES[s2]}`,
+                        type: 'shape',
+                        categoryA: s1, labelA: SHAPE_NAMES[s1],
+                        categoryB: s2, labelB: SHAPE_NAMES[s2]
+                    };
+                    for(let k=0; k<4; k++) items.push({ type: s1, color: rand(colors) });
+                    for(let k=0; k<4; k++) items.push({ type: s2, color: rand(colors) });
+
+                } else if (type === 'color') {
+                    const c1 = rand(colors);
+                    const c2 = randExcluding(colors, [c1]);
+                    config = {
+                        instruction: `SEPARE AS CORES: ${COLOR_NAMES[c1]} E ${COLOR_NAMES[c2]}`,
+                        type: 'color',
+                        categoryA: c1, labelA: COLOR_NAMES[c1],
+                        categoryB: c2, labelB: COLOR_NAMES[c2]
+                    };
+                    for(let k=0; k<4; k++) items.push({ type: rand(shapes), color: c1 });
+                    for(let k=0; k<4; k++) items.push({ type: rand(shapes), color: c2 });
+
+                } else if (type === 'negation') {
+                    const s1 = rand(shapes);
+                    config = {
+                        instruction: `SEPARE: ${SHAPE_NAMES[s1]} DOS OUTROS`,
+                        type: 'negation',
+                        categoryA: s1, labelA: SHAPE_NAMES[s1],
+                        categoryB: 'not-' + s1, labelB: 'OUTROS'
+                    };
+                    for(let k=0; k<4; k++) items.push({ type: s1, color: rand(colors) });
+                    for(let k=0; k<4; k++) items.push({ type: randExcluding(shapes, [s1]), color: rand(colors) });
+
+                } else if (type === 'negation-color') {
+                    const c1 = rand(colors);
+                    config = {
+                        instruction: `SEPARE: ${COLOR_NAMES[c1]} DAS OUTRAS`,
+                        type: 'negation-color',
+                        categoryA: c1, labelA: COLOR_NAMES[c1],
+                        categoryB: 'not-' + c1, labelB: 'OUTROS'
+                    };
+                    for(let k=0; k<4; k++) items.push({ type: rand(shapes), color: c1 });
+                    for(let k=0; k<4; k++) items.push({ type: rand(shapes), color: randExcluding(colors, [c1]) });
+                }
+                config.items = items;
+                levels.push(config);
+            }
+            return levels;
+        }
+
+        let currentLevelIndex = 0;
+        let score = 0;
+        let draggedItem = null;
+
+        window.onload = function() {
+            const demoContainer = document.getElementById('demo-icons');
+            if(demoContainer) {
+                demoContainer.innerHTML = getShapeSVG('heart', 'red', 80) + getShapeSVG('star', 'yellow', 80) + getShapeSVG('flower', 'pink', 80);
+            }
+        };
+
+        function toggleMenu() {
+            const menu = document.getElementById('main-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function goBack() {
+            document.getElementById('game-screen').classList.remove('flex');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('back-button-container').classList.add('hidden');
+        }
+
+        function toggleMusic() {
+            if (music.isPlaying) {
+                music.stop();
+                updateMusicButtons(false);
+            } else {
+                music.start();
+                updateMusicButtons(true);
+            }
+        }
+
+        function updateMusicButtons(isPlaying) {
+            const buttons = document.querySelectorAll('.music-toggle-btn');
+            buttons.forEach(btn => {
+                const iconOn = btn.querySelector('.icon-music-on');
+                const iconOff = btn.querySelector('.icon-music-off');
+                if (isPlaying) {
+                    iconOn.classList.remove('hidden');
+                    iconOff.classList.add('hidden');
+                    btn.classList.remove('opacity-50');
+                } else {
+                    iconOn.classList.add('hidden');
+                    iconOff.classList.remove('hidden');
+                    btn.classList.add('opacity-50');
+                }
+            });
+        }
+
+        function playInstruction(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 1.0; 
+                utterance.pitch = 1.2; 
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function getShapeSVG(type, colorCode, size=60) {
+            const c = COLORS[colorCode] || COLORS.blue;
+            const uid = Math.random().toString(36).substr(2, 9);
+            const gradId = `grad-${uid}`;
+            const defs = `<defs><linearGradient id="${gradId}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:${c.light};stop-opacity:1" /><stop offset="50%" style="stop-color:${c.main};stop-opacity:1" /><stop offset="100%" style="stop-color:${c.dark};stop-opacity:1" /></linearGradient></defs>`;
+            const highlight = `<ellipse cx="30" cy="30" rx="12" ry="6" fill="white" fill-opacity="0.6" transform="rotate(-45 30 30)"/>`;
+            let path = '';
+            
+            switch(type) {
+                case 'circle': path = `<circle cx="50" cy="50" r="42" fill="url(#${gradId})" />`; break;
+                case 'square': path = `<rect x="15" y="15" width="70" height="70" rx="20" ry="20" fill="url(#${gradId})" />`; break;
+                case 'triangle': path = `<path d="M50 18 L82 78 L18 78 Z" stroke-linejoin="round" stroke-width="14" stroke="url(#${gradId})" fill="url(#${gradId})"/>`; break;
+                case 'heart': path = `<path d="M50 88 C50 88 10 65 10 35 C10 15 30 10 45 25 C60 10 80 10 90 35 C90 65 50 88 50 88 Z" fill="url(#${gradId})" />`; break;
+                case 'star': path = `<polygon points="50,8 64,38 96,38 72,58 82,90 50,70 18,90 28,58 4,38 36,38" stroke-linejoin="round" stroke-width="12" stroke="url(#${gradId})" fill="url(#${gradId})"/>`; break;
+                case 'flower': path = `<g fill="url(#${gradId})"><circle cx="50" cy="28" r="16" /><circle cx="72" cy="44" r="16" /><circle cx="64" cy="72" r="16" /><circle cx="36" cy="72" r="16" /><circle cx="28" cy="44" r="16" /></g><circle cx="50" cy="50" r="12" fill="#FFFFE0" fill-opacity="0.9" />`; break;
+            }
+            return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="drop-shadow-sm">${defs}${path}${type !== 'flower' ? highlight : ''}</svg>`;
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('game-screen').classList.add('flex');
+            document.getElementById('back-button-container').classList.remove('hidden');
+            
+            if (!music.isPlaying) {
+                 const btns = document.querySelectorAll('.music-toggle-btn');
+                 if(btns.length > 0 && btns[0].classList.contains('opacity-50')) {
+                     music.start();
+                     updateMusicButtons(true);
+                 }
+            }
+
+            score = 0;
+            currentLevelIndex = 0;
+            
+            LEVELS = generateRandomLevels();
+            loadLevel(0);
+        }
+
+        function loadLevel(index) {
+            const level = LEVELS[index];
+            const spawnArea = document.getElementById('spawn-area');
+            const dropLeft = document.getElementById('drop-left');
+            const dropRight = document.getElementById('drop-right');
+            const instructionBtn = document.getElementById('level-audio-btn');
+            
+            document.getElementById('btn-audio-left').onclick = () => playInstruction(level.labelA);
+            document.getElementById('btn-audio-right').onclick = () => playInstruction(level.labelB);
+
+            document.getElementById('level-instruction').innerText = level.instruction;
+            document.getElementById('label-left').innerText = level.labelA;
+            document.getElementById('label-right').innerText = level.labelB;
+            
+            instructionBtn.onclick = () => playInstruction(level.instruction);
+            spawnArea.innerHTML = ''; dropLeft.innerHTML = ''; dropRight.innerHTML = '';
+
+            const shuffledItems = [...level.items].sort(() => Math.random() - 0.5);
+            shuffledItems.forEach((item, i) => {
+                const el = document.createElement('div');
+                el.className = 'draggable-item w-20 h-20 flex items-center justify-center transition-transform hover:scale-110';
+                el.draggable = true;
+                el.dataset.type = item.type; el.dataset.color = item.color; el.dataset.id = i;
+                el.innerHTML = getShapeSVG(item.type, item.color, 75);
+                el.addEventListener('dragstart', handleDragStart); el.addEventListener('dragend', handleDragEnd);
+                el.addEventListener('touchstart', handleTouchStart, {passive: false}); el.addEventListener('touchmove', handleTouchMove, {passive: false}); el.addEventListener('touchend', handleTouchEnd);
+                spawnArea.appendChild(el);
+            });
+        }
+
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const spawnArea = document.getElementById('spawn-area');
+        [...dropZones, spawnArea].forEach(zone => {
+            zone.addEventListener('dragover', e => { e.preventDefault(); if(zone.classList.contains('drop-zone')) zone.classList.add('hovered'); });
+            zone.addEventListener('dragleave', e => { if(zone.classList.contains('drop-zone')) zone.classList.remove('hovered'); });
+            zone.addEventListener('drop', e => {
+                e.preventDefault(); if(zone.classList.contains('drop-zone')) zone.classList.remove('hovered');
+                if (draggedItem) { zone.appendChild(draggedItem); playPopSound(); }
+            });
+        });
+
+        function handleDragStart(e) { draggedItem = this; setTimeout(() => this.classList.add('opacity-50'), 0); }
+        function handleDragEnd(e) { this.classList.remove('opacity-50'); draggedItem = null; }
+        
+        let touchClone = null, touchOffsetX = 0, touchOffsetY = 0;
+        function handleTouchStart(e) {
+            e.preventDefault(); const touch = e.touches[0]; const rect = this.getBoundingClientRect(); draggedItem = this;
+            touchOffsetX = touch.clientX - rect.left; touchOffsetY = touch.clientY - rect.top;
+            touchClone = this.cloneNode(true); Object.assign(touchClone.style, {position: 'fixed', zIndex: '1000', pointerEvents: 'none', opacity: '0.8', width: rect.width + 'px', height: rect.height + 'px'});
+            document.body.appendChild(touchClone); moveClone(touch.clientX, touch.clientY);
+        }
+        function handleTouchMove(e) { e.preventDefault(); if (!touchClone) return; const touch = e.touches[0]; moveClone(touch.clientX, touch.clientY); }
+        function moveClone(x, y) { touchClone.style.left = (x - touchOffsetX) + 'px'; touchClone.style.top = (y - touchOffsetY) + 'px'; }
+        function handleTouchEnd(e) {
+            if (!touchClone) return; const touch = e.changedTouches[0]; touchClone.remove(); touchClone = null;
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            const validZone = dropTarget ? dropTarget.closest('.drop-zone, #spawn-area') : null;
+            if (validZone) { validZone.appendChild(draggedItem); playPopSound(); } draggedItem = null;
+        }
+
+        function playPopSound() {
+            if (music.audioCtx) {
+                const osc = music.audioCtx.createOscillator();
+                const g = music.audioCtx.createGain();
+                osc.connect(g); g.connect(music.audioCtx.destination);
+                osc.frequency.setValueAtTime(600, music.audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, music.audioCtx.currentTime + 0.1);
+                g.gain.setValueAtTime(0.1, music.audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, music.audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(music.audioCtx.currentTime + 0.1);
+            }
+        }
+        
+        function playSuccessSound() {
+            if (!music.audioCtx) return;
+            const osc = music.audioCtx.createOscillator();
+            const g = music.audioCtx.createGain();
+            osc.connect(g); g.connect(music.audioCtx.destination);
+            osc.type = 'sine';
+            
+            // Som de "Trim!" (Acorde maior rápido)
+            const now = music.audioCtx.currentTime;
+            osc.frequency.setValueAtTime(523.25, now); // C5
+            osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+            osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+            
+            g.gain.setValueAtTime(0, now);
+            g.gain.linearRampToValueAtTime(0.3, now + 0.1);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+            
+            osc.start(now);
+            osc.stop(now + 0.6);
+        }
+        
+        function playErrorSound() {
+             if (!music.audioCtx) return;
+            const osc = music.audioCtx.createOscillator();
+            const g = music.audioCtx.createGain();
+            osc.connect(g); g.connect(music.audioCtx.destination);
+            osc.type = 'sawtooth';
+            const now = music.audioCtx.currentTime;
+            
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+            
+            g.gain.setValueAtTime(0.2, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }
+
+        /* --- CÓDIGO RESTAURADO: LÓGICA DE VERIFICAÇÃO --- */
+        function checkAnswer() {
+            const level = LEVELS[currentLevelIndex];
+            const leftZoneItems = Array.from(document.getElementById('drop-left').children);
+            const rightZoneItems = Array.from(document.getElementById('drop-right').children);
+            const spawnItems = Array.from(document.getElementById('spawn-area').children);
+
+            // 1. Verifica se ainda há itens na área inicial
+            if (spawnItems.length > 0) {
+                playInstruction('Coloque todos os itens nas caixas!');
+                const btn = document.getElementById('check-btn');
+                btn.classList.add('animate-shake');
+                setTimeout(() => btn.classList.remove('animate-shake'), 300);
+                return;
+            }
+
+            let correct = true;
+
+            // Função helper para validar um item contra uma regra
+            const validate = (item, categoryRule) => {
+                if (!item) return false;
+                const type = item.dataset.type;
+                const color = item.dataset.color;
+
+                if (level.type === 'shape') {
+                    return type === categoryRule;
+                } else if (level.type === 'color') {
+                    return color === categoryRule;
+                } else if (level.type === 'negation') {
+                    if (categoryRule.startsWith('not-')) {
+                        const forbidden = categoryRule.replace('not-', '');
+                        return type !== forbidden;
+                    } else {
+                        return type === categoryRule;
+                    }
+                } else if (level.type === 'negation-color') {
+                    if (categoryRule.startsWith('not-')) {
+                        const forbidden = categoryRule.replace('not-', '');
+                        return color !== forbidden;
+                    } else {
+                        return color === categoryRule;
+                    }
+                }
+                return false;
+            };
+
+            // Validar Zona Esquerda
+            leftZoneItems.forEach(item => {
+                if (!validate(item, level.categoryA)) correct = false;
+            });
+
+            // Validar Zona Direita
+            rightZoneItems.forEach(item => {
+                if (!validate(item, level.categoryB)) correct = false;
+            });
+
+            // Feedback Visual
+            if (correct) {
+                playSuccessSound();
+                document.getElementById('feedback-overlay').classList.remove('hidden');
+                document.getElementById('feedback-overlay').classList.add('flex');
+                
+                // Confete (simples)
+                const overlay = document.getElementById('feedback-overlay');
+                // Aqui poderíamos adicionar confetes, mas mantive simples
+            } else {
+                playErrorSound();
+                playInstruction('Ops! Algo está fora do lugar. Tente de novo.');
+                const container = document.getElementById('drop-container');
+                container.classList.add('animate-shake');
+                setTimeout(() => container.classList.remove('animate-shake'), 500);
+            }
+        }
+
+        function nextLevel() {
+            document.getElementById('feedback-overlay').classList.add('hidden');
+            document.getElementById('feedback-overlay').classList.remove('flex');
+            
+            currentLevelIndex++;
+            
+            if (currentLevelIndex < LEVELS.length) {
+                loadLevel(currentLevelIndex);
+            } else {
+                showEndScreen();
+            }
+        }
+
+        function showEndScreen() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('flex');
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('end-screen').classList.add('flex');
+            playSuccessSound();
+        }
+    </script>
+</body>
+</html>
