@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟JOGO DE SEQUÊNCIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(180deg, #FFE4E1 0%, #E0FFFF 100%);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+            color: #5D5D5D;
+        }
+
+        .text-shadow { text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.5); }
+        
+        .btn-3d {
+            transition: all 0.1s;
+            box-shadow: 0px 4px 0px 0px rgba(0,0,0,0.1);
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.05);
+        }
+
+        /* Área do alvo (onde solta o item) */
+        .target-slot {
+            transition: all 0.3s ease;
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='20' ry='20' stroke='%23A5B4FC' stroke-width='4' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e");
+            animation: pulse-border 2s infinite;
+        }
+        
+        @keyframes pulse-border {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .draggable-item {
+            touch-action: none;
+            cursor: grab;
+            transition: transform 0.2s, filter 0.2s;
+            filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.05));
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+            z-index: 50;
+            filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.1));
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4">
+
+    <!-- BOTÃO MENU (TELA INICIAL) -->
+    <div id="start-menu-container" class="absolute top-8 left-8 z-50">
+        <button onclick="toggleMenu()" class="bg-white px-6 py-3 rounded-full text-purple-600 font-bold hover:bg-purple-50 shadow-md transition btn-3d tracking-widest border-2 border-purple-50" title="Menu">
+            MENU
+        </button>
+        
+        <div id="main-menu" class="hidden absolute top-16 left-0 bg-white rounded-2xl shadow-xl w-48 overflow-hidden animate-pop border-2 border-purple-100 origin-top-left mt-2">
+            <button onclick="alert('Jogo de Sequência v1.0\nObserve o padrão e complete!')" class="w-full text-left px-6 py-4 hover:bg-purple-50 text-gray-600 font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                Sobre
+            </button>
+        </div>
+    </div>
+
+    <!-- BOTÕES DE NAVEGAÇÃO (JOGO) -->
+    <div id="nav-container" class="hidden absolute top-8 left-8 z-50 flex gap-4">
+        <button onclick="goBack()" class="bg-white px-6 py-3 rounded-full text-purple-600 font-bold hover:bg-purple-50 shadow-md transition btn-3d tracking-widest border-2 border-purple-50 flex items-center gap-2" title="Voltar ao Início">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            VOLTAR
+        </button>
+    </div>
+
+    <!-- BOTÃO MÚSICA -->
+    <div class="absolute top-8 right-8 z-50">
+        <button onclick="toggleMusic()" class="music-toggle-btn bg-white p-3 rounded-full text-pink-500 font-bold hover:bg-pink-50 shadow-md transition btn-3d border-2 border-pink-50 opacity-50" title="Música">
+            <svg class="icon-music-on hidden" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+            <svg class="icon-music-off" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12"></path><path d="M15.07 15.07A3 3 0 0 1 14 21a3 3 0 0 1-3-3V5l12-2v6.6"></path><circle cx="6" cy="18" r="3"></circle></svg>
+        </button>
+    </div>
+
+    <!-- TELA INICIAL -->
+    <div id="start-screen" class="fixed inset-0 z-40 flex flex-col items-center justify-center bg-white/60 backdrop-blur-md">
+        <div class="bg-[#FFF5F7] p-12 rounded-[3rem] shadow-xl text-center max-w-2xl w-full border-b-8 border-purple-100 animate-pop">
+            <h1 class="text-5xl md:text-6xl font-bold text-purple-500 mb-6 text-shadow tracking-wider leading-tight">COMPLETE A<br>SEQUÊNCIA</h1>
+            
+            <div class="flex items-center justify-center gap-3 mb-10">
+                <button onclick="playInstruction('Descubra qual botão completa a sequência!')" class="bg-blue-200 hover:bg-blue-300 text-blue-700 p-3 rounded-full transition hover:scale-110 shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></button>
+                <p class="text-2xl text-gray-600 font-semibold">DESCUBRA O PRÓXIMO!</p>
+            </div>
+            
+            <!-- Exemplo Visual -->
+            <div class="flex justify-center gap-4 mb-12 opacity-80 scale-90" id="demo-sequence"></div>
+
+            <button onclick="startGame()" class="bg-purple-400 hover:bg-purple-500 text-white text-3xl font-bold py-6 px-16 rounded-full btn-3d shadow-lg transform transition hover:-translate-y-1 uppercase tracking-widest">
+                JOGAR
+            </button>
+        </div>
+    </div>
+
+    <!-- TELA DO JOGO -->
+    <div id="game-screen" class="hidden w-full max-w-5xl h-[85vh] bg-white rounded-[3rem] shadow-2xl flex flex-col overflow-hidden relative">
+        
+        <!-- CABEÇALHO -->
+        <div class="pt-8 pb-2 px-4 shrink-0 flex flex-col justify-center items-center z-10 relative">
+            <!-- TÍTULO DO JOGO -->
+            <h1 class="text-3xl md:text-5xl font-bold text-[#5D5D5D] text-center tracking-wide mb-1">
+                COMPLETE A SEQUÊNCIA
+            </h1>
+            <!-- INSTRUÇÃO COM BOTÃO DE ÁUDIO ADICIONADO -->
+            <div class="flex items-center gap-3">
+                <button onclick="playInstruction('Qual é a próxima sequência?')" class="bg-purple-100 p-2 rounded-full text-purple-600 hover:bg-purple-200 transition shadow-sm flex-shrink-0" title="Ouvir">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                </button>
+                <h2 class="text-xl md:text-2xl font-bold text-gray-400 text-center tracking-wide">
+                    QUAL É A PRÓXIMA SEQUÊNCIA?
+                </h2>
+            </div>
+        </div>
+
+        <!-- ÁREA PRINCIPAL -->
+        <div class="flex-1 flex flex-col items-center justify-center p-6 relative">
+            
+            <!-- Barra de Progresso (Bolinhas) -->
+            <div class="flex gap-2 mb-8" id="progress-dots">
+                <!-- Preenchido via JS -->
+            </div>
+
+            <!-- Sequência (Pergunta) -->
+            <div class="w-full bg-slate-50 rounded-[2rem] border-4 border-slate-100 p-6 md:p-10 mb-8 flex items-center justify-center gap-2 md:gap-6 shadow-inner min-h-[160px]">
+                <div id="sequence-container" class="flex items-center gap-2 md:gap-4">
+                    <!-- Itens da sequência gerados via JS -->
+                </div>
+                <!-- Slot Vazio -->
+                <div id="drop-target" class="target-slot w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center bg-white">
+                    <span class="text-4xl text-blue-200 font-bold">?</span>
+                </div>
+            </div>
+
+            <!-- Opções (Resposta) -->
+            <div class="flex gap-6 md:gap-12 mt-4" id="options-container">
+                <!-- Opções arrastáveis geradas via JS -->
+            </div>
+
+            <!-- Feedback Overlay -->
+            <div id="feedback-overlay" class="absolute inset-0 bg-white/95 z-20 hidden flex-col items-center justify-center backdrop-blur-sm rounded-[3rem]">
+                <div id="feedback-icon" class="text-9xl mb-6 animate-bounce">🌟</div>
+                <h2 id="feedback-text" class="text-5xl font-bold text-purple-500 uppercase mb-8 tracking-widest text-center">MUITO BEM!</h2>
+                <button onclick="nextLevel()" id="next-btn" class="bg-green-400 hover:bg-green-500 text-white text-3xl font-bold py-5 px-12 rounded-full btn-3d shadow-lg uppercase tracking-wider">
+                    PRÓXIMO
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TELA FINAL -->
+    <div id="end-screen" class="hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md">
+        <div class="text-center animate-pop bg-[#FFF5F7] p-16 rounded-[3rem] shadow-2xl border-b-8 border-purple-100">
+            <div class="text-8xl mb-6">🏆</div>
+            <h1 class="text-6xl font-bold text-purple-500 mb-4 text-shadow uppercase tracking-widest">PARABÉNS!</h1>
+            <p class="text-3xl text-gray-500 mb-10 font-bold tracking-wide">VOCÊ COMPLETOU TUDO!</p>
+            
+            <button onclick="location.reload()" class="bg-blue-400 hover:bg-blue-500 text-white text-2xl font-bold py-4 px-12 rounded-full btn-3d shadow-lg uppercase transition-transform hover:scale-105 tracking-wider">
+                JOGAR NOVAMENTE
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- DADOS E CONSTANTES ---
+        const COLORS = {
+            // Vermelho mais vibrante/tomate para diferenciar do rosa
+            red:    { main: '#FF6B6B', light: '#FF8787', dark: '#EE5253' },
+            blue:   { main: '#99CCFF', light: '#CCE6FF', dark: '#66B3FF' },
+            green:  { main: '#B5EAD7', light: '#DDF4E8', dark: '#88D8B6' },
+            yellow: { main: '#FFEB99', light: '#FFF5CC', dark: '#FFE066' },
+            // Rosa mais "chiclete"/magenta para diferenciar do vermelho
+            pink:   { main: '#FF9FF3', light: '#FFD6FA', dark: '#F368E0' },
+            purple: { main: '#D0A9F5', light: '#E6CFFC', dark: '#B075EA' }
+        };
+        const SHAPES = ['circle', 'square', 'triangle', 'star', 'flower', 'heart'];
+        const TOTAL_LEVELS = 5;
+
+        // --- ESTADO DO JOGO ---
+        let currentLevel = 0;
+        let levelsData = [];
+        let draggedItemData = null;
+
+        // --- INICIALIZAÇÃO ---
+        window.onload = function() {
+            // Demo visual na tela inicial
+            document.getElementById('demo-sequence').innerHTML = 
+                getShapeSVG('circle', 'red', 60) + 
+                getShapeSVG('square', 'blue', 60) + 
+                getShapeSVG('circle', 'red', 60);
+        };
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('start-menu-container').classList.add('hidden'); // Esconde Menu
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('game-screen').classList.add('flex');
+            document.getElementById('nav-container').classList.remove('hidden'); // Mostra Voltar
+            
+            // Iniciar música se não estiver tocando
+            const musicBtn = document.querySelector('.music-toggle-btn');
+            if (!music.isPlaying && musicBtn.classList.contains('opacity-50')) {
+                toggleMusic();
+            }
+
+            currentLevel = 0;
+            levelsData = generateLevels();
+            loadLevel(0);
+        }
+
+        // --- LÓGICA DE GERAÇÃO DE NÍVEIS ---
+        function generateLevels() {
+            const levels = [];
+            for (let i = 0; i < TOTAL_LEVELS; i++) {
+                // Padrões: ABAB, AABB, ABC
+                const patternType = i < 2 ? 'ABAB' : (i < 4 ? 'AABB' : 'ABC');
+                
+                // Escolher itens aleatórios para o padrão
+                const colorA = getRandomKey(COLORS);
+                let colorB = getRandomKey(COLORS, [colorA]);
+                let colorC = getRandomKey(COLORS, [colorA, colorB]);
+                
+                const shapeA = getRandomItem(SHAPES);
+                let shapeB = getRandomItem(SHAPES, [shapeA]);
+                let shapeC = getRandomItem(SHAPES, [shapeA, shapeB]);
+
+                // Se for nível fácil, mantém a forma e muda só a cor, ou vice-versa
+                const varyBoth = i > 2; // Níveis difíceis variam cor E forma
+                if (!varyBoth) {
+                    if (Math.random() > 0.5) { shapeB = shapeA; shapeC = shapeA; } // Varia só cor
+                    else { colorB = colorA; colorC = colorA; } // Varia só forma
+                }
+
+                const itemA = { type: shapeA, color: colorA };
+                const itemB = { type: shapeB, color: colorB };
+                const itemC = { type: shapeC, color: colorC };
+
+                let sequence = [];
+                let answer = null;
+
+                if (patternType === 'ABAB') {
+                    // Padrão: A B A B A [B]
+                    sequence = [itemA, itemB, itemA, itemB, itemA];
+                    answer = itemB;
+                } else if (patternType === 'AABB') {
+                    // Padrão: A A B B A [A]
+                    sequence = [itemA, itemA, itemB, itemB, itemA];
+                    answer = itemA;
+                } else {
+                    // Padrão: A B C A B [C]
+                    sequence = [itemA, itemB, itemC, itemA, itemB];
+                    answer = itemC;
+                }
+
+                // Gerar opções incorretas
+                let wrong1, wrong2;
+                do { wrong1 = { type: getRandomItem(SHAPES), color: getRandomKey(COLORS) }; }
+                while (isSameItem(wrong1, answer));
+                
+                do { wrong2 = { type: getRandomItem(SHAPES), color: getRandomKey(COLORS) }; }
+                while (isSameItem(wrong2, answer) || isSameItem(wrong2, wrong1));
+
+                levels.push({ sequence, answer, options: shuffleArray([answer, wrong1, wrong2]) });
+            }
+            return levels;
+        }
+
+        function loadLevel(idx) {
+            const data = levelsData[idx];
+            const seqContainer = document.getElementById('sequence-container');
+            const optsContainer = document.getElementById('options-container');
+            const dropTarget = document.getElementById('drop-target');
+            const progressDots = document.getElementById('progress-dots');
+
+            // Resetar UI
+            seqContainer.innerHTML = '';
+            optsContainer.innerHTML = '';
+            dropTarget.innerHTML = '<span class="text-4xl text-blue-200 font-bold">?</span>';
+            dropTarget.classList.remove('bg-green-100'); // Remove cor de sucesso se houver
+
+            // Renderizar Sequência
+            data.sequence.forEach((item, i) => {
+                const el = document.createElement('div');
+                el.className = 'animate-pop';
+                el.style.animationDelay = `${i * 0.1}s`;
+                el.innerHTML = getShapeSVG(item.type, item.color, 70); // Tamanho fixo para sequência
+                seqContainer.appendChild(el);
+            });
+
+            // Renderizar Opções Arrastáveis
+            data.options.forEach((item, i) => {
+                const el = document.createElement('div');
+                el.className = 'draggable-item w-24 h-24 bg-white rounded-2xl shadow-md border-b-4 border-gray-100 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 cursor-grab';
+                el.draggable = true;
+                el.dataset.type = item.type;
+                el.dataset.color = item.color;
+                el.innerHTML = getShapeSVG(item.type, item.color, 80);
+                
+                // Eventos Drag
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragend', handleDragEnd);
+                el.addEventListener('touchstart', handleTouchStart, {passive: false});
+                el.addEventListener('touchmove', handleTouchMove, {passive: false});
+                el.addEventListener('touchend', handleTouchEnd);
+                
+                // Atraso na aparição
+                el.style.opacity = '0';
+                setTimeout(() => { 
+                    el.style.opacity = '1'; 
+                    el.classList.add('animate-pop'); 
+                }, 500 + (i * 100));
+
+                optsContainer.appendChild(el);
+            });
+
+            // Atualizar Indicador de Progresso
+            progressDots.innerHTML = '';
+            for(let i=0; i<TOTAL_LEVELS; i++) {
+                const dot = document.createElement('div');
+                dot.className = `w-4 h-4 rounded-full transition-colors ${i === idx ? 'bg-purple-500 scale-125' : (i < idx ? 'bg-green-400' : 'bg-gray-200')}`;
+                progressDots.appendChild(dot);
+            }
+
+            playInstruction('Qual é a próxima sequência?');
+        }
+
+        // --- DRAG AND DROP LÓGICA ---
+        const dropTarget = document.getElementById('drop-target');
+
+        dropTarget.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropTarget.classList.add('bg-blue-50');
+            dropTarget.style.transform = 'scale(1.1)';
+        });
+        dropTarget.addEventListener('dragleave', e => {
+            dropTarget.classList.remove('bg-blue-50');
+            dropTarget.style.transform = 'scale(1)';
+        });
+        dropTarget.addEventListener('drop', e => {
+            e.preventDefault();
+            dropTarget.classList.remove('bg-blue-50');
+            dropTarget.style.transform = 'scale(1)';
+            if (draggedItemData) checkAnswer(draggedItemData);
+        });
+
+        function handleDragStart(e) {
+            draggedItemData = { 
+                type: this.dataset.type, 
+                color: this.dataset.color, 
+                element: this // Guardar referência para esconder se acertar
+            };
+            setTimeout(() => this.classList.add('opacity-50'), 0);
+        }
+        function handleDragEnd(e) {
+            this.classList.remove('opacity-50');
+            draggedItemData = null; // Limpar apenas no final
+        }
+
+        // Touch Support
+        let touchClone = null, touchOffsetX = 0, touchOffsetY = 0;
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = this.getBoundingClientRect();
+            draggedItemData = { type: this.dataset.type, color: this.dataset.color, element: this };
+            
+            touchOffsetX = touch.clientX - rect.left;
+            touchOffsetY = touch.clientY - rect.top;
+            
+            touchClone = this.cloneNode(true);
+            Object.assign(touchClone.style, {
+                position: 'fixed', zIndex: '1000', pointerEvents: 'none', opacity: '0.9',
+                width: rect.width + 'px', height: rect.height + 'px',
+                left: (touch.clientX - touchOffsetX) + 'px', top: (touch.clientY - touchOffsetY) + 'px'
+            });
+            document.body.appendChild(touchClone);
+        }
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!touchClone) return;
+            const touch = e.touches[0];
+            touchClone.style.left = (touch.clientX - touchOffsetX) + 'px';
+            touchClone.style.top = (touch.clientY - touchOffsetY) + 'px';
+        }
+        function handleTouchEnd(e) {
+            if (!touchClone) return;
+            touchClone.remove();
+            touchClone = null;
+            
+            // Verificar colisão com target
+            const touch = e.changedTouches[0];
+            const targetRect = dropTarget.getBoundingClientRect();
+            
+            if (touch.clientX >= targetRect.left && touch.clientX <= targetRect.right &&
+                touch.clientY >= targetRect.top && touch.clientY <= targetRect.bottom) {
+                checkAnswer(draggedItemData);
+            }
+        }
+
+        // --- VERIFICAÇÃO ---
+        function checkAnswer(item) {
+            const correct = levelsData[currentLevel].answer;
+            if (item.type === correct.type && item.color === correct.color) {
+                // Sucesso
+                playPopSound();
+                
+                // Animar item indo para o slot
+                dropTarget.innerHTML = getShapeSVG(item.type, item.color, 80);
+                dropTarget.classList.add('bg-green-100');
+                
+                // Esconder as opções
+                document.getElementById('options-container').classList.add('opacity-0', 'pointer-events-none');
+                
+                setTimeout(() => {
+                    document.getElementById('feedback-overlay').classList.remove('hidden');
+                    document.getElementById('feedback-overlay').classList.add('flex');
+                    document.getElementById('next-btn').innerText = currentLevel === TOTAL_LEVELS - 1 ? "FINALIZAR" : "PRÓXIMO";
+                }, 500);
+            } else {
+                // Erro
+                playErrorSound();
+                alert("Ops! Tente outro botão.");
+            }
+        }
+
+        function nextLevel() {
+            document.getElementById('feedback-overlay').classList.add('hidden');
+            document.getElementById('feedback-overlay').classList.remove('flex');
+            document.getElementById('options-container').classList.remove('opacity-0', 'pointer-events-none');
+            
+            currentLevel++;
+            if (currentLevel < TOTAL_LEVELS) {
+                loadLevel(currentLevel);
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('end-screen').classList.add('flex');
+            document.getElementById('nav-container').classList.add('hidden');
+        }
+
+        function goBack() {
+            document.getElementById('game-screen').classList.remove('flex');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('nav-container').classList.add('hidden');
+            document.getElementById('start-menu-container').classList.remove('hidden'); // Mostra o menu de volta
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('main-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- AUXILIARES ---
+        function getRandomKey(obj, exclude = []) {
+            const keys = Object.keys(obj).filter(k => !exclude.includes(k));
+            return keys[Math.floor(Math.random() * keys.length)];
+        }
+        function getRandomItem(arr, exclude = []) {
+            const items = arr.filter(i => !exclude.includes(i));
+            return items[Math.floor(Math.random() * items.length)];
+        }
+        function isSameItem(a, b) {
+            return a.type === b.type && a.color === b.color;
+        }
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // --- SISTEMA DE MÚSICA E SOM (Mesmo do jogo anterior) ---
+        class MusicSystem {
+            constructor() {
+                this.audioCtx = null; this.isPlaying = false; this.noteIndex = 0;
+                this.melody = [
+                    { note: 329.63, dur: 0.3 }, { note: 392.00, dur: 0.3 }, { note: 493.88, dur: 0.4 }, { note: 440.00, dur: 0.2 },
+                    { note: 392.00, dur: 0.2 }, { note: 369.99, dur: 0.2 }, { note: 329.63, dur: 0.2 }, { note: 369.99, dur: 0.2 },
+                    { note: 392.00, dur: 0.2 }, { note: 440.00, dur: 0.8 }, { note: 0, dur: 0.5 }
+                ];
+            }
+            init() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (this.audioCtx.state === 'suspended') this.audioCtx.resume(); }
+            playNote(freq, duration) {
+                if (!this.audioCtx) return;
+                const osc = this.audioCtx.createOscillator(); const g = this.audioCtx.createGain();
+                osc.type = 'triangle';
+                if(freq === 0) g.gain.value = 0;
+                else { osc.frequency.value = freq; g.gain.setValueAtTime(0, this.audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.1, this.audioCtx.currentTime + 0.05); g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + duration); }
+                osc.connect(g); g.connect(this.audioCtx.destination); osc.start(); osc.stop(this.audioCtx.currentTime + duration);
+            }
+            loop() {
+                if (!this.isPlaying) return;
+                const n = this.melody[this.noteIndex]; this.playNote(n.note, n.dur);
+                this.noteIndex = (this.noteIndex + 1) % this.melody.length;
+                setTimeout(() => this.loop(), n.dur * 1000);
+            }
+            start() { this.init(); if(this.isPlaying) return; this.isPlaying = true; this.loop(); }
+            stop() { this.isPlaying = false; }
+        }
+        const music = new MusicSystem();
+
+        function toggleMusic() {
+            const btn = document.querySelector('.music-toggle-btn');
+            if (music.isPlaying) {
+                music.stop();
+                btn.classList.add('opacity-50');
+                btn.querySelector('.icon-music-on').classList.add('hidden');
+                btn.querySelector('.icon-music-off').classList.remove('hidden');
+            } else {
+                music.start();
+                btn.classList.remove('opacity-50');
+                btn.querySelector('.icon-music-on').classList.remove('hidden');
+                btn.querySelector('.icon-music-off').classList.add('hidden');
+            }
+        }
+
+        function playInstruction(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'pt-BR'; u.rate = 1.0; u.pitch = 1.2;
+                window.speechSynthesis.speak(u);
+            }
+        }
+
+        function playPopSound() {
+            if (music.audioCtx) {
+                const o = music.audioCtx.createOscillator(); const g = music.audioCtx.createGain();
+                o.connect(g); g.connect(music.audioCtx.destination);
+                o.frequency.setValueAtTime(600, music.audioCtx.currentTime);
+                o.frequency.exponentialRampToValueAtTime(100, music.audioCtx.currentTime + 0.2);
+                g.gain.setValueAtTime(0.1, music.audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, music.audioCtx.currentTime + 0.2);
+                o.start(); o.stop(music.audioCtx.currentTime + 0.2);
+            }
+        }
+        
+        function playErrorSound() {
+             if (music.audioCtx) {
+                const o = music.audioCtx.createOscillator(); const g = music.audioCtx.createGain();
+                o.type = 'sawtooth';
+                o.connect(g); g.connect(music.audioCtx.destination);
+                o.frequency.setValueAtTime(150, music.audioCtx.currentTime);
+                o.frequency.linearRampToValueAtTime(100, music.audioCtx.currentTime + 0.3);
+                g.gain.setValueAtTime(0.1, music.audioCtx.currentTime);
+                g.gain.linearRampToValueAtTime(0, music.audioCtx.currentTime + 0.3);
+                o.start(); o.stop(music.audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // SVG Generator (Mesmo do outro jogo)
+        function getShapeSVG(type, colorCode, size=60) {
+            const c = COLORS[colorCode] || COLORS.blue;
+            const uid = Math.random().toString(36).substr(2, 9);
+            const gradId = `grad-${uid}`;
+            const defs = `<defs><linearGradient id="${gradId}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:${c.light};stop-opacity:1" /><stop offset="50%" style="stop-color:${c.main};stop-opacity:1" /><stop offset="100%" style="stop-color:${c.dark};stop-opacity:1" /></linearGradient></defs>`;
+            const highlight = `<ellipse cx="30" cy="30" rx="12" ry="6" fill="white" fill-opacity="0.6" transform="rotate(-45 30 30)"/>`;
+            let path = '';
+            
+            switch(type) {
+                case 'circle': path = `<circle cx="50" cy="50" r="42" fill="url(#${gradId})" />`; break;
+                case 'square': path = `<rect x="15" y="15" width="70" height="70" rx="20" ry="20" fill="url(#${gradId})" />`; break;
+                case 'triangle': path = `<path d="M50 18 L82 78 L18 78 Z" stroke-linejoin="round" stroke-width="14" stroke="url(#${gradId})" fill="url(#${gradId})"/>`; break;
+                case 'heart': path = `<path d="M50 88 C50 88 10 65 10 35 C10 15 30 10 45 25 C60 10 80 10 90 35 C90 65 50 88 50 88 Z" fill="url(#${gradId})" />`; break;
+                case 'star': path = `<polygon points="50,8 64,38 96,38 72,58 82,90 50,70 18,90 28,58 4,38 36,38" stroke-linejoin="round" stroke-width="12" stroke="url(#${gradId})" fill="url(#${gradId})"/>`; break;
+                case 'flower': path = `<g fill="url(#${gradId})"><circle cx="50" cy="28" r="16" /><circle cx="72" cy="44" r="16" /><circle cx="64" cy="72" r="16" /><circle cx="36" cy="72" r="16" /><circle cx="28" cy="44" r="16" /></g><circle cx="50" cy="50" r="12" fill="#FFFFE0" fill-opacity="0.9" />`; break;
+            }
+            return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="drop-shadow-sm">${defs}${path}${type !== 'flower' ? highlight : ''}</svg>`;
+        }
+    </script>
+</body>
+</html>
