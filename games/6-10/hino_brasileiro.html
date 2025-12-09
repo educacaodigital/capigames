@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎵HINO NACIONAL BRASILEIRO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+/* ===== ESTILOS GERAIS ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Fredoka', sans-serif;
+  background: radial-gradient(circle at center, #F1F8E9 0%, #AED581 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Telas */
+.screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+  position: absolute;
+  top: 0; left: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.screen.active { display: flex; z-index: 10; opacity: 1; }
+
+/* Cartão Principal */
+.card {
+  background: #ffffff;
+  border-radius: 40px;
+  box-shadow: 0 20px 60px rgba(51, 105, 30, 0.2), 0 5px 15px rgba(0,0,0,0.05);
+  padding: 40px;
+  max-width: 1100px;
+  width: 95%;
+  text-align: center;
+  position: relative;
+  max-height: 98vh;
+  overflow-y: auto;
+  border: 5px solid #C5E1A5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Tipografia */
+.title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 56px;
+  font-weight: 700;
+  color: #2E7D32;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: 28px;
+  color: #558B2F;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+/* Botões de Ação */
+.btn-primary {
+  background: linear-gradient(135deg, #66BB6A, #388E3C);
+  color: #fff;
+  border: none;
+  border-radius: 60px;
+  font-size: 32px;
+  font-weight: 700;
+  padding: 20px 60px;
+  cursor: pointer;
+  box-shadow: 0 8px 0 #1B5E20, 0 15px 20px rgba(0,0,0,0.2);
+  margin-top: 25px;
+  transition: transform 0.1s;
+}
+.btn-primary:active { transform: translateY(4px); box-shadow: 0 4px 0 #1B5E20; }
+
+/* Botão Voltar */
+.btn-back {
+  position: absolute;
+  top: 30px; left: 30px;
+  background: #FFF9C4;
+  color: #F57F17;
+  border: 3px solid #FBC02D;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #FBC02D;
+  font-size: 20px;
+  z-index: 100;
+}
+.btn-back:active { transform: translateY(4px); box-shadow: none; }
+
+/* === BOTÃO SPEAKER === */
+.speaker-btn {
+    background-color: #4FC3F7; 
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #0288D1;
+    margin-right: 15px; 
+    transition: transform 0.1s;
+}
+.speaker-btn:hover { background-color: #29B6F6; transform: scale(1.05); }
+.speaker-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #0288D1; }
+
+/* Texto do Hino */
+.anthem-container {
+    background: #FAFAFA;
+    border: 3px dashed #81C784;
+    border-radius: 25px;
+    padding: 30px;
+    margin-bottom: 20px;
+    width: 100%;
+    text-align: left;
+    line-height: 2.2;
+    font-size: 34px;
+    color: #1B5E20;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+/* Lacunas */
+.gap-slot {
+    display: inline-block;
+    min-width: 160px;
+    padding: 2px 10px;
+    border-bottom: 5px solid #FFCA28;
+    color: #FF6F00;
+    text-align: center;
+    background: rgba(255, 248, 225, 0.8);
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+.gap-slot.active {
+    background-color: #FFF8E1;
+    border-color: #FF6F00;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255, 111, 0, 0.2);
+    color: #333;
+}
+.gap-slot.filled {
+    border-bottom: none;
+    background: transparent;
+    color: #2E7D32;
+    font-weight: 900;
+}
+
+/* Opções */
+.options-area {
+    width: 100%;
+    background: #F1F8E9;
+    padding: 30px;
+    border-top: 5px solid #AED581;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 0 0 35px 35px;
+}
+
+.options-title { font-size: 24px; color: #558B2F; margin-bottom: 20px; font-weight: 700; }
+
+.choices-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+
+.choice-btn {
+    background: white; 
+    color: #0277BD; 
+    border: 3px solid #0277BD;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 26px;
+    font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 0 #01579B;
+    transition: all 0.1s;
+    min-width: 180px;
+}
+.choice-btn:active { transform: translateY(4px); box-shadow: none; }
+.choice-btn:hover { background: #E1F5FE; }
+
+.choice-btn.wrong { 
+    background: #FFEBEE; border-color: #D32F2F; color: #D32F2F;
+    box-shadow: 0 6px 0 #B71C1C;
+    animation: shake 0.4s; 
+}
+
+/* Feedback */
+.feedback-msg { height: 35px; margin-top: 15px; font-weight: bold; color: #D32F2F; font-size: 24px; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+/* Controles de Música */
+.music-controls {
+  position: absolute;
+  top: 30px; right: 30px;
+  display: flex; gap: 15px;
+  background: white; padding: 12px 25px;
+  border-radius: 50px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  z-index: 200;
+}
+.music-btn {
+  background: #E8F5E9; color: #2E7D32; border: 2px solid #A5D6A7;
+  width: 50px; height: 50px; border-radius: 50%;
+  font-size: 24px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.music-btn:hover { background: #C8E6C9; transform: scale(1.1); }
+
+@media (max-width: 768px) {
+    .title { font-size: 36px; }
+    .subtitle { font-size: 20px; }
+    .anthem-container { font-size: 22px; line-height: 2.0; padding: 15px; }
+    .choice-btn { width: 100%; margin-bottom: 5px; font-size: 22px; }
+    .card { padding: 20px; }
+    .gap-slot { min-width: 80px; }
+    .music-controls { top: auto; bottom: 20px; right: 20px; }
+    .btn-primary { font-size: 24px; padding: 15px 40px; }
+}
+</style>
+ </head>
+ <body>
+
+  <div class="music-controls">
+      <button class="music-btn" onclick="Orchestra.toggleMute()" title="Mutar/Desmutar">🔇</button> 
+      <button class="music-btn" onclick="Orchestra.toggle()" id="play-btn">▶</button> 
+  </div>
+
+  <section id="home-screen" class="screen active">
+   <button class="btn-back" onclick="alert('Menu Principal')">MENU</button>
+
+   <div class="card">
+    <h1 class="title">Hino Nacional</h1>
+    <p class="subtitle">Complete o Trecho</p>
+    
+    <div style="font-size: 80px; margin: 20px; filter: drop-shadow(0 10px 0 #ccc);">🎼</div>
+    
+    <div style="text-align: left; background: #FFFDE7; padding: 25px; border-radius: 20px; font-size: 20px; color: #5D4037; margin-bottom: 30px; width: 100%; border-left: 8px solid #FFCA28;">
+        
+        <div style="display:flex; align-items:center; margin-bottom:15px;">
+            <button class="speaker-btn" onclick="speakText('Instruções: Leia o trecho da estrofe. A palavra que falta está marcada em amarelo. Clique na opção correta para preencher.')">🔊</button>
+            <strong>Como Jogar:</strong>
+        </div>
+
+        <ul style="margin-left: 25px; margin-top: 15px;">
+            <li>Leia o trecho da estrofe.</li>
+            <li>A palavra que falta está marcada em <span style="background:#FFF9C4; padding:2px 6px; border-radius:4px; font-weight:bold; color:#FF6F00;">amarelo</span>.</li>
+            <li>Clique na opção correta para preencher.</li>
+        </ul>
+    </div>
+    
+    <button class="btn-primary" onclick="startGame()">INICIAR JOGO</button>
+   </div>
+  </section>
+
+  <section id="game-screen" class="screen">
+   <button class="btn-back" onclick="showScreen('home-screen')">← VOLTAR</button>
+   
+   <div class="card" style="justify-content: space-between; padding-bottom: 0;">
+    
+    <div style="margin-top: 10px; width:100%; display:flex; justify-content:center; align-items:center; flex-direction:column;">
+        <h1 class="title" style="font-size: 40px; margin-bottom: 5px;">Hino Nacional</h1>
+        
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
+            <button class="speaker-btn" style="width:45px; height:45px; font-size:20px;" onclick="readAnthem()" title="Ouvir texto completo">🔊</button>
+            <p class="subtitle" style="margin-bottom: 0;">Complete o Trecho</p>
+        </div>
+    </div>
+
+    <div class="anthem-container" id="anthem-text"></div>
+    
+    <div class="options-area">
+        <div class="options-title">Selecione a palavra:</div>
+        <div class="choices-container" id="choices-box"></div>
+        <div class="feedback-msg" id="feedback"></div>
+    </div>
+   </div>
+  </section>
+
+  <section id="level-screen" class="screen">
+      <div class="card">
+          <div style="font-size: 120px; margin-bottom: 20px;">✨</div>
+          <h2 class="title" id="level-title">Parabéns!</h2>
+          <p class="subtitle">Excelente! Continue assim.</p>
+          <button class="btn-primary" onclick="nextPhase()">Continuar</button>
+      </div>
+  </section>
+
+  <section id="end-screen" class="screen">
+   <div class="card">
+    <div style="font-size: 120px; margin-bottom: 20px;">🏆</div>
+    <h2 class="title">Vitória!</h2>
+    <p class="subtitle">Você completou o Hino Nacional!</p>
+    <button class="btn-primary" onclick="showScreen('home-screen')">Jogar Novamente</button>
+   </div>
+  </section>
+
+  <script>
+  // ==========================================
+  // 🗣️ TEXT TO SPEECH (VOZ - LER HINO COMPLETO)
+  // ==========================================
+  function speakText(text) {
+      if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'pt-BR';
+          utterance.rate = 1.0; 
+          window.speechSynthesis.speak(utterance);
+      } else {
+          alert("Seu navegador não suporta leitura de voz.");
+      }
+  }
+
+  function readAnthem() {
+      // 1. Pegar o texto do container
+      const container = document.getElementById('anthem-text');
+      let fullText = container.innerText;
+
+      // 2. Substituir o traço da lacuna por "lacuna" para a voz ler
+      // O Regex /_+/g pega qualquer sequencia de underscores
+      fullText = fullText.replace(/_+/g, " lacuna "); 
+      
+      // 3. Ler o texto processado
+      speakText(fullText);
+  }
+
+  // ==========================================
+  // 🎺 GERENCIADOR DE ÁUDIO (MP3 + Efeitos)
+  // ==========================================
+  const Orchestra = {
+      // Áudio principal (MP3)
+      bgMusic: new Audio('hino.mp3'),
+      // Contexto para efeitos sonoros (acerto/erro)
+      ctx: null, 
+      isPlaying: false,
+      isMuted: false,
+
+      init: function() {
+          // Inicia o contexto de áudio para efeitos sonoros
+          window.AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!this.ctx) {
+              this.ctx = new AudioContext();
+          }
+          // Configura o MP3
+          this.bgMusic.loop = true;
+      },
+
+      // Som de Acerto (Mantido gerado por código para feedback rápido)
+      playCorrect: function() {
+          if (this.isMuted) return;
+          if(!this.ctx) this.init();
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1046.50, this.ctx.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 1);
+      },
+
+      // Som de Erro (Mantido gerado por código)
+      playWrong: function() {
+          if (this.isMuted) return;
+          if(!this.ctx) this.init();
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(80, this.ctx.currentTime + 0.3);
+          gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.3);
+      },
+
+      // Funções de Controle do Hino (MP3)
+      start: function() {
+          this.init();
+          
+          if (!this.isPlaying) {
+              this.bgMusic.play().catch(e => console.log("Aguardando interação do usuário", e));
+              this.isPlaying = true;
+              document.getElementById('play-btn').innerText = "⏸";
+          }
+      },
+
+      stop: function() {
+          this.bgMusic.pause();
+          this.isPlaying = false;
+          document.getElementById('play-btn').innerText = "▶";
+      },
+
+      toggle: function() {
+          if (this.isPlaying) this.stop();
+          else this.start();
+      },
+
+      toggleMute: function() {
+          this.isMuted = !this.isMuted;
+          this.bgMusic.muted = this.isMuted;
+          
+          const btn = document.querySelector('button[title="Mutar/Desmutar"]');
+          btn.innerText = this.isMuted ? "🔊" : "🔇";
+      }
+  };
+
+  // ==========================================
+  // 🎮 LÓGICA DO JOGO
+  // ==========================================
+  
+  const phasesData = [
+      // FASE 1
+      {
+          lines: [
+              "Ouviram do Ipiranga as margens {0}",
+              "De um povo {1} o brado retumbante",
+              "E o sol da {2}, em raios fúlgidos",
+              "Brilhou no céu da pátria nesse {3}",
+              "Se o penhor dessa {4}",
+              "Conseguimos conquistar com {5} forte",
+              "Em teu {6}, ó liberdade",
+              "Desafia o nosso peito a própria {7}!",
+              "Ó Pátria amada / {8} / Salve! Salve!"
+          ],
+          gaps: [
+              { answer: "plácidas", options: ["plácidas", "pálidas", "ríspidas"] },
+              { answer: "heroico", options: ["heroico", "estoico", "tímido"] },
+              { answer: "liberdade", options: ["liberdade", "lealdade", "bondade"] },
+              { answer: "instante", options: ["instante", "momento", "levante"] },
+              { answer: "igualdade", options: ["igualdade", "irmandade", "realidade"] },
+              { answer: "braço", options: ["braço", "passo", "laço"] },
+              { answer: "seio", options: ["seio", "meio", "reino"] },
+              { answer: "morte", options: ["morte", "sorte", "norte"] },
+              { answer: "Idolatrada", options: ["Idolatrada", "Adorada", "Consagrada"] }
+          ]
+      },
+      // FASE 2
+      {
+          lines: [
+              "Brasil, um sonho {0}, um raio vívido",
+              "De amor e de {1} à terra desce",
+              "Se em teu formoso céu, risonho e {2}",
+              "A imagem do {3} resplandece",
+              "Gigante pela própria {4}",
+              "És belo, és forte, impávido {5}",
+              "E o teu futuro {6} essa grandeza",
+              "Terra adorada / Entre outras {7}",
+              "És tu, Brasil / Ó Pátria {8}!",
+              "Dos filhos deste solo és mãe {9} / Pátria amada / Brasil!"
+          ],
+          gaps: [
+              { answer: "intenso", options: ["intenso", "imenso", "extenso"] },
+              { answer: "esperança", options: ["esperança", "bonança", "lembrança"] },
+              { answer: "límpido", options: ["límpido", "lindo", "típico"] },
+              { answer: "Cruzeiro", options: ["Cruzeiro", "Império", "Luzeiro"] },
+              { answer: "natureza", options: ["natureza", "beleza", "realeza"] },
+              { answer: "colosso", options: ["colosso", "destroço", "nosso"] },
+              { answer: "espelha", options: ["espelha", "espalha", "revela"] },
+              { answer: "mil", options: ["mil", "cem", "tão"] },
+              { answer: "amada", options: ["amada", "sagrada", "elevada"] },
+              { answer: "gentil", options: ["gentil", "viril", "hostil"] }
+          ]
+      },
+      // FASE 3
+      {
+          lines: [
+              "Deitado eternamente em berço {0}",
+              "Ao som do mar e à luz do céu {1}",
+              "Fulguras, ó Brasil, florão da {2}",
+              "Iluminado ao sol do Novo {3}!",
+              "Do que a terra, mais {4}",
+              "Teus risonhos, lindos campos têm mais {5}",
+              "Nossos bosques têm mais {6}",
+              "Nossa vida no teu seio mais {7}",
+              "Ó Pátria amada / {8} / Salve! Salve!"
+          ],
+          gaps: [
+              { answer: "esplêndido", options: ["esplêndido", "estendido", "querido"] },
+              { answer: "profundo", options: ["profundo", "fecundo", "mundo"] },
+              { answer: "América", options: ["América", "Europa", "África"] },
+              { answer: "Mundo", options: ["Mundo", "Rumo", "Tudo"] },
+              { answer: "garrida", options: ["garrida", "querida", "florida"] },
+              { answer: "flores", options: ["flores", "cores", "amores"] },
+              { answer: "vida", options: ["vida", "lida", "guarida"] },
+              { answer: "amores", options: ["amores", "valores", "flores"] },
+              { answer: "Idolatrada", options: ["Idolatrada", "Exaltada", "Sagrada"] }
+          ]
+      },
+      // FASE 4
+      {
+          lines: [
+              "Brasil, de amor eterno seja {0}",
+              "O lábaro que ostentas {1}",
+              "E diga o verde-louro dessa {2}",
+              "Paz no futuro e {3} no passado",
+              "Mas, se ergues da justiça a clava {4}",
+              "Verás que um filho teu não foge à {5}",
+              "Nem teme, quem te adora, a própria {6}",
+              "Terra {7} / Entre outras mil",
+              "És tu, Brasil / Ó Pátria amada!",
+              "Dos filhos deste solo és mãe {8} / Pátria amada / Brasil!"
+          ],
+          gaps: [
+              { answer: "símbolo", options: ["símbolo", "hino", "cículo"] },
+              { answer: "estrelado", options: ["estrelado", "sagrado", "elevado"] },
+              { answer: "flâmula", options: ["flâmula", "fórmula", "célula"] },
+              { answer: "glória", options: ["glória", "história", "vitória"] },
+              { answer: "forte", options: ["forte", "morte", "sorte"] },
+              { answer: "luta", options: ["luta", "labuta", "gruta"] },
+              { answer: "morte", options: ["morte", "sorte", "noite"] },
+              { answer: "adorada", options: ["adorada", "amada", "sagrada"] },
+              { answer: "gentil", options: ["gentil", "brasil", "sutil"] }
+          ]
+      }
+  ];
+
+  let currentPhaseIndex = 0;
+  let currentGapIndex = 0;
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function startGame() {
+      Orchestra.start(); // Inicia o som
+      currentPhaseIndex = 0;
+      loadPhase();
+  }
+
+  function loadPhase() {
+      currentGapIndex = 0;
+      renderText();
+      updateActiveGap();
+      showScreen('game-screen');
+  }
+
+  function renderText() {
+      const container = document.getElementById('anthem-text');
+      container.innerHTML = '';
+      const phase = phasesData[currentPhaseIndex];
+
+      phase.lines.forEach(line => {
+          let formattedLine = line;
+          phase.gaps.forEach((gap, idx) => {
+              const placeholder = `{${idx}}`;
+              if (formattedLine.includes(placeholder)) {
+                  formattedLine = formattedLine.replace(
+                      placeholder, 
+                      `<span id="gap-${idx}" class="gap-slot">______</span>`
+                  );
+              }
+          });
+          const div = document.createElement('div');
+          div.className = 'verse-line';
+          div.innerHTML = formattedLine;
+          container.appendChild(div);
+      });
+  }
+
+  function updateActiveGap() {
+      const phase = phasesData[currentPhaseIndex];
+      if (currentGapIndex >= phase.gaps.length) {
+          finishPhase();
+          return;
+      }
+
+      document.getElementById('feedback').innerText = "";
+      document.querySelectorAll('.gap-slot').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById(`gap-${currentGapIndex}`);
+      if(activeEl) {
+          activeEl.classList.add('active');
+          activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      const choicesBox = document.getElementById('choices-box');
+      choicesBox.innerHTML = '';
+      const currentGapData = phase.gaps[currentGapIndex];
+      const shuffledOptions = [...currentGapData.options].sort(() => Math.random() - 0.5);
+
+      shuffledOptions.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.className = 'choice-btn';
+          btn.innerText = opt;
+          btn.onclick = () => handleChoice(btn, opt, currentGapData.answer);
+          choicesBox.appendChild(btn);
+      });
+  }
+
+  function handleChoice(btnElement, selected, correct) {
+      const feedback = document.getElementById('feedback');
+      if (selected === correct) {
+          Orchestra.playCorrect();
+          const gapEl = document.getElementById(`gap-${currentGapIndex}`);
+          gapEl.innerText = selected;
+          gapEl.classList.remove('active');
+          gapEl.classList.add('filled');
+          currentGapIndex++;
+          setTimeout(() => updateActiveGap(), 500);
+      } else {
+          Orchestra.playWrong();
+          btnElement.classList.add('wrong');
+          feedback.innerText = "Tente novamente!";
+          setTimeout(() => {
+              btnElement.classList.remove('wrong');
+              feedback.innerText = "";
+          }, 600);
+      }
+  }
+
+  function finishPhase() {
+      if (currentPhaseIndex < phasesData.length - 1) {
+          showScreen('level-screen');
+      } else {
+          showScreen('end-screen');
+      }
+  }
+
+  function nextPhase() {
+      currentPhaseIndex++;
+      loadPhase();
+  }
+  
+  // Iniciar na tela inicial
+  showScreen('home-screen');
+
+  </script>
+ </body>
+</html>
