@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🟰DESAFIO DOS SINÔNIMOS</title>
+    <!-- Tailwind CSS para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fonte e animações personalizadas */
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            text-transform: uppercase;
+            overflow-x: hidden;
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            width: 100%;
+        }
+        
+        .screen.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-700">
+
+    <!-- TELA INICIAL -->
+    <div id="start-screen" class="screen active bg-gradient-to-br from-green-200 via-teal-200 to-blue-200 flex-col items-center justify-center p-4">
+        
+        <button class="absolute top-6 left-6 text-slate-700 px-6 py-3 hover:bg-white/40 bg-white/20 backdrop-blur-sm rounded-2xl transition-colors font-black tracking-widest text-xl flex items-center gap-3 border-2 border-white/50 shadow-sm">
+            MENU
+        </button>
+
+        <div class="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-8 max-w-4xl w-full text-center transform transition-all hover:scale-[1.01] duration-300 flex flex-col md:flex-row items-center gap-8 animate-fade-in-up relative border border-white">
+            
+            <div class="flex-1 flex justify-center mt-8 md:mt-0">
+                <div class="bg-emerald-100 p-8 rounded-full">
+                    <!-- Ícone Book/Idea -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+            </div>
+            
+            <div class="flex-1 text-left">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-slate-700 mb-4 leading-tight">DESAFIO DOS SINÔNIMOS</h1>
+                
+                <div class="flex items-center gap-3 mb-8 justify-center md:justify-start">
+                    <button onclick="speakIntro()" class="text-teal-500 hover:text-teal-600 hover:bg-teal-50 p-3 rounded-full transition-all flex-shrink-0" title="Ouvir Instruções">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                    </button>
+                    <p class="text-slate-500 text-xl font-bold text-left">
+                        ENCONTRE O SINÔNIMO DA PALAVRA EM <span class="bg-emerald-200 px-2 py-1 text-slate-800 rounded-lg inline-block">DESTAQUE</span>!
+                    </p>
+                </div>
+                
+                <button onclick="startGame()" class="w-full bg-teal-400 hover:bg-teal-500 text-white font-black tracking-widest py-5 px-6 rounded-2xl shadow-lg shadow-teal-200 transition-all transform active:scale-95 text-2xl flex items-center justify-center gap-3 group">
+                    <span class="group-hover:animate-pulse">♪</span> JOGAR 
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA DE JOGO -->
+    <div id="game-screen" class="screen flex-col font-sans uppercase overflow-hidden relative overflow-y-auto bg-slate-50">
+        
+        <!-- Botão Voltar (Esquerda) -->
+        <div class="absolute top-4 left-4 z-10">
+            <button onclick="goBackToMenu()" class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-100 text-slate-500 hover:text-teal-500 hover:bg-teal-50 transition-all font-bold tracking-widest flex items-center gap-3" title="Voltar ao Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                VOLTAR
+            </button>
+        </div>
+
+        <!-- Botão Mute (Direita) -->
+        <div class="absolute top-4 right-4 z-10">
+            <button onclick="toggleSound()" id="sound-btn" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 text-teal-400 hover:text-teal-600 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            </button>
+        </div>
+
+        <div class="flex-1 flex flex-col h-full p-4 lg:p-6 gap-6 items-center justify-center max-w-3xl mx-auto w-full mt-16 lg:mt-0">
+            
+            <h2 class="text-teal-500 text-3xl lg:text-5xl font-black tracking-widest text-center animate-fade-in-up drop-shadow-sm mb-2">
+                ENCONTRE O SINÔNIMO DA PALAVRA
+            </h2>
+
+            <div class="w-full flex flex-col justify-center">
+                <div class="bg-white rounded-3xl shadow-xl shadow-slate-200 p-6 lg:p-10 text-center border-t-8 border-teal-300 relative flex flex-col justify-center items-center min-h-[160px] lg:min-h-[220px]">
+                    
+                    <!-- Container Flex para Botão de Áudio e Frase - Alinhamento Centralizado -->
+                    <div class="flex flex-row items-center justify-center gap-4 w-full max-w-2xl">
+                        <!-- Botão de Áudio -->
+                        <button onclick="speakQuestion()" class="flex-shrink-0 bg-teal-50 text-teal-400 hover:bg-teal-100 hover:text-teal-600 p-3 rounded-full transition-all shadow-sm border border-teal-100 group" title="Ouvir Frase">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                        </button>
+                        
+                        <!-- Frase -->
+                        <p id="question-text" class="text-2xl lg:text-3xl font-bold text-slate-700 leading-snug text-left flex-grow">
+                            <!-- Conteúdo injetado via JS -->
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full flex flex-col gap-6 justify-center">
+                <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                    <!-- Opções injetadas via JS -->
+                </div>
+
+                <!-- AUMENTADO A ALTURA DO CONTAINER DE FEEDBACK PARA TEXTO MAIOR -->
+                <div class="min-h-[8rem] relative w-full"> 
+                    <div id="feedback-area" class="hidden animate-slide-in flex items-center gap-4 w-full h-full">
+                        <div id="feedback-message-box" class="flex-1 p-4 rounded-2xl shadow-lg border-l-8 flex flex-col justify-center h-full">
+                            <!-- Conteúdo do Feedback injetado via JS -->
+                        </div>
+                        
+                        <button id="next-btn" onclick="nextQuestion()" class="h-full px-8 py-4 rounded-2xl font-black text-lg tracking-widest shadow-xl shadow-teal-100 transition-all hover:scale-105 active:scale-95 whitespace-nowrap bg-teal-400 text-white hover:bg-teal-500 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TELA DE RESULTADO -->
+    <div id="result-screen" class="screen bg-gradient-to-br from-green-200 via-teal-200 to-blue-200 flex-col items-center justify-center p-4">
+        <div class="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-12 max-w-2xl w-full text-center animate-fade-in-up">
+            <div id="trophy-icon" class="flex justify-center mb-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-32 h-32 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            </div>
+
+            <h2 class="text-4xl font-black text-slate-700 mb-4">DESAFIO CONCLUÍDO!</h2>
+            
+            <div class="bg-slate-50 rounded-2xl p-8 mb-8 border border-slate-100">
+                <p class="text-slate-400 text-lg font-bold tracking-widest mb-2">PONTUAÇÃO FINAL</p>
+                <p id="final-score" class="text-6xl font-black text-teal-500">0 / 0</p>
+            </div>
+
+            <p id="final-message" class="text-slate-600 font-bold mb-10 text-2xl">MUITO BEM!</p>
+
+            <button onclick="startGame()" class="w-full bg-teal-400 hover:bg-teal-500 text-white font-black py-4 px-8 rounded-2xl shadow-lg shadow-teal-200 transition-colors flex items-center justify-center gap-3 text-xl tracking-wider">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74-2.74L3 12"/><path d="M3 3v9h9"/></svg>
+                JOGAR NOVAMENTE
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // --- SINTETIZADOR 8-BIT EXCLUSIVO ---
+        const SoundSystem = {
+            ctx: null,
+            bgmOscillators: [],
+            isMuted: false,
+            isPlaying: false,
+            melodyTimeout: null,
+
+            init: function() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            },
+
+            playTone: function(freq, type, duration, startTime, vol = 0.1) {
+                if (this.isMuted || !this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = type;
+                osc.frequency.value = freq;
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(vol, startTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            },
+
+            playCorrectFx: function() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                this.playTone(987.77, 'square', 0.1, now, 0.05);
+                this.playTone(1318.51, 'square', 0.2, now + 0.1, 0.05);
+            },
+
+            playWrongFx: function() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                this.playTone(150, 'sawtooth', 0.3, now, 0.08);
+            },
+
+            playWinFx: function() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                this.playTone(523.25, 'square', 0.1, now, 0.1);      
+                this.playTone(659.25, 'square', 0.1, now + 0.1, 0.1); 
+                this.playTone(783.99, 'square', 0.1, now + 0.2, 0.1); 
+                this.playTone(1046.50, 'square', 0.4, now + 0.3, 0.1); 
+            },
+
+            playMelody: function() {
+                if (this.isMuted || !this.ctx || !this.isPlaying) return;
+
+                const now = this.ctx.currentTime;
+                // Melodia levemente diferente para os sinônimos (C Major Scale)
+                const notes = [
+                    { f: 261.63, d: 0.2, t: 0.0 }, 
+                    { f: 293.66, d: 0.2, t: 0.25 },
+                    { f: 329.63, d: 0.2, t: 0.5 }, 
+                    { f: 349.23, d: 0.2, t: 0.75 },
+                    { f: 392.00, d: 0.2, t: 1.0 }, 
+                    { f: 523.25, d: 0.2, t: 1.25 }, 
+                ];
+
+                notes.forEach(n => {
+                    this.playTone(n.f, 'triangle', n.d, now + n.t, 0.06); 
+                });
+
+                this.melodyTimeout = setTimeout(() => this.playMelody(), 1500);
+            },
+
+            startMusic: function() {
+                this.isPlaying = true;
+                this.init();
+                this.playMelody();
+            },
+
+            stopMusic: function() {
+                this.isPlaying = false;
+                if (this.melodyTimeout) clearTimeout(this.melodyTimeout);
+            },
+
+            toggleMute: function() {
+                this.isMuted = !this.isMuted;
+                if (this.isMuted) {
+                    this.stopMusic();
+                } else {
+                    this.startMusic();
+                }
+                return this.isMuted;
+            }
+        };
+
+        // --- BANCO DE DADOS: SINÔNIMOS (30 Perguntas) ---
+        const questionsSource = [
+            {
+                id: 1,
+                pre: "A PAISAGEM DA MONTANHA ERA MUITO ",
+                highlight: "BONITA",
+                post: ".",
+                options: ["FEIA", "BELA", "ESCURA", "LONGE"],
+                correct: "BELA",
+                explanation: "Correto: 'Bonita' e 'Bela' significam algo agradável de se ver. 'Feia' é o oposto, e 'Escura' refere-se à luz."
+            },
+            {
+                id: 2,
+                pre: "O MENINO FICOU MUITO ",
+                highlight: "FELIZ",
+                post: " COM O PRESENTE.",
+                options: ["TRISTE", "ALEGRE", "BRAVO", "CANSADO"],
+                correct: "ALEGRE",
+                explanation: "Correto: 'Feliz' e 'Alegre' descrevem um estado de contentamento. 'Triste' é o oposto, e 'Bravo' é raiva."
+            },
+            {
+                id: 3,
+                pre: "O CARRO DO MEU TIO É MUITO ",
+                highlight: "RÁPIDO",
+                post: ".",
+                options: ["LENTO", "VELOZ", "VELHO", "SUJO"],
+                correct: "VELOZ",
+                explanation: "Correto: 'Rápido' e 'Veloz' indicam alta velocidade. 'Lento' é o oposto, e 'Velho' refere-se à idade."
+            },
+            {
+                id: 4,
+                pre: "PRECISAMOS ",
+                highlight: "ACABAR",
+                post: " A TAREFA LOGO.",
+                options: ["INICIAR", "TERMINAR", "ROMPER", "ADAPTAR"],
+                correct: "TERMINAR",
+                explanation: "Correto: 'Acabar' e 'Terminar' significam chegar ao fim de algo. 'Iniciar' é o oposto."
+            },
+            {
+                id: 5,
+                pre: "ELA MORA EM UMA CASA ",
+                highlight: "GRANDE",
+                post: ".",
+                options: ["PEQUENA", "ENORME", "BAIXA", "NOVA"],
+                correct: "ENORME",
+                explanation: "Correto: 'Grande' e 'Enorme' indicam tamanho elevado. 'Pequena' é o oposto."
+            },
+            {
+                id: 6,
+                pre: "O DIA ESTÁ BASTANTE ",
+                highlight: "CALMO",
+                post: " HOJE.",
+                options: ["AGITADO", "TRANQUILO", "CHUVOSO", "FRIO"],
+                correct: "TRANQUILO",
+                explanation: "Correto: 'Calmo' e 'Tranquilo' significam sem agitação. 'Agitado' é o oposto."
+            },
+            {
+                id: 7,
+                pre: "É IMPORTANTE ",
+                highlight: "OUVIR",
+                post: " O QUE OS OUTROS DIZEM.",
+                options: ["FALAR", "ESCUTAR", "IGNORAR", "OLHAR"],
+                correct: "ESCUTAR",
+                explanation: "Correto: 'Ouvir' e 'Escutar' referem-se à audição. 'Falar' é emitir som, e 'Ignorar' é não dar atenção."
+            },
+            {
+                id: 8,
+                pre: "ELE DECIDIU ",
+                highlight: "MORAR",
+                post: " EM OUTRA CIDADE.",
+                options: ["VIAJAR", "HABITAR", "PASSEAR", "VISITAR"],
+                correct: "HABITAR",
+                explanation: "Correto: 'Morar' e 'Habitar' significam viver em um lugar. 'Viajar' é temporário."
+            },
+            {
+                id: 9,
+                pre: "VAMOS ",
+                highlight: "COMEÇAR",
+                post: " A REUNIÃO AGORA.",
+                options: ["PARAR", "INICIAR", "FINALIZAR", "ADIAR"],
+                correct: "INICIAR",
+                explanation: "Correto: 'Começar' e 'Iniciar' marcam o princípio de algo. 'Finalizar' é o oposto."
+            },
+            {
+                id: 10,
+                pre: "A ESCOLA FICA MUITO ",
+                highlight: "LONGE",
+                post: " DAQUI.",
+                options: ["PERTO", "DISTANTE", "ALTA", "CHEIA"],
+                correct: "DISTANTE",
+                explanation: "Correto: 'Longe' e 'Distante' indicam grande espaço entre dois pontos. 'Perto' é o oposto."
+            },
+            {
+                id: 11,
+                pre: "O ALUNO DEU A RESPOSTA ",
+                highlight: "CERTA",
+                post: ".",
+                options: ["ERRADA", "CORRETA", "DIFÍCIL", "LONGA"],
+                correct: "CORRETA",
+                explanation: "Correto: 'Certa' e 'Correta' significam que não há erros. 'Errada' é o oposto."
+            },
+            {
+                id: 12,
+                pre: "O BOLO ESTAVA MUITO ",
+                highlight: "GOSTOSO",
+                post: ".",
+                options: ["RUIM", "SABOROSO", "QUENTE", "DURO"],
+                correct: "SABOROSO",
+                explanation: "Correto: 'Gostoso' e 'Saboroso' indicam um bom sabor. 'Ruim' é o oposto."
+            },
+            {
+                id: 13,
+                pre: "ELE É UM MENINO MUITO ",
+                highlight: "VALENTE",
+                post: ".",
+                options: ["MEDROSO", "CORAJOSO", "ALTO", "FORTE"],
+                correct: "CORAJOSO",
+                explanation: "Correto: 'Valente' e 'Corajoso' enfrentam o medo. 'Medroso' é quem tem medo."
+            },
+            {
+                id: 14,
+                pre: "O CÃO COMEÇOU A ",
+                highlight: "PULAR",
+                post: " DE ALEGRIA.",
+                options: ["CORRER", "SALTAR", "DORMIR", "COMER"],
+                correct: "SALTAR",
+                explanation: "Correto: 'Pular' e 'Saltar' são movimentos de elevar-se do chão."
+            },
+            {
+                id: 15,
+                pre: "ELA GOSTA DE ",
+                highlight: "CAMINHAR",
+                post: " NO PARQUE.",
+                options: ["CORRER", "ANDAR", "SENTAR", "PARAR"],
+                correct: "ANDAR",
+                explanation: "Correto: 'Caminhar' e 'Andar' são formas de se locomover a pé."
+            },
+            {
+                id: 16,
+                pre: "O PERFUME ERA MUITO ",
+                highlight: "CHEIROSO",
+                post: ".",
+                options: ["FEDIDO", "PERFUMADO", "FORTE", "DOCE"],
+                correct: "PERFUMADO",
+                explanation: "Correto: 'Cheiroso' e 'Perfumado' têm aroma agradável. 'Fedido' é o oposto."
+            },
+            {
+                id: 17,
+                pre: "O HOMEM ERA MUITO ",
+                highlight: "INTELIGENTE",
+                post: ".",
+                options: ["ESPERTO", "BOBO", "ALTO", "RICO"],
+                correct: "ESPERTO",
+                explanation: "Correto: 'Inteligente' e 'Esperto' demonstram facilidade em aprender e entender."
+            },
+            {
+                id: 18,
+                pre: "PRECISAMOS ",
+                highlight: "AJUDAR",
+                post: " OS MAIS VELHOS.",
+                options: ["ATRAPALHAR", "AUXILIAR", "IGNORAR", "OUVIR"],
+                correct: "AUXILIAR",
+                explanation: "Correto: 'Ajudar' e 'Auxiliar' significam dar suporte ou socorro."
+            },
+            {
+                id: 19,
+                pre: "NÃO CONSEGUIMOS ",
+                highlight: "ACHAR",
+                post: " A CHAVE.",
+                options: ["PERDER", "ENCONTRAR", "BUSCAR", "OLHAR"],
+                correct: "ENCONTRAR",
+                explanation: "Correto: 'Achar' e 'Encontrar' significam descobrir onde algo está."
+            },
+            {
+                id: 20,
+                pre: "O TIME QUERIA ",
+                highlight: "GANHAR",
+                post: " O CAMPEONATO.",
+                options: ["PERDER", "VENCER", "EMPATAR", "JOGAR"],
+                correct: "VENCER",
+                explanation: "Correto: 'Ganhar' e 'Vencer' significam obter a vitória."
+            },
+            {
+                id: 21,
+                pre: "O SUCO ESTAVA ",
+                highlight: "GELADO",
+                post: ".",
+                options: ["QUENTE", "FRIO", "MORNO", "DOÇE"],
+                correct: "FRIO",
+                explanation: "Correto: 'Gelado' e 'Frio' indicam baixa temperatura. 'Quente' é o oposto."
+            },
+            {
+                id: 22,
+                pre: "VOCÊ NÃO DEVE ",
+                highlight: "GRITAR",
+                post: " NA BIBLIOTECA.",
+                options: ["FALAR", "BERRAR", "SUSSURRAR", "CANTAR"],
+                correct: "BERRAR",
+                explanation: "Correto: 'Gritar' e 'Berrar' significam falar em voz muito alta."
+            },
+            {
+                id: 23,
+                pre: "ELE SENTE MUITO ",
+                highlight: "MEDO",
+                post: " DE ALTURA.",
+                options: ["CORAGEM", "TEMOR", "ALEGRIA", "RAIVA"],
+                correct: "TEMOR",
+                explanation: "Correto: 'Medo' e 'Temor' são sentimentos de receio ou apreensão."
+            },
+            {
+                id: 24,
+                pre: "O COPO CAIU E VAI ",
+                highlight: "QUEBRAR",
+                post: ".",
+                options: ["CONSERTAR", "PARTIR", "LIMPAR", "ENCHER"],
+                correct: "PARTIR",
+                explanation: "Correto: 'Quebrar' e 'Partir' significam dividir em pedaços."
+            },
+            {
+                id: 25,
+                pre: "A BRUXA DECIDIU ",
+                highlight: "TRANSFORMAR",
+                post: " O PRÍNCIPE.",
+                options: ["MANTER", "MUDAR", "CRIAR", "AMAR"],
+                correct: "MUDAR",
+                explanation: "Correto: 'Transformar' e 'Mudar' significam alterar a forma ou estado."
+            },
+            {
+                id: 26,
+                pre: "ELA DISSE QUE IA ",
+                highlight: "AMAR",
+                post: " O PRESENTE.",
+                options: ["ODIAR", "ADORAR", "GOSTAR", "VER"],
+                correct: "ADORAR",
+                explanation: "Correto: 'Amar' e 'Adorar' expressam um sentimento intenso de afeto."
+            },
+            {
+                id: 27,
+                pre: "FOI UM GESTO MUITO ",
+                highlight: "BOM",
+                post: ".",
+                options: ["MAU", "BONDOSO", "RUIM", "FEIO"],
+                correct: "BONDOSO",
+                explanation: "Correto: 'Bom' e 'Bondoso' indicam qualidade positiva ou gentileza."
+            },
+            {
+                id: 28,
+                pre: "O PACIENTE ESTAVA ",
+                highlight: "DOENTE",
+                post: ".",
+                options: ["SADIO", "ENFERMO", "FELIZ", "FORTE"],
+                correct: "ENFERMO",
+                explanation: "Correto: 'Doente' e 'Enfermo' significam que a saúde não está boa."
+            },
+            {
+                id: 29,
+                pre: "O CÉU ESTAVA ",
+                highlight: "CLARO",
+                post: ".",
+                options: ["ESCURO", "ILUMINADO", "NUBLADO", "FEIO"],
+                correct: "ILUMINADO",
+                explanation: "Correto: 'Claro' e 'Iluminado' indicam presença de luz."
+            },
+            {
+                id: 30,
+                pre: "A RESPOSTA ESTAVA ",
+                highlight: "ERRADA",
+                post: ".",
+                options: ["CERTA", "INCORRETA", "BOA", "LONGA"],
+                correct: "INCORRETA",
+                explanation: "Correto: 'Errada' e 'Incorreta' significam que contém erro ou falha."
+            }
+        ];
+
+        // Estado do Jogo
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        // Elementos DOM
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsGridEl = document.getElementById('options-grid');
+        const feedbackAreaEl = document.getElementById('feedback-area');
+        const feedbackMessageBox = document.getElementById('feedback-message-box');
+        const nextBtn = document.getElementById('next-btn');
+        const soundBtn = document.getElementById('sound-btn');
+
+        // Ícones SVG
+        const iconCheck = `<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>`;
+        const iconX = `<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>`;
+
+        function switchScreen(screenName) {
+            window.speechSynthesis.cancel();
+            
+            startScreen.classList.remove('active');
+            gameScreen.classList.remove('active');
+            resultScreen.classList.remove('active');
+
+            if (screenName === 'start') startScreen.classList.add('active');
+            else if (screenName === 'game') gameScreen.classList.add('active');
+            else if (screenName === 'result') resultScreen.classList.add('active');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startGame() {
+            // INICIAR ÁUDIO 8-BIT
+            SoundSystem.startMusic();
+
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            // 1. Embaralhar o banco de dados COMPLETO para criar "novos desafios"
+            let fullPool = [...questionsSource];
+            shuffleArray(fullPool);
+
+            // 2. Selecionar apenas as 10 primeiras perguntas para a sessão atual
+            let sessionQuestions = fullPool.slice(0, 10);
+
+            // 3. Preparar as perguntas (embaralhar as opções de cada uma)
+            currentQuestions = sessionQuestions.map(q => {
+                const newQ = { ...q, options: [...q.options] }; // Cópia profunda
+                shuffleArray(newQ.options); // Embaralhar as 4 opções
+                return newQ;
+            });
+
+            switchScreen('game');
+            loadQuestion();
+        }
+
+        function goBackToMenu() {
+            // PARAR ÁUDIO AO SAIR
+            SoundSystem.stopMusic();
+            switchScreen('start');
+        }
+
+        function toggleSound() {
+            const isMuted = SoundSystem.toggleMute();
+            // Atualizar ícone (opcional, visual feedback)
+            soundBtn.innerHTML = isMuted 
+                ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v6a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
+        }
+
+        function speakIntro() {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance("Desafio dos Sinônimos. Encontre o sinônimo da palavra em destaque!");
+            utterance.lang = 'pt-BR'; utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakQuestion() {
+            window.speechSynthesis.cancel();
+            const q = currentQuestions[currentQuestionIndex];
+            const utterance = new SpeechSynthesisUtterance(`${q.pre} ${q.highlight} ${q.post}`);
+            utterance.lang = 'pt-BR'; utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function loadQuestion() {
+            window.speechSynthesis.cancel();
+            isAnswered = false;
+            const q = currentQuestions[currentQuestionIndex];
+            questionTextEl.innerHTML = `"${q.pre}<span class="bg-emerald-200 px-3 py-1 mx-2 rounded-lg text-slate-800 font-black border-b-8 border-emerald-300 inline-block shadow-sm">${q.highlight}</span>${q.post}"`;
+            optionsGridEl.innerHTML = '';
+            feedbackAreaEl.classList.add('hidden');
+            
+            q.options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = `relative p-5 lg:p-8 rounded-2xl text-xl lg:text-2xl font-bold transition-all duration-200 shadow-sm flex flex-col items-center justify-center gap-2 text-center group min-h-[100px] bg-white hover:bg-teal-50 border-4 border-slate-100 text-slate-600 hover:-translate-y-1 hover:shadow-md hover:border-teal-200`;
+                btn.innerHTML = `<span class="tracking-wide">${option}</span>`;
+                btn.onclick = () => handleAnswer(option, btn, q);
+                optionsGridEl.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedOption, btnElement, question) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const isCorrect = selectedOption === question.correct;
+            
+            // TOCAR SFX
+            if (isCorrect) {
+                score++;
+                SoundSystem.playCorrectFx();
+            } else {
+                SoundSystem.playWrongFx();
+            }
+
+            const buttons = optionsGridEl.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('hover:-translate-y-1', 'hover:shadow-md', 'active:scale-95', 'hover:border-teal-200', 'hover:bg-teal-50');
+                const btnText = btn.innerText;
+
+                if (btnText === question.correct) {
+                    btn.className = `relative p-5 lg:p-8 rounded-2xl text-xl lg:text-2xl font-bold shadow-none scale-[0.98] flex flex-col items-center justify-center gap-2 text-center min-h-[100px] bg-emerald-100 border-4 border-emerald-300 text-emerald-600 font-black`;
+                    btn.innerHTML += `<div class="absolute top-2 right-2">${iconCheck}</div>`;
+                } else if (btnText === selectedOption && !isCorrect) {
+                    btn.className = `relative p-5 lg:p-8 rounded-2xl text-xl lg:text-2xl font-bold shadow-none opacity-80 flex flex-col items-center justify-center gap-2 text-center min-h-[100px] bg-rose-100 border-4 border-rose-300 text-rose-600`;
+                    btn.innerHTML += `<div class="absolute top-2 right-2">${iconX}</div>`;
+                } else {
+                    btn.className += ' opacity-40 bg-slate-50 border-slate-100 text-slate-400';
+                }
+            });
+
+            feedbackAreaEl.classList.remove('hidden');
+            
+            // CONTEÚDO DO FEEDBACK EDUCATIVO INJETADO AQUI
+            feedbackMessageBox.innerHTML = `
+                <div class="flex flex-col h-full justify-center">
+                    <p class="font-bold text-lg ${isCorrect ? 'text-emerald-700' : 'text-rose-700'}">
+                        ${isCorrect ? '🎉 CORRETO!' : '😅 OPS!'}
+                    </p>
+                    <p class="text-[10px] font-black tracking-widest opacity-60 mt-2 mb-1 uppercase ${isCorrect ? 'text-emerald-600' : 'text-rose-600'}">
+                        EXPLICAÇÃO
+                    </p>
+                    <p class="text-sm font-medium opacity-90 leading-tight ${isCorrect ? 'text-emerald-800' : 'text-rose-800'}">
+                        ${question.explanation}
+                    </p>
+                </div>
+            `;
+            
+            if (isCorrect) {
+                feedbackMessageBox.className = 'flex-1 p-4 rounded-2xl shadow-lg border-l-8 flex flex-col justify-center h-full bg-emerald-50 border-emerald-300 text-emerald-700';
+            } else {
+                feedbackMessageBox.className = 'flex-1 p-4 rounded-2xl shadow-lg border-l-8 flex flex-col justify-center h-full bg-rose-50 border-rose-300 text-rose-700';
+            }
+
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                nextBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+            } else {
+                nextBtn.innerText = 'FIM';
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            // TOCAR FANFARRA
+            SoundSystem.stopMusic();
+            SoundSystem.playWinFx();
+
+            switchScreen('result');
+            const percentage = (score / currentQuestions.length) * 100;
+            const finalScoreEl = document.getElementById('final-score');
+            const finalMessageEl = document.getElementById('final-message');
+            const trophyIconEl = document.getElementById('trophy-icon');
+
+            finalScoreEl.innerText = `${score} / ${currentQuestions.length}`;
+
+            let message = "";
+            let trophyColorClass = "text-slate-300"; 
+
+            if (percentage === 100) {
+                message = "PERFEITO! MESTRE DAS PALAVRAS!";
+                trophyColorClass = "text-amber-300"; 
+            } else if (percentage >= 70) {
+                message = "MUITO BEM! ÓTIMO VOCABULÁRIO.";
+                trophyColorClass = "text-amber-300";
+            } else if (percentage >= 50) {
+                message = "BOM ESFORÇO! CONTINUE PRATICANDO.";
+            } else {
+                message = "TENTE NOVAMENTE PARA MELHORAR.";
+            }
+
+            finalMessageEl.innerText = message;
+            
+            trophyIconEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-32 h-32 ${trophyColorClass}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`;
+        }
+    </script>
+</body>
+</html>
