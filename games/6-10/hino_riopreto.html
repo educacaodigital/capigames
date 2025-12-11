@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎶HINO DE SÃO JOSÉ DO RIO PRETO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+/* ===== ESTILOS GERAIS (VERMELHO E BRANCO) ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Fredoka', sans-serif;
+  /* Fundo degradê suave Vermelho/Branco */
+  background: radial-gradient(circle at center, #ffffff 0%, #ffcdd2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Telas */
+.screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+  position: absolute;
+  top: 0; left: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.screen.active { display: flex; z-index: 10; opacity: 1; }
+
+/* Cartão Principal */
+.card {
+  background: #ffffff;
+  border-radius: 40px;
+  box-shadow: 0 20px 60px rgba(183, 28, 28, 0.2), 0 5px 15px rgba(0,0,0,0.05);
+  padding: 40px;
+  max-width: 1100px;
+  width: 95%;
+  text-align: center;
+  position: relative;
+  max-height: 98vh;
+  overflow-y: auto;
+  border: 5px solid #ef9a9a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Tipografia */
+.title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 56px;
+  font-weight: 700;
+  color: #c62828; /* Vermelho Escuro */
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: 28px;
+  color: #d32f2f;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+/* Botões de Ação (Vermelho) */
+.btn-primary {
+  background: linear-gradient(135deg, #ef5350, #c62828);
+  color: #fff;
+  border: none;
+  border-radius: 60px;
+  font-size: 32px;
+  font-weight: 700;
+  padding: 20px 60px;
+  cursor: pointer;
+  box-shadow: 0 8px 0 #8e0000, 0 15px 20px rgba(0,0,0,0.2);
+  margin-top: 25px;
+  transition: transform 0.1s;
+}
+.btn-primary:active { transform: translateY(4px); box-shadow: 0 4px 0 #8e0000; }
+
+/* Botão Voltar/Menu */
+.btn-back {
+  position: absolute;
+  top: 30px; left: 30px;
+  background: #ffffff;
+  color: #c62828;
+  border: 3px solid #c62828;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #ff8a80;
+  font-size: 20px;
+  z-index: 100;
+}
+.btn-back:active { transform: translateY(4px); box-shadow: none; }
+
+/* === BOTÃO SPEAKER === */
+.speaker-btn {
+    background-color: #ef5350; 
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #b71c1c;
+    margin-right: 15px; 
+    transition: transform 0.1s;
+}
+.speaker-btn:hover { background-color: #e53935; transform: scale(1.05); }
+.speaker-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #b71c1c; }
+
+/* Texto do Hino */
+.anthem-container {
+    background: #FAFAFA;
+    border: 3px dashed #ef9a9a;
+    border-radius: 25px;
+    padding: 30px;
+    margin-bottom: 20px;
+    width: 100%;
+    text-align: left;
+    line-height: 2.2;
+    font-size: 34px;
+    color: #b71c1c;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+/* Lacunas */
+.gap-slot {
+    display: inline-block;
+    min-width: 160px;
+    padding: 2px 10px;
+    border-bottom: 5px solid #FFCA28; /* Amarelo/Dourado para destaque */
+    color: #e65100;
+    text-align: center;
+    background: rgba(255, 235, 59, 0.2);
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+.gap-slot.active {
+    background-color: #fff9c4;
+    border-color: #f57f17;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(245, 127, 23, 0.2);
+    color: #333;
+}
+.gap-slot.filled {
+    border-bottom: none;
+    background: transparent;
+    color: #2E7D32; /* Verde para acerto */
+    font-weight: 900;
+}
+
+/* Opções */
+.options-area {
+    width: 100%;
+    background: #ffebee;
+    padding: 30px;
+    border-top: 5px solid #ef9a9a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 0 0 35px 35px;
+}
+
+.options-title { font-size: 24px; color: #c62828; margin-bottom: 20px; font-weight: 700; }
+
+.choices-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+
+.choice-btn {
+    background: white; 
+    color: #c62828; 
+    border: 3px solid #c62828;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 26px;
+    font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 0 #b71c1c;
+    transition: all 0.1s;
+    min-width: 180px;
+}
+.choice-btn:active { transform: translateY(4px); box-shadow: none; }
+.choice-btn:hover { background: #ffebee; }
+
+.choice-btn.wrong { 
+    background: #263238; border-color: #000; color: #fff;
+    box-shadow: 0 6px 0 #000;
+    animation: shake 0.4s; 
+}
+
+/* Feedback */
+.feedback-msg { height: 35px; margin-top: 15px; font-weight: bold; color: #b71c1c; font-size: 24px; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+/* Controles de Música */
+.music-controls {
+  position: absolute;
+  top: 30px; right: 30px;
+  display: flex; gap: 15px;
+  background: white; padding: 12px 25px;
+  border-radius: 50px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  z-index: 200;
+}
+.music-btn {
+  background: #ffebee; color: #c62828; border: 2px solid #ef9a9a;
+  width: 50px; height: 50px; border-radius: 50%;
+  font-size: 24px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.music-btn:hover { background: #ffcdd2; transform: scale(1.1); }
+
+@media (max-width: 768px) {
+    .title { font-size: 36px; }
+    .subtitle { font-size: 20px; }
+    .anthem-container { font-size: 22px; line-height: 2.0; padding: 15px; }
+    .choice-btn { width: 100%; margin-bottom: 5px; font-size: 22px; }
+    .card { padding: 20px; }
+    .gap-slot { min-width: 80px; }
+    .music-controls { top: auto; bottom: 20px; right: 20px; }
+    .btn-primary { font-size: 24px; padding: 15px 40px; }
+}
+</style>
+ </head>
+ <body>
+
+  <div class="music-controls">
+      <button class="music-btn" onclick="toggleMute()" id="mute-btn" title="Mutar/Desmutar">🔊</button> 
+      <button class="music-btn" onclick="toggleMusic()" id="play-btn">▶</button> 
+  </div>
+
+  <section id="home-screen" class="screen active">
+   <button class="btn-back" onclick="window.history.back()">MENU</button>
+
+   <div class="card">
+    <h1 class="title">Hino de São José do Rio Preto</h1>
+    <p class="subtitle">Complete o trecho</p>
+    
+    <div style="font-size: 80px; margin: 20px; filter: drop-shadow(0 10px 0 #ccc);">🎼</div>
+    
+    <div style="text-align: left; background: #fff8f8; padding: 25px; border-radius: 20px; font-size: 20px; color: #5D4037; margin-bottom: 30px; width: 100%; border-left: 8px solid #c62828;">
+        
+        <div style="display:flex; align-items:center; margin-bottom:15px;">
+            <button class="speaker-btn" onclick="speakText('Instruções: Leia o trecho do hino. A palavra que falta está marcada em amarelo. Clique na opção correta para preencher.')">🔊</button>
+            <strong>Como Jogar:</strong>
+        </div>
+
+        <ul style="margin-left: 25px; margin-top: 15px;">
+            <li>Leia o trecho da estrofe.</li>
+            <li>A palavra que falta está marcada em <span style="background:#FFF9C4; padding:2px 6px; border-radius:4px; font-weight:bold; color:#FF6F00;">amarelo</span>.</li>
+            <li>Clique na opção correta para preencher.</li>
+        </ul>
+    </div>
+    
+    <button class="btn-primary" onclick="startGame()">INICIAR JOGO</button>
+   </div>
+  </section>
+
+  <section id="game-screen" class="screen">
+   <button class="btn-back" onclick="showScreen('home-screen')">← VOLTAR</button>
+   
+   <div class="card" style="justify-content: space-between; padding-bottom: 0;">
+    
+    <div style="margin-top: 10px; width:100%; display:flex; justify-content:center; align-items:center; flex-direction:column;">
+        <h1 class="title" style="font-size: 40px; margin-bottom: 5px;">Hino de Rio Preto</h1>
+        
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px;">
+            <button class="speaker-btn" style="width:45px; height:45px; font-size:20px;" onclick="readAnthem()" title="Ouvir texto completo">🔊</button>
+            <p class="subtitle" style="margin-bottom: 0;">Complete o Trecho</p>
+        </div>
+    </div>
+
+    <div class="anthem-container" id="anthem-text"></div>
+    
+    <div class="options-area">
+        <div class="options-title">Selecione a palavra:</div>
+        <div class="choices-container" id="choices-box"></div>
+        <div class="feedback-msg" id="feedback"></div>
+    </div>
+   </div>
+  </section>
+
+  <section id="level-screen" class="screen">
+      <div class="card">
+          <div style="font-size: 120px; margin-bottom: 20px;">✨</div>
+          <h2 class="title" id="level-title">Parabéns!</h2>
+          <p class="subtitle">Excelente! Continue assim.</p>
+          <button class="btn-primary" onclick="nextPhase()">Continuar</button>
+      </div>
+  </section>
+
+  <section id="end-screen" class="screen">
+   <div class="card">
+    <div style="font-size: 120px; margin-bottom: 20px;">🏆</div>
+    <h2 class="title">Vitória!</h2>
+    <p class="subtitle">Você completou o Hino de Rio Preto!</p>
+    <button class="btn-primary" onclick="showScreen('home-screen')">Jogar Novamente</button>
+   </div>
+  </section>
+
+  <script>
+  // ==========================================
+  // 🗣️ TEXT TO SPEECH (VOZ)
+  // ==========================================
+  function speakText(text) {
+      if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'pt-BR';
+          utterance.rate = 1.0; 
+          window.speechSynthesis.speak(utterance);
+      } else {
+          alert("Seu navegador não suporta leitura de voz.");
+      }
+  }
+
+  function readAnthem() {
+      const container = document.getElementById('anthem-text');
+      // Limpa os spans para ler o texto fluido
+      let cleanText = container.innerText.replace(/______/g, "lacuna"); 
+      speakText(cleanText);
+  }
+
+  // ==========================================
+  // 🎵 PLAYER DE MÚSICA (MP3)
+  // ==========================================
+  
+  // Carrega o arquivo local MP3
+  const bgMusic = new Audio('hino_riopreto.mp3');
+  bgMusic.loop = true; // Hino toca em loop
+  
+  function toggleMusic() {
+      const btn = document.getElementById('play-btn');
+      if (bgMusic.paused) {
+          bgMusic.play().then(() => {
+              btn.innerText = "⏸";
+          }).catch(e => console.log("Erro ao tocar: ", e));
+      } else {
+          bgMusic.pause();
+          btn.innerText = "▶";
+      }
+  }
+
+  function toggleMute() {
+      bgMusic.muted = !bgMusic.muted;
+      const btn = document.getElementById('mute-btn');
+      btn.innerText = bgMusic.muted ? "🔇" : "🔊";
+  }
+
+  // ==========================================
+  // 🎮 LÓGICA DO JOGO
+  // ==========================================
+  
+  const phasesData = [
+      // FASE 1
+      {
+          lines: [
+              "Das sementes da {0} e trabalho",
+              "Brotam flores de puro {1}",
+              "E a cidade ao compasso do {2}",
+              "Vai seguindo na marcha {3}"
+          ],
+          gaps: [
+              { answer: "luta", options: ["luta", "paz", "vida"] },
+              { answer: "ideal", options: ["ideal", "amor", "céu"] },
+              { answer: "malho", options: ["malho", "passo", "tempo"] },
+              { answer: "triunfal", options: ["triunfal", "final", "local"] }
+          ]
+      },
+      // FASE 2
+      {
+          lines: [
+              "São José do {0}",
+              "Tua marcha, tua {1}",
+              "Vão levando para a {2}",
+              "O pendão de {3}"
+          ],
+          gaps: [
+              { answer: "Rio Preto", options: ["Rio Preto", "Rio Claro", "Rio Grande"] },
+              { answer: "fé", options: ["fé", "luz", "cor"] },
+              { answer: "glória", options: ["glória", "vitória", "história"] },
+              { answer: "São José", options: ["São José", "São Paulo", "São João"] }
+          ]
+      },
+      // FASE 3
+      {
+          lines: [
+              "Ó {0} que de longe vieste",
+              "Para ver esta gente {1}",
+              "Vem conosco que vamos p'ro {2}",
+              "Desbravar os {3} do Brasil"
+          ],
+          gaps: [
+              { answer: "viajor", options: ["viajor", "cantor", "senhor"] },
+              { answer: "viril", options: ["viril", "gentil", "febril"] },
+              { answer: "Oeste", options: ["Oeste", "Leste", "Norte"] },
+              { answer: "sertões", options: ["sertões", "mares", "campos"] }
+          ]
+      },
+      // FASE 4
+      {
+          lines: [
+              "Pela {0} a marchar, que alegria",
+              "Todo um século {1} por nós",
+              "É tão grande o {2} que nos guia",
+              "Que o Brasil há de ouvir {3}"
+          ],
+          gaps: [
+              { answer: "Pátria", options: ["Pátria", "Terra", "Vida"] },
+              { answer: "vela", options: ["vela", "olha", "reza"] },
+              { answer: "fervor", options: ["fervor", "amor", "valor"] },
+              { answer: "nossa voz", options: ["nossa voz", "teu som", "tua luz"] }
+          ]
+      }
+  ];
+
+  let currentPhaseIndex = 0;
+  let currentGapIndex = 0;
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function startGame() {
+      // Inicia a música ao começar o jogo
+      if (bgMusic.paused) {
+          bgMusic.play().catch(e => console.log("Interação necessária"));
+          document.getElementById('play-btn').innerText = "⏸";
+      }
+      
+      currentPhaseIndex = 0;
+      loadPhase();
+  }
+
+  function loadPhase() {
+      currentGapIndex = 0;
+      renderText();
+      updateActiveGap();
+      showScreen('game-screen');
+  }
+
+  function renderText() {
+      const container = document.getElementById('anthem-text');
+      container.innerHTML = '';
+      const phase = phasesData[currentPhaseIndex];
+
+      phase.lines.forEach(line => {
+          let formattedLine = line;
+          phase.gaps.forEach((gap, idx) => {
+              const placeholder = `{${idx}}`;
+              if (formattedLine.includes(placeholder)) {
+                  formattedLine = formattedLine.replace(
+                      placeholder, 
+                      `<span id="gap-${idx}" class="gap-slot">______</span>`
+                  );
+              }
+          });
+          const div = document.createElement('div');
+          div.className = 'verse-line';
+          div.innerHTML = formattedLine;
+          container.appendChild(div);
+      });
+  }
+
+  function updateActiveGap() {
+      const phase = phasesData[currentPhaseIndex];
+      if (currentGapIndex >= phase.gaps.length) {
+          finishPhase();
+          return;
+      }
+
+      document.getElementById('feedback').innerText = "";
+      document.querySelectorAll('.gap-slot').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById(`gap-${currentGapIndex}`);
+      if(activeEl) {
+          activeEl.classList.add('active');
+          activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      const choicesBox = document.getElementById('choices-box');
+      choicesBox.innerHTML = '';
+      const currentGapData = phase.gaps[currentGapIndex];
+      const shuffledOptions = [...currentGapData.options].sort(() => Math.random() - 0.5);
+
+      shuffledOptions.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.className = 'choice-btn';
+          btn.innerText = opt;
+          btn.onclick = () => handleChoice(btn, opt, currentGapData.answer);
+          choicesBox.appendChild(btn);
+      });
+  }
+
+  function handleChoice(btnElement, selected, correct) {
+      const feedback = document.getElementById('feedback');
+      if (selected === correct) {
+          // Removido som sintetizado para não gerar erro
+          const gapEl = document.getElementById(`gap-${currentGapIndex}`);
+          gapEl.innerText = selected;
+          gapEl.classList.remove('active');
+          gapEl.classList.add('filled');
+          currentGapIndex++;
+          setTimeout(() => updateActiveGap(), 500);
+      } else {
+          // Removido som sintetizado para não gerar erro
+          btnElement.classList.add('wrong');
+          feedback.innerText = "Tente novamente!";
+          setTimeout(() => {
+              btnElement.classList.remove('wrong');
+              feedback.innerText = "";
+          }, 600);
+      }
+  }
+
+  function finishPhase() {
+      if (currentPhaseIndex < phasesData.length - 1) {
+          showScreen('level-screen');
+      } else {
+          showScreen('end-screen');
+      }
+  }
+
+  function nextPhase() {
+      currentPhaseIndex++;
+      loadPhase();
+  }
+  
+  // Iniciar na tela inicial
+  showScreen('home-screen');
+
+  </script>
+ </body>
+</html>
