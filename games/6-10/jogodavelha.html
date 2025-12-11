@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>❌⭕JOGO DA VELHA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-image: url('fundojogo.png');
+            background-size: cover;
+            background-position: center;
+            color: #a5a4a4;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            user-select: none;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 0;
+            backdrop-filter: blur(2px);
+        }
+
+        body * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .container { 
+            text-align: center; 
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #eef5ef;
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.6);
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .menu {
+            color: #ffd6a5;
+            text-shadow: 0 0 4px #d3c3b0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background-color: rgba(0, 0, 0, 0.45);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px dashed rgba(255,255,255,0.7);
+            backdrop-filter: blur(4px);
+        }
+        
+        .hidden { display: none !important; }
+
+        .board-box {
+            background-color: rgba(0, 0, 0, 0.45);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px dashed rgba(255,255,255,0.7);
+            backdrop-filter: blur(4px);
+
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+
+            width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            justify-content: center;
+        }
+
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 5rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+            text-shadow: 0 0 5px rgba(255,255,255,0.8);
+        }
+
+        .cell:nth-child(1), .cell:nth-child(2),
+        .cell:nth-child(4), .cell:nth-child(5),
+        .cell:nth-child(7), .cell:nth-child(8) {
+            border-right: 4px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .cell:nth-child(1), .cell:nth-child(2), .cell:nth-child(3),
+        .cell:nth-child(4), .cell:nth-child(5), .cell:nth-child(6) {
+            border-bottom: 4px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .cell:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+        
+        .board.disabled .cell { pointer-events: none; opacity: 0.5; }
+
+        .cell.x { color: #ffadad; text-shadow: 0 0 5px #ffadad; }
+        .cell.circle { color: #9bf6ff; text-shadow: 0 0 5px #9bf6ff; }
+
+        select {
+            padding: 12px;
+            font-size: 1.4rem;
+            font-family: 'Patrick Hand', cursive;
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        option {
+            background-color: #050505b7;
+            font-family: sans-serif;
+        }
+
+        button {
+            font-size: 1.6rem;
+            font-family: 'Patrick Hand', cursive;
+            padding: 12px 35px;
+            cursor: pointer;
+            background-color: transparent;
+            color: white;
+            border: 2px solid #ffffff;
+            border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: rgba(255,255,255,0.2);
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        button.secondary { border-color: #ffd6a5; color: #ffd6a5; }
+
+        #mensagem {
+            color: #e7e7e7;
+            font-size: 1.8rem;
+            margin-top: 10px;
+            min-height: 40px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>JOGO DA VELHA</h1>
+
+        <div id="menuScreen" class="menu">
+            <div>
+                <p style="font-size: 1.7rem; color: #eef5ef; margin-bottom: 30px; text-shadow: 2px 2px 5px rgba(0,0,0,0.5);">Bem vindo ao Jogo da Velha Escolar! 🏫</p>
+                <label for="dificuldade" style="font-size: 1.3rem;">Nível da Prova:</label>
+                <select id="dificuldade">
+                    <option value="facil">Recreio (Fácil)</option>
+                    <option value="medio">Lição de Casa (Médio)</option>
+                    <option value="dificil">Prova Final (Difícil)</option>
+                </select>
+            </div>
+
+            <button onclick="escolherModo(true)">Jogar vs Computador</button>
+            <button class="secondary" onclick="escolherModo(false)">Jogar vs Colega</button>
+        </div>
+        
+        <div id="gameScreen" class="hidden">
+
+            <div id="gameBox" class="board-box">
+
+                <div class="board" id="board">
+                    <div class="cell" data-cell></div>
+                    <div class="cell" data-cell></div>
+                    <div class="cell" data-cell></div>
+                    <div class="cell" data-cell></div>
+                    <div class="cell" data-cell></div>
+                    <div class="cell" data-cell></div>
+                    <div class="cell" data-cell></div>
+                    <div class="cell" data-cell></div>
+                    <div class="cell" data-cell></div>
+                </div>
+
+                <h2 id="mensagem">Vez do X</h2>
+
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button id="reiniciarButton">Apagar</button>
+                    <button class="secondary" onclick="voltarAoMenu()">Sair da Sala</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+
+        const cells = document.querySelectorAll("[data-cell]");
+        const board = document.getElementById("board");
+        const mensagemTexto = document.getElementById("mensagem");
+        const reiniciarButton = document.getElementById("reiniciarButton");
+        const menuScreen = document.getElementById("menuScreen");
+        const gameScreen = document.getElementById("gameScreen");
+        const selectDificuldade = document.getElementById("dificuldade");
+
+        let isCircleTurn; 
+        let vsComputer = false;
+        let nivelDificuldade = 'facil';
+
+        const winningCombinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        function escolherModo(cpuMode) {
+            vsComputer = cpuMode;
+            nivelDificuldade = selectDificuldade.value; 
+            menuScreen.classList.add("hidden");
+            gameScreen.classList.remove("hidden");
+            startGame();
+        }
+
+        function voltarAoMenu() {
+            gameScreen.classList.add("hidden");
+            menuScreen.classList.remove("hidden");
+        }
+
+        function startGame() {
+            isCircleTurn = false;
+            board.classList.remove("disabled");
+            cells.forEach(cell => {
+                cell.classList.remove("x", "circle");
+                cell.innerText = "";
+                cell.removeEventListener("click", handleClick);
+                cell.addEventListener("click", handleClick, { once: true });
+            });
+            mensagemTexto.innerText = "Sua Vez (X)";
+        }
+
+        function handleClick(e) {
+            if (vsComputer && isCircleTurn) return;
+
+            const cell = e.target;
+            const currentClass = isCircleTurn ? "circle" : "x";
+
+            placeMark(cell, currentClass);
+
+            if (checkWin(currentClass)) {
+                endGame(false);
+            } else if (isDraw()) {
+                endGame(true);
+            } else {
+                swapTurns();
+                if (vsComputer && isCircleTurn) {
+                    board.classList.add("disabled");
+                    setTimeout(computerPlay, 600);
+                }
+            }
+        }
+
+        function computerPlay() {
+            let jogadaEscolhida;
+            if (nivelDificuldade === 'facil') {
+                jogadaEscolhida = iaFacil();
+            } else if (nivelDificuldade === 'medio') {
+                jogadaEscolhida = iaMedia();
+            } else {
+                jogadaEscolhida = iaDificil(); 
+            }
+
+            if (jogadaEscolhida) {
+                placeMark(jogadaEscolhida, "circle");
+                jogadaEscolhida.removeEventListener("click", handleClick);
+
+                if (checkWin("circle")) {
+                    endGame(false);
+                } else if (isDraw()) {
+                    endGame(true);
+                } else {
+                    swapTurns();
+                    board.classList.remove("disabled");
+                }
+            }
+        }
+
+        function iaFacil() {
+            const availableCells = [...cells].filter(c => !c.classList.contains("x") && !c.classList.contains("circle"));
+            return availableCells[Math.floor(Math.random() * availableCells.length)];
+        }
+
+        function iaMedia() {
+            const winMove = findBestMove("circle");
+            if (winMove) return winMove;
+            const blockMove = findBestMove("x");
+            if (blockMove) return blockMove;
+            return iaFacil();
+        }
+
+        function findBestMove(playerClass) {
+            for (let combination of winningCombinations) {
+                const [a, b, c] = combination;
+
+                const cellA = cells[a].classList.contains(playerClass);
+                const cellB = cells[b].classList.contains(playerClass);
+                const cellC = cells[c].classList.contains(playerClass);
+
+                if (cellA && cellB && isFree(c)) return cells[c];
+                if (cellA && cellC && isFree(b)) return cells[b];
+                if (cellB && cellC && isFree(a)) return cells[a];
+            }
+            return null;
+        }
+
+        function isFree(i) {
+            return !cells[i].classList.contains("x") && !cells[i].classList.contains("circle");
+        }
+
+        function iaDificil() {
+            if (Math.random() < 0.15) return iaFacil();
+
+            let bestScore = -Infinity;
+            let move;
+
+            cells.forEach((cell, index) => {
+                if (isFree(index)) {
+                    cell.classList.add("circle");
+                    let score = minimax(cells, 0, false);
+                    cell.classList.remove("circle");
+                    if (score > bestScore) {
+                        bestScore = score;
+                        move = cell;
+                    }
+                }
+            });
+            return move;
+        }
+
+        const scores = { circle: 10, x: -10, tie: 0 };
+
+        function minimax(boardState, depth, isMaximizing) {
+
+            if (checkWinSim("circle")) return scores.circle;
+            if (checkWinSim("x")) return scores.x;
+            if (isDrawSim()) return scores.tie;
+
+            if (isMaximizing) {
+                let best = -Infinity;
+                boardState.forEach(cell => {
+                    if (isSimFree(cell)) {
+                        cell.classList.add("circle");
+                        let score = minimax(boardState, depth + 1, false);
+                        cell.classList.remove("circle");
+                        best = Math.max(score, best);
+                    }
+                });
+                return best;
+            } else {
+                let best = Infinity;
+                boardState.forEach(cell => {
+                    if (isSimFree(cell)) {
+                        cell.classList.add("x");
+                        let score = minimax(boardState, depth + 1, true);
+                        cell.classList.remove("x");
+                        best = Math.min(score, best);
+                    }
+                });
+                return best;
+            }
+        }
+
+        function isSimFree(cell) {
+            return !cell.classList.contains("x") && !cell.classList.contains("circle");
+        }
+
+        function checkWinSim(player) {
+            return winningCombinations.some(combo =>
+                combo.every(i => cells[i].classList.contains(player))
+            );
+        }
+
+        function isDrawSim() {
+            return [...cells].every(c => c.classList.contains("x") || c.classList.contains("circle"));
+        }
+
+        function placeMark(cell, cls) {
+            cell.classList.add(cls);
+            cell.innerText = cls === "circle" ? "O" : "X";
+        }
+
+        function swapTurns() {
+            isCircleTurn = !isCircleTurn;
+            if(vsComputer)
+                mensagemTexto.innerText = isCircleTurn ? "Computador Pensando... 🧠" : "Sua Vez";
+            else
+                mensagemTexto.innerText = isCircleTurn ? "Vez do O" : "Vez do X";
+        }
+
+        function checkWin(cls) {
+            return winningCombinations.some(combo =>
+                combo.every(i => cells[i].classList.contains(cls))
+            );
+        }
+
+        function isDraw() {
+            return [...cells].every(c => c.classList.contains("x") || c.classList.contains("circle"));
+        }
+
+        function endGame(draw) {
+            if (draw) {
+                mensagemTexto.innerText = "Empate! 🤝 Ninguém zerou a prova. 😉";
+            } else {
+                mensagemTexto.innerText = isCircleTurn
+                    ? (vsComputer 
+                        ? "Computador Venceu! 🤖 A máquina levou a melhor na prova." 
+                        : "O venceu! 🏆 Nota 10!")
+                    : (vsComputer 
+                        ? "Você venceu! 🎉 Gabaritou a prova! 🥳" 
+                        : "X venceu! 🥇 Nota 10!");
+            }
+            board.classList.add("disabled");
+        }
+
+        reiniciarButton.addEventListener("click", startGame);
+
+    </script>
+</body>
+</html>
