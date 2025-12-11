@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>💚QUEBRA-CABEÇA - ANIMAIS DO BRASIL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --board-max-height: 70vh;
+            /* Cores do Brasil */
+            --br-green: #009c3b;
+            --br-yellow: #ffdf00;
+            --br-blue: #002776;
+            --jungle-dark: #1b5e20;
+        }
+
+        * { box-sizing: border-box; user-select: none; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            /* Fundo gradiente estilo "Floresta Ensolarada" */
+            background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+            height: 100vh;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- CABEÇALHO --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 12vh;
+            margin-bottom: 5px;
+            padding: 0 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--br-yellow);
+            -webkit-text-stroke: 1.5px var(--jungle-dark); /* Contorno no texto */
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+            font-size: 2rem;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        /* Controles */
+        .controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        button {
+            font-family: 'Fredoka One', cursive;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #fff;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+        }
+        button:active { transform: translateY(3px); box-shadow: none; }
+        
+        .btn-nav { background-color: #fff; color: var(--br-blue); border: 2px solid var(--br-blue); }
+        .btn-easy { background-color: #8BC34A; }
+        .btn-medium { background-color: #FFca28; color: var(--jungle-dark); }
+        .btn-hard { background-color: #FF7043; }
+        .btn-new { background-color: var(--br-blue); border: 2px solid #fff; }
+        
+        button.active { 
+            filter: brightness(1.1); 
+            transform: translateY(2px); 
+            border: 2px solid #fff;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+        }
+
+        #btn-sound {
+            background-color: #8d6e63; /* Cor madeira */
+            min-width: 40px;
+            justify-content: center;
+        }
+        #btn-sound.muted { background-color: #bdbdbd; color: #616161; }
+
+        /* --- ÁREA DO JOGO --- */
+        .game-area {
+            display: flex;
+            flex-direction: row;
+            height: 84vh;
+            width: 100%;
+            max-width: 1200px;
+            margin: 10px auto 0;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        /* --- QUADRO (ESQUERDA) --- */
+        #board-container {
+            flex: 2;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Moldura sutil atrás do quadro */
+            background-image: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+        }
+
+        #board {
+            height: var(--board-max-height);
+            width: calc(var(--board-max-height) * (4/3)); 
+            background-color: rgba(255, 255, 255, 0.8);
+            /* Borda estilo madeira/bambu */
+            border: 12px solid #5d4037;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            display: grid;
+            position: relative;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%234caf50' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        #board.winner {
+            border-color: var(--br-yellow);
+            box-shadow: 0 0 50px var(--br-yellow);
+            z-index: 50;
+            transform: scale(1.01);
+            transition: all 0.5s;
+        }
+
+        .slot {
+            border: 1px dashed rgba(93, 64, 55, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* --- BANDEJA (DIREITA - FLORESTA) --- */
+        #tray-container {
+            flex: 1;
+            height: var(--board-max-height);
+            /* Estilo Selva Escura */
+            background-color: var(--jungle-dark);
+            /* Padrão de folhas sutil via CSS */
+            background-image: repeating-linear-gradient(45deg, #1b5e20 25%, #2e7d32 25%, #2e7d32 50%, #1b5e20 50%, #1b5e20 75%, #2e7d32 75%, #2e7d32 100%);
+            background-size: 20px 20px;
+            border: 6px solid #1b5e20;
+            border-radius: 15px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        #tray-header {
+            text-align: center;
+            color: #fff;
+            font-family: 'Fredoka One';
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            border-bottom: 2px dashed rgba(255,255,255,0.3);
+            padding-bottom: 5px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        #tray {
+            flex-grow: 1;
+            overflow-y: auto; 
+            overflow-x: hidden;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); 
+            gap: 8px;
+            align-content: start;
+            justify-items: center;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 8px;
+        }
+        
+        #tray::-webkit-scrollbar { width: 8px; }
+        #tray::-webkit-scrollbar-thumb { background: var(--br-yellow); border-radius: 4px; }
+
+        /* --- PEÇAS --- */
+        .piece {
+            cursor: grab;
+            border-radius: 4px;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            width: 100%; height: 100%;
+            background-image: var(--bg-url);
+            background-position: var(--bg-x) var(--bg-y);
+            background-size: var(--board-w) var(--board-h);
+            background-repeat: no-repeat;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .piece-container { width: 80px; height: 60px; transition: transform 0.2s; }
+        .piece-container:hover { transform: scale(1.08) rotate(2deg); }
+        .piece.minimized { position: static; }
+        .piece.dragging { opacity: 0.4; }
+
+        /* --- MENSAGEM DE VITÓRIA --- */
+        #win-panel {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 77, 64, 0.95);
+            z-index: 100;
+            text-align: center;
+            border-radius: 10px;
+        }
+        #win-panel h2 { color: var(--br-yellow); font-size: 2.2rem; margin: 0; font-family: 'Fredoka One'; text-shadow: 2px 2px 0 #000; }
+        #win-panel p { color: #fff; font-size: 1.2rem; margin: 10px 0 20px; }
+        #win-panel button { 
+            margin-top: 10px; 
+            width: 70%; 
+            background: var(--br-blue); 
+            font-size: 1.2rem; 
+            justify-content: center;
+            padding: 10px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.4rem; -webkit-text-stroke: 1px var(--jungle-dark); }
+            button span { display: none; } 
+            .controls { gap: 4px; }
+            #tray-header { font-size: 1.2rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" src="brasil.mp3" loop autoplay></audio>
+
+    <header>
+        <div class="header-left">
+            <button class="btn-nav" onclick="goBack()">⬅ Voltar</button>
+            <h1>🦜ANIMAIS DO BRASIL</h1>
+        </div>
+        
+        <div class="controls">
+            <button id="btn-sound" onclick="toggleSound()">🔊</button>
+            <button class="btn-easy" onclick="initGame(2, 2, this)"><span>Fácil</span></button>
+            <button class="btn-medium" onclick="initGame(3, 3, this)"><span>Médio</span></button>
+            <button class="btn-hard" onclick="initGame(4, 3, this)"><span>Difícil</span></button>
+            <button class="btn-new" onclick="pickNewRandomImage()">📸</button>
+        </div>
+    </header>
+
+    <div class="game-area">
+        <div id="board-container">
+            <div id="board"></div>
+        </div>
+        
+        <div id="tray-container">
+            <div id="tray-header">A Floresta 🌿</div>
+            <div id="tray"></div>
+            
+            <div id="win-panel">
+                <h2>PARABÉNS!</h2>
+                <p>Você completou a foto! 🐆🦜</p>
+                <button onclick="playAgain()">Jogar Outra</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const board = document.getElementById('board');
+        const tray = document.getElementById('tray');
+        const winPanel = document.getElementById('win-panel');
+        
+        // --- ÁUDIO LOGIC ---
+        const audioPlayer = document.getElementById('bg-music');
+        const soundBtn = document.getElementById('btn-sound');
+        let isPlaying = false;
+
+        window.addEventListener('load', () => {
+            audioPlayer.volume = 0.4; 
+            const playPromise = audioPlayer.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    isPlaying = true;
+                    updateSoundIcon();
+                })
+                .catch(error => {
+                    isPlaying = false;
+                    updateSoundIcon();
+                    console.log("Toque na tela para iniciar o som.");
+                });
+            }
+        });
+
+        function toggleSound() {
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+            } else {
+                audioPlayer.play();
+                isPlaying = true;
+            }
+            updateSoundIcon();
+        }
+
+        function updateSoundIcon() {
+            soundBtn.innerHTML = isPlaying ? "🔊" : "🔇";
+            if (!isPlaying) soundBtn.classList.add('muted');
+            else soundBtn.classList.remove('muted');
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                alert("Não há página anterior.");
+            }
+        }
+
+        // --- LÓGICA DO JOGO ---
+        const totalImages = 10; // Salve as imagens como brasil1.png até brasil10.png
+        let currentCols = 2;
+        let currentRows = 2;
+        let currentImageURL = "";
+
+        pickNewRandomImage(false); 
+
+        function pickNewRandomImage(restart = true) {
+            const randomNum = Math.floor(Math.random() * totalImages) + 1;
+            // ATENÇÃO: Nome do arquivo alterado para 'brasil'
+            currentImageURL = `url('brasil${randomNum}.png')`;
+
+            const img = new Image();
+            img.src = `brasil${randomNum}.png`;
+            img.onload = () => {
+                if (restart) {
+                    const activeBtn = document.querySelector('button.active') || document.querySelector('.btn-easy');
+                    initGame(currentCols, currentRows, activeBtn);
+                }
+            };
+            img.onerror = () => {
+                console.warn(`Imagem brasil${randomNum}.png não encontrada.`);
+                if (!restart) {
+                    // Tenta carregar o jogo mesmo assim, talvez a pessoa tenha salvo como jpg
+                    // mas idealmente avisaríamos o usuário.
+                    const activeBtn = document.querySelector('button.active') || document.querySelector('.btn-easy');
+                    initGame(currentCols, currentRows, activeBtn);
+                }
+            };
+            
+            if (!restart) {
+                const activeBtn = document.querySelector('button.active') || document.querySelector('.btn-easy');
+                initGame(currentCols, currentRows, activeBtn);
+            }
+        }
+
+        function initGame(cols, rows, btn) {
+            currentCols = cols;
+            currentRows = rows;
+
+            if(btn) {
+                document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            board.innerHTML = '';
+            tray.innerHTML = '';
+            board.classList.remove('winner');
+            winPanel.style.display = 'none';
+
+            board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+            setTimeout(() => createSlotsAndPieces(cols, rows), 50);
+        }
+
+        function createSlotsAndPieces(cols, rows) {
+            const boardRect = board.getBoundingClientRect();
+            const fullWidth = boardRect.width;
+            const fullHeight = boardRect.height;
+            const pieceWidth = fullWidth / cols;
+            const pieceHeight = fullHeight / rows;
+            let pieces = [];
+
+            // Slots
+            for (let i = 0; i < cols * rows; i++) {
+                const slot = document.createElement('div');
+                slot.classList.add('slot');
+                slot.dataset.index = i;
+                slot.addEventListener('dragover', e => e.preventDefault());
+                slot.addEventListener('drop', dragDrop);
+                board.appendChild(slot);
+                pieces.push({ id: i, row: Math.floor(i / cols), col: i % cols });
+            }
+
+            // Peças
+            pieces.sort(() => Math.random() - 0.5);
+
+            pieces.forEach(p => {
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('piece-container');
+                const piece = document.createElement('div');
+                piece.classList.add('piece', 'minimized');
+                piece.draggable = true;
+                piece.dataset.id = p.id;
+                
+                piece.style.setProperty('--bg-url', currentImageURL);
+                piece.style.setProperty('--board-w', `${fullWidth}px`);
+                piece.style.setProperty('--board-h', `${fullHeight}px`);
+                
+                const bgX = -(p.col * pieceWidth);
+                const bgY = -(p.row * pieceHeight);
+                piece.style.setProperty('--bg-x', `${bgX}px`);
+                piece.style.setProperty('--bg-y', `${bgY}px`);
+
+                piece.addEventListener('dragstart', dragStart);
+                piece.addEventListener('dragend', dragEnd);
+                piece.addEventListener('touchstart', touchStart, {passive: false});
+                piece.addEventListener('touchend', touchEnd);
+                piece.addEventListener('touchmove', touchMove, {passive: false});
+
+                const scaleX = 80 / pieceWidth; 
+                const scaleY = 60 / pieceHeight;
+                piece.style.backgroundSize = `${fullWidth * scaleX}px ${fullHeight * scaleY}px`;
+                piece.style.backgroundPosition = `${bgX * scaleX}px ${bgY * scaleY}px`;
+
+                wrapper.appendChild(piece);
+                tray.appendChild(wrapper);
+            });
+        }
+
+        // --- Drag Logic ---
+        let draggedPiece = null;
+
+        function dragStart(e) {
+            draggedPiece = this;
+            setTimeout(() => this.classList.add('dragging'), 0);
+        }
+
+        function dragEnd(e) {
+            this.classList.remove('dragging');
+            draggedPiece = null;
+        }
+
+        function dragDrop(e) {
+            e.preventDefault();
+            const slot = this;
+            if (draggedPiece) {
+                if (slot.children.length > 0) moveToTray(slot.children[0]);
+                restorePieceSize(draggedPiece);
+                slot.appendChild(draggedPiece);
+                checkWin();
+            }
+        }
+        
+        function moveToTray(piece) {
+            let wrapper = document.createElement('div');
+            wrapper.classList.add('piece-container');
+            wrapper.appendChild(piece);
+            tray.appendChild(wrapper);
+            
+            const boardRect = board.getBoundingClientRect();
+            const pieceW = boardRect.width / currentCols;
+            const pieceH = boardRect.height / currentRows;
+            const pId = parseInt(piece.dataset.id);
+            const col = pId % currentCols;
+            const row = Math.floor(pId / currentCols);
+            const scaleX = 80 / pieceW; 
+            const scaleY = 60 / pieceH;
+            
+            piece.style.backgroundSize = `${boardRect.width * scaleX}px ${boardRect.height * scaleY}px`;
+            piece.style.backgroundPosition = `${-(col * pieceW) * scaleX}px ${-(row * pieceH) * scaleY}px`;
+        }
+
+        function restorePieceSize(piece) {
+            const boardRect = board.getBoundingClientRect();
+            const pieceW = boardRect.width / currentCols;
+            const pieceH = boardRect.height / currentRows;
+            const pId = parseInt(piece.dataset.id);
+            const col = pId % currentCols;
+            const row = Math.floor(pId / currentCols);
+            
+            piece.style.backgroundSize = `${boardRect.width}px ${boardRect.height}px`;
+            piece.style.backgroundPosition = `${-(col * pieceW)}px ${-(row * pieceH)}px`;
+            
+            if (piece.parentElement.classList.contains('piece-container')) {
+                const wrapper = piece.parentElement;
+                setTimeout(() => { if(wrapper.parentNode) wrapper.parentNode.removeChild(wrapper); }, 0);
+            }
+        }
+        
+        const trayContainer = document.getElementById('tray-container');
+        trayContainer.addEventListener('dragover', e => e.preventDefault());
+        trayContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if(draggedPiece && !tray.contains(draggedPiece)) moveToTray(draggedPiece);
+        });
+
+        // --- Touch Logic ---
+        let touchElem = null;
+
+        function touchStart(e) {
+            touchElem = this;
+            e.stopPropagation();
+        }
+
+        function touchMove(e) {
+            if (!touchElem) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchElem.style.position = 'fixed';
+            touchElem.style.left = (touch.clientX - 40) + 'px'; 
+            touchElem.style.top = (touch.clientY - 30) + 'px';
+            touchElem.style.zIndex = 1000;
+            touchElem.style.width = '80px'; 
+            touchElem.style.height = '60px';
+        }
+
+        function touchEnd(e) {
+            if (!touchElem) return;
+            const touch = e.changedTouches[0];
+            touchElem.style.display = 'none';
+            let target = document.elementFromPoint(touch.clientX, touch.clientY);
+            touchElem.style.display = 'block';
+            touchElem.style.position = ''; touchElem.style.left = ''; touchElem.style.top = ''; touchElem.style.zIndex = '';
+            touchElem.style.width = '100%'; touchElem.style.height = '100%';
+
+            const slot = target ? target.closest('.slot') : null;
+            const trayArea = target ? target.closest('#tray-container') : null;
+
+            if (slot) {
+                if (slot.children.length > 0) moveToTray(slot.children[0]);
+                restorePieceSize(touchElem);
+                slot.appendChild(touchElem);
+                checkWin();
+            } else if (trayArea) {
+                moveToTray(touchElem);
+            } else {
+                moveToTray(touchElem);
+            }
+            touchElem = null;
+        }
+
+        function checkWin() {
+            const slots = document.querySelectorAll('.slot');
+            let count = 0;
+            slots.forEach(slot => {
+                const piece = slot.querySelector('.piece');
+                if (piece && piece.dataset.id == slot.dataset.index) count++;
+            });
+
+            if (count === slots.length && count > 0) {
+                setTimeout(() => {
+                    winPanel.style.display = 'flex';
+                    board.classList.add('winner');
+                }, 200);
+            }
+        }
+
+        function playAgain() {
+            pickNewRandomImage(true);
+        }
+        
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                initGame(currentCols, currentRows, document.querySelector('button.active'));
+            }, 300);
+        });
+
+    </script>
+</body>
+</html>
