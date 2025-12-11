@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🐮QUEBRA-CABEÇA DA FAZENDINHA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Varela+Round&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --board-max-height: 70vh;
+        }
+
+        * { box-sizing: border-box; user-select: none; }
+
+        body {
+            font-family: 'Varela Round', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #90d36b 100%);
+            height: 100vh;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- CABEÇALHO --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 12vh; /* Um pouco mais alto para caber tudo */
+            margin-bottom: 5px;
+            padding: 0 10px;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        h1 {
+            font-family: 'Chewy', cursive;
+            color: #fff;
+            text-shadow: 2px 2px 0px #5d4037;
+            font-size: 2.2rem;
+            margin: 0;
+            line-height: 1;
+        }
+
+        /* Área dos botões */
+        .controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        button {
+            font-family: 'Chewy', cursive;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            color: #5d4037;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        button:active { transform: translateY(3px); box-shadow: none; }
+        
+        .btn-nav { background-color: #f5f5f5; border: 2px solid #5d4037; }
+        .btn-easy { background-color: #AED581; }
+        .btn-medium { background-color: #FFD54F; }
+        .btn-hard { background-color: #e57373; }
+        .btn-new { background-color: #4FC3F7; color: white; border: 2px solid #fff; }
+        
+        button.active { filter: brightness(1.1); transform: translateY(2px); border: 2px solid #5d4037; }
+
+        /* Botão de Som Específico */
+        #btn-sound {
+            background-color: #FFB74D;
+            min-width: 40px;
+            justify-content: center;
+        }
+        #btn-sound.muted { background-color: #cfd8dc; color: #90a4ae; }
+
+        /* --- ÁREA DO JOGO --- */
+        .game-area {
+            display: flex;
+            flex-direction: row;
+            height: 85vh;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        /* --- QUADRO (ESQUERDA) --- */
+        #board-container {
+            flex: 2;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #board {
+            height: var(--board-max-height);
+            width: calc(var(--board-max-height) * (4/3)); 
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 10px solid #8d6e63;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            display: grid;
+            position: relative;
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.1' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        #board.winner {
+            border-color: #FFD700;
+            box-shadow: 0 0 40px #FFD700;
+            z-index: 50;
+        }
+
+        .slot {
+            border: 1px dashed rgba(141, 110, 99, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* --- BANDEJA (DIREITA) --- */
+        #tray-container {
+            flex: 1;
+            height: var(--board-max-height);
+            background-color: #d32f2f;
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(0,0,0,0.1) 20px);
+            border: 6px solid #b71c1c;
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        #tray-header {
+            text-align: center;
+            color: white;
+            font-family: 'Chewy';
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            border-bottom: 2px dashed rgba(255,255,255,0.4);
+            padding-bottom: 5px;
+        }
+
+        #tray {
+            flex-grow: 1;
+            overflow-y: auto; 
+            overflow-x: hidden;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); 
+            gap: 5px;
+            align-content: start;
+            justify-items: center;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 5px;
+        }
+        
+        #tray::-webkit-scrollbar { width: 8px; }
+        #tray::-webkit-scrollbar-thumb { background: #8d6e63; border-radius: 4px; }
+
+        /* --- PEÇAS --- */
+        .piece {
+            cursor: grab;
+            border-radius: 4px;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            width: 100%; height: 100%;
+            background-image: var(--bg-url);
+            background-position: var(--bg-x) var(--bg-y);
+            background-size: var(--board-w) var(--board-h);
+            background-repeat: no-repeat;
+        }
+
+        .piece-container { width: 80px; height: 60px; transition: transform 0.2s; }
+        .piece-container:hover { transform: scale(1.05); }
+        .piece.minimized { position: static; }
+        .piece.dragging { opacity: 0.4; }
+
+        /* --- MENSAGEM DE VITÓRIA --- */
+        #win-panel {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(211, 47, 47, 0.95);
+            z-index: 100;
+            text-align: center;
+        }
+        #win-panel h2 { color: #FFD54F; font-size: 2rem; margin: 0; font-family: 'Chewy'; }
+        #win-panel button { margin-top: 10px; width: 80%; background: #AED581; font-size: 1.2rem; }
+
+        /* Responsividade para telas muito pequenas */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.5rem; }
+            button span { display: none; } /* Esconde texto dos botões se faltar espaço */
+            .controls { gap: 4px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" src="fazenda.mp3" loop autoplay></audio>
+
+    <header>
+        <div class="header-left">
+            <button class="btn-nav" onclick="goBack()">⬅ Voltar</button>
+            <h1>🐮 FAZENDINHA</h1>
+        </div>
+        
+        <div class="controls">
+            <button id="btn-sound" onclick="toggleSound()">🔊</button>
+            
+            <button class="btn-easy" onclick="initGame(2, 2, this)"><span>Fácil</span></button>
+            <button class="btn-medium" onclick="initGame(3, 3, this)"><span>Médio</span></button>
+            <button class="btn-hard" onclick="initGame(4, 3, this)"><span>Difícil</span></button>
+            <button class="btn-new" onclick="pickNewRandomImage()">📸</button>
+        </div>
+    </header>
+
+    <div class="game-area">
+        <div id="board-container">
+            <div id="board"></div>
+        </div>
+        
+        <div id="tray-container">
+            <div id="tray-header">Celeiro</div>
+            <div id="tray"></div>
+            
+            <div id="win-panel">
+                <h2>PARABÉNS!</h2>
+                <p style="color:white; margin: 5px 0;">Você completou! 🐷</p>
+                <button onclick="playAgain()">Jogar Outra</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const board = document.getElementById('board');
+        const tray = document.getElementById('tray');
+        const winPanel = document.getElementById('win-panel');
+        
+        // --- ÁUDIO LOGIC ---
+        const audioPlayer = document.getElementById('bg-music');
+        const soundBtn = document.getElementById('btn-sound');
+        let isPlaying = false;
+
+        // Tenta tocar ao carregar. Se falhar (bloqueio do browser), atualiza o botão para "mudo"
+        window.addEventListener('load', () => {
+            audioPlayer.volume = 0.5; // 50% volume
+            const playPromise = audioPlayer.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Autoplay iniciou com sucesso
+                    isPlaying = true;
+                    updateSoundIcon();
+                })
+                .catch(error => {
+                    // Autoplay foi bloqueado pelo navegador
+                    isPlaying = false;
+                    updateSoundIcon();
+                    console.log("Autoplay bloqueado. Aguardando interação do usuário.");
+                });
+            }
+        });
+
+        function toggleSound() {
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+            } else {
+                audioPlayer.play();
+                isPlaying = true;
+            }
+            updateSoundIcon();
+        }
+
+        function updateSoundIcon() {
+            if (isPlaying) {
+                soundBtn.innerHTML = "🔊";
+                soundBtn.classList.remove('muted');
+            } else {
+                soundBtn.innerHTML = "🔇";
+                soundBtn.classList.add('muted');
+            }
+        }
+
+        // --- NAVEGAÇÃO ---
+        function goBack() {
+            // Tenta voltar no histórico do navegador
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Se não houver histórico, avisa ou redireciona para home (opcional)
+                alert("Não há página anterior no histórico para voltar.");
+                // window.location.href = 'index.html'; // Descomente e ajuste se quiser ir para uma home
+            }
+        }
+
+        // --- LÓGICA DO JOGO (Mesma anterior) ---
+        const totalImages = 10; 
+        let currentCols = 2;
+        let currentRows = 2;
+        let currentImageURL = "";
+
+        pickNewRandomImage(false); 
+
+        function pickNewRandomImage(restart = true) {
+            const randomNum = Math.floor(Math.random() * totalImages) + 1;
+            currentImageURL = `url('fazenda${randomNum}.png')`;
+
+            const img = new Image();
+            img.src = `fazenda${randomNum}.png`;
+            img.onload = () => {
+                if (restart) {
+                    const activeBtn = document.querySelector('button.active') || document.querySelector('.btn-easy');
+                    initGame(currentCols, currentRows, activeBtn);
+                }
+            };
+            img.onerror = () => {
+                // Silencioso no console para não atrapalhar o usuário comum, mas útil para debug
+                console.warn(`Imagem fazenda${randomNum}.png não encontrada.`);
+            };
+            
+            if (!restart) {
+                const activeBtn = document.querySelector('button.active') || document.querySelector('.btn-easy');
+                initGame(currentCols, currentRows, activeBtn);
+            }
+        }
+
+        function initGame(cols, rows, btn) {
+            currentCols = cols;
+            currentRows = rows;
+
+            if(btn) {
+                document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            board.innerHTML = '';
+            tray.innerHTML = '';
+            board.classList.remove('winner');
+            winPanel.style.display = 'none';
+
+            board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+            setTimeout(() => createSlotsAndPieces(cols, rows), 50);
+        }
+
+        function createSlotsAndPieces(cols, rows) {
+            const boardRect = board.getBoundingClientRect();
+            const fullWidth = boardRect.width;
+            const fullHeight = boardRect.height;
+            const pieceWidth = fullWidth / cols;
+            const pieceHeight = fullHeight / rows;
+            let pieces = [];
+
+            for (let i = 0; i < cols * rows; i++) {
+                const slot = document.createElement('div');
+                slot.classList.add('slot');
+                slot.dataset.index = i;
+                slot.addEventListener('dragover', e => e.preventDefault());
+                slot.addEventListener('drop', dragDrop);
+                board.appendChild(slot);
+                pieces.push({ id: i, row: Math.floor(i / cols), col: i % cols });
+            }
+
+            pieces.sort(() => Math.random() - 0.5);
+
+            pieces.forEach(p => {
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('piece-container');
+                const piece = document.createElement('div');
+                piece.classList.add('piece', 'minimized');
+                piece.draggable = true;
+                piece.dataset.id = p.id;
+                
+                piece.style.setProperty('--bg-url', currentImageURL);
+                piece.style.setProperty('--board-w', `${fullWidth}px`);
+                piece.style.setProperty('--board-h', `${fullHeight}px`);
+                
+                const bgX = -(p.col * pieceWidth);
+                const bgY = -(p.row * pieceHeight);
+                piece.style.setProperty('--bg-x', `${bgX}px`);
+                piece.style.setProperty('--bg-y', `${bgY}px`);
+
+                piece.addEventListener('dragstart', dragStart);
+                piece.addEventListener('dragend', dragEnd);
+                piece.addEventListener('touchstart', touchStart, {passive: false});
+                piece.addEventListener('touchend', touchEnd);
+                piece.addEventListener('touchmove', touchMove, {passive: false});
+
+                const scaleX = 80 / pieceWidth; 
+                const scaleY = 60 / pieceHeight;
+                piece.style.backgroundSize = `${fullWidth * scaleX}px ${fullHeight * scaleY}px`;
+                piece.style.backgroundPosition = `${bgX * scaleX}px ${bgY * scaleY}px`;
+
+                wrapper.appendChild(piece);
+                tray.appendChild(wrapper);
+            });
+        }
+
+        // --- Drag Logic ---
+        let draggedPiece = null;
+
+        function dragStart(e) {
+            draggedPiece = this;
+            setTimeout(() => this.classList.add('dragging'), 0);
+        }
+
+        function dragEnd(e) {
+            this.classList.remove('dragging');
+            draggedPiece = null;
+        }
+
+        function dragDrop(e) {
+            e.preventDefault();
+            const slot = this;
+            if (draggedPiece) {
+                if (slot.children.length > 0) moveToTray(slot.children[0]);
+                restorePieceSize(draggedPiece);
+                slot.appendChild(draggedPiece);
+                checkWin();
+            }
+        }
+        
+        function moveToTray(piece) {
+            let wrapper = document.createElement('div');
+            wrapper.classList.add('piece-container');
+            wrapper.appendChild(piece);
+            tray.appendChild(wrapper);
+            
+            const boardRect = board.getBoundingClientRect();
+            const pieceW = boardRect.width / currentCols;
+            const pieceH = boardRect.height / currentRows;
+            const pId = parseInt(piece.dataset.id);
+            const col = pId % currentCols;
+            const row = Math.floor(pId / currentCols);
+            const scaleX = 80 / pieceW; 
+            const scaleY = 60 / pieceH;
+            
+            piece.style.backgroundSize = `${boardRect.width * scaleX}px ${boardRect.height * scaleY}px`;
+            piece.style.backgroundPosition = `${-(col * pieceW) * scaleX}px ${-(row * pieceH) * scaleY}px`;
+        }
+
+        function restorePieceSize(piece) {
+            const boardRect = board.getBoundingClientRect();
+            const pieceW = boardRect.width / currentCols;
+            const pieceH = boardRect.height / currentRows;
+            const pId = parseInt(piece.dataset.id);
+            const col = pId % currentCols;
+            const row = Math.floor(pId / currentCols);
+            
+            piece.style.backgroundSize = `${boardRect.width}px ${boardRect.height}px`;
+            piece.style.backgroundPosition = `${-(col * pieceW)}px ${-(row * pieceH)}px`;
+            
+            if (piece.parentElement.classList.contains('piece-container')) {
+                const wrapper = piece.parentElement;
+                setTimeout(() => { if(wrapper.parentNode) wrapper.parentNode.removeChild(wrapper); }, 0);
+            }
+        }
+        
+        const trayContainer = document.getElementById('tray-container');
+        trayContainer.addEventListener('dragover', e => e.preventDefault());
+        trayContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if(draggedPiece && !tray.contains(draggedPiece)) moveToTray(draggedPiece);
+        });
+
+        // --- Touch Logic ---
+        let touchElem = null;
+
+        function touchStart(e) {
+            touchElem = this;
+            e.stopPropagation();
+        }
+
+        function touchMove(e) {
+            if (!touchElem) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchElem.style.position = 'fixed';
+            touchElem.style.left = (touch.clientX - 40) + 'px'; 
+            touchElem.style.top = (touch.clientY - 30) + 'px';
+            touchElem.style.zIndex = 1000;
+            touchElem.style.width = '80px'; 
+            touchElem.style.height = '60px';
+        }
+
+        function touchEnd(e) {
+            if (!touchElem) return;
+            const touch = e.changedTouches[0];
+            touchElem.style.display = 'none';
+            let target = document.elementFromPoint(touch.clientX, touch.clientY);
+            touchElem.style.display = 'block';
+            touchElem.style.position = ''; touchElem.style.left = ''; touchElem.style.top = ''; touchElem.style.zIndex = '';
+            touchElem.style.width = '100%'; touchElem.style.height = '100%';
+
+            const slot = target ? target.closest('.slot') : null;
+            const trayArea = target ? target.closest('#tray-container') : null;
+
+            if (slot) {
+                if (slot.children.length > 0) moveToTray(slot.children[0]);
+                restorePieceSize(touchElem);
+                slot.appendChild(touchElem);
+                checkWin();
+            } else if (trayArea) {
+                moveToTray(touchElem);
+            } else {
+                moveToTray(touchElem);
+            }
+            touchElem = null;
+        }
+
+        function checkWin() {
+            const slots = document.querySelectorAll('.slot');
+            let count = 0;
+            slots.forEach(slot => {
+                const piece = slot.querySelector('.piece');
+                if (piece && piece.dataset.id == slot.dataset.index) count++;
+            });
+
+            if (count === slots.length && count > 0) {
+                setTimeout(() => {
+                    winPanel.style.display = 'flex';
+                    board.classList.add('winner');
+                }, 200);
+            }
+        }
+
+        function playAgain() {
+            pickNewRandomImage(true);
+        }
+        
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                initGame(currentCols, currentRows, document.querySelector('button.active'));
+            }, 300);
+        });
+
+    </script>
+</body>
+</html>
