@@ -6,13 +6,12 @@
   <title>CAPIGAMES</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Manifesto local OBRIGATÓRIO (gerado pelo generate-manifest.vbs) -->
   <script src="games-manifest.js" defer></script>
 
   <style>
     :root{
       --grad: linear-gradient(135deg,#7c4dff 0%, #8e2de2 40%, #ff5fa3 100%);
-      --card-shadow: 0 15px 30px rgba(0,0,0,.15);
+      --card-shadow: 0 10px 20px rgba(0,0,0,.1); /* Sombra um pouco mais suave */
     }
     body{box-sizing:border-box}
     .hero{
@@ -20,14 +19,14 @@
     }
     .age-card{
       background:#fff;
-      border-radius:24px;
+      border-radius:20px; /* Arredondamento levemente reduzido */
       box-shadow: var(--card-shadow);
       transition: transform .2s ease, box-shadow .2s ease;
       position:relative;
       overflow:hidden;
     }
-    .age-card:hover{ transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.18); }
-    .age-chip{ font-size:.7rem; letter-spacing:.06em }
+    .age-card:hover{ transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,0,0,.15); }
+    .age-chip{ font-size:.65rem; letter-spacing:.05em; font-weight: 700; } /* Chip menor */
     .glow{
       position:absolute; inset:-2px;
       background: conic-gradient(from 0deg,#ffd166,#fca5f1,#a78bfa,#60a5fa,#34d399,#ffd166);
@@ -43,189 +42,204 @@
     .capi-bubble:after{
       content:''; position:absolute; bottom:-10px; left:24px; border:10px solid transparent; border-top-color:#fff
     }
-    .float{ animation:float 3s ease-in-out infinite }
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-
-    /* cards dos jogos */
+    
+    /* cards dos jogos (Thumbnails) */
     .game-card{
       background:linear-gradient(135deg,#667eea 0%, #764ba2 100%);
-      border-radius:18px; padding:18px; color:#fff; text-align:center;
-      transition:transform .18s ease;
+      border-radius:16px; padding:10px; color:#fff; text-align:center;
+      transition:transform .18s ease, box-shadow .18s ease;
+      display: flex; flex-direction: column; justify-content: space-between;
+      overflow: hidden;
     }
-    .game-card:hover{ transform:scale(1.03) }
+    .game-card:hover{ transform:scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+    
+    .game-thumb-container {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 8px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     .hidden{display:none}
   </style>
 </head>
 <body class="min-h-screen hero text-gray-900">
 
-  <!-- Header -->
   <header class="bg-white/60 backdrop-blur-sm sticky top-0 z-40 shadow">
     <div class="container mx-auto px-4 py-2 flex items-center justify-between">
 		<div class="flex items-center gap-3 relative">
-		  <img src="img/capi_logo.png" alt="Capi" class="object-contain transform -translate-y-1 hover:-translate-y-2 transition-all duration-300" style="width: 10em">
-		  <h1 class="text-2xl md:text-3xl font-extrabold text-purple-700 uppercase tracking-wide drop-shadow-sm" style="font-size: 2em">
+		  <img src="img/capi_logo.png" alt="Capi" class="object-contain transform -translate-y-1 hover:-translate-y-2 transition-all duration-300" style="width: 8em">
+		  <h1 class="text-xl md:text-2xl font-extrabold text-purple-700 uppercase tracking-wide drop-shadow-sm">
 			CAPIGAMES
 		  </h1>
 		</div>
-		<div class="flex items-center gap-3">
-			<button id="toggleCapi" class="bg-yellow-400 hover:bg-yellow-500 text-purple-900 font-bold py-2 px-4 rounded-full">
-				<span id="capiToggleText" style="font-size: 1em">DESABILITAR CAPI</span>
+		<div class="flex items-center gap-2">
+			<button id="toggleCapi" class="bg-yellow-400 hover:bg-yellow-500 text-purple-900 font-bold py-1 px-3 text-xs md:text-sm rounded-full">
+				<span id="capiToggleText">DESABILITAR CAPI</span>
 			</button>
-			<button id="refreshBtn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-full" title="Recarregar página / manifesto" style="font-size: 1em">
-			  🔄 ATUALIZAR JOGOS
+			<button id="refreshBtn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-1 px-3 text-xs md:text-sm rounded-full" title="Recarregar">
+			  🔄
 			</button>
 		</div>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="text-center py-10 md:py-10">
-    <h1 class="text-2xl md:text-5xl font-extrabold text-white drop-shadow-lg mb-1">BEM-VINDOS AO MUNDO DO CAPIGAMES</h1>
-    <p class="text-white/90 uppercase max-w-3xl mx-auto">explore, aprenda e divirta-se com jogos educativos criados especialmente para cada idade!</p>
+  <section class="text-center py-6">
+    <h1 class="text-2xl md:text-4xl font-extrabold text-white drop-shadow-lg mb-1">MUNDO DO CAPIGAMES</h1>
+    <p class="text-white/90 text-sm uppercase max-w-2xl mx-auto">explore, aprenda e divirta-se com jogos educativos!</p>
 
-    <div class="mt-6">
-      <button id="toggleSearchBtn" class="mx-auto bg-white text-purple-700 hover:bg-purple-50 font-bold py-3 px-6 rounded-full shadow">
+    <div class="mt-4">
+      <button id="toggleSearchBtn" class="mx-auto bg-white text-purple-700 hover:bg-purple-50 font-bold py-2 px-5 text-sm rounded-full shadow">
         🔎 BUSCAR JOGOS
       </button>
     </div>
   </section>
 
-  <main class="container mx-auto px-4 pb-16">
+  <main class="container mx-auto px-4 pb-12">
 
-    <!-- CONTROLES DE BUSCA (apenas na página inicial) -->
-    <section id="searchBar" class="max-w-4xl mx-auto mb-8 bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl hidden">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <section id="searchBar" class="max-w-3xl mx-auto mb-6 bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-xl hidden">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div class="md:col-span-2">
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Palavra-chave</label>
-          <input id="q" type="text" placeholder="Digite aqui…" class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none uppercase">
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Palavra-chave</label>
+          <input id="q" type="text" placeholder="Nome do jogo..." class="w-full p-2 text-sm border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none uppercase">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Categoria</label>
-          <select id="categoryFilter" class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Categoria</label>
+          <select id="categoryFilter" class="w-full p-2 text-sm border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
             <option value="">Todas</option>
           </select>
         </div>
       </div>
-      <div class="mt-3 flex gap-2">
-        <button id="clearBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-full">🗑️ Limpar</button>
-        <div id="manifestInfo" class="text-sm text-gray-600 self-center"></div>
+      <div class="mt-2 flex gap-2 items-center">
+        <button id="clearBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 text-xs rounded-full">🗑️ Limpar</button>
+        <div id="manifestInfo" class="text-xs text-gray-500"></div>
       </div>
     </section>
 	
-    <!-- RESULTADOS DE BUSCA (aparecem ABAIXO dos cards) -->
-    <section id="searchResults" class="hidden mt-8 mb-8">
-      <h4 class="text-white text-xl font-bold mb-3 drop-shadow">Resultados</h4>
-      <div id="resultsList" class="bg-white/95 backdrop-blur-sm rounded-3xl p-4 shadow-2xl"></div>
+    <section id="searchResults" class="hidden mt-4 mb-6">
+      <div id="resultsList" class="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-xl"></div>
     </section>	
 
-    <!-- CARDS DAS CATEGORIAS -->
-    <section id="ageGroupsSection" class="grid grid-cols-1 md:grid-cols-5 gap-6" style="text-align: center;">
-      <!-- 1 a 3 -->
-      <div class="age-card p-6 cursor-pointer" onclick="openCategory('1-3')">
+    <section id="ageGroupsSection" class="grid grid-cols-1 md:grid-cols-3 gap-4" style="text-align: center;">
+      
+      <div class="age-card p-4 cursor-pointer" onclick="openCategory('1-3')">
         <div class="glow"></div>
         <div class="relative">
-          <div class="text-5xl mb-3">🧸</div>
-          <h3 class="text-xl font-extrabold text-purple-600">3 ANOS</h3>
-          <p class="text-purple-400 text-sm -mt-1">CORES E FORMAS</p>
-          <div class="mt-4">
-            <span class="inline-block bg-rose-100 text-rose-600 px-3 py-1 rounded-full age-chip">EXPLORAÇÃO SENSORIAL</span>
-            <div class="text-[11px] text-rose-500 mt-1">RECONHECIMENTO BÁSICO</div>
+          <div class="text-4xl mb-2">🧸</div>
+          <h3 class="text-lg font-extrabold text-purple-600">3 ANOS</h3>
+          <p class="text-purple-400 text-xs -mt-1">CORES E FORMAS</p>
+          <div class="mt-3">
+            <span class="inline-block bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full age-chip">EXPLORAÇÃO SENSORIAL</span>
+            <div class="text-[10px] text-rose-500 mt-0.5">RECONHECIMENTO BÁSICO</div>
           </div>
         </div>
       </div>
 
-      <!-- 4 a 5 -->
-      <div class="age-card p-6 cursor-pointer" onclick="openCategory('4-5')">
+      <div class="age-card p-4 cursor-pointer" onclick="openCategory('4-5')">
         <div class="glow"></div>
         <div class="relative">
-          <div class="text-5xl mb-3">🧩</div>
-          <h3 class="text-xl font-extrabold text-emerald-600">4 E 5 ANOS</h3>
-          <p class="text-emerald-400 text-sm -mt-1">LETRAS E NÚMEROS</p>
-          <div class="mt-4">
-            <span class="inline-block bg-blue-100 text-blue-600 px-3 py-1 rounded-full age-chip">ALFABETIZAÇÃO</span>
-            <div class="text-[11px] text-blue-500 mt-1">PRIMEIRAS PALAVRAS</div>
+          <div class="text-4xl mb-2">🧩</div>
+          <h3 class="text-lg font-extrabold text-emerald-600">4 E 5 ANOS</h3>
+          <p class="text-emerald-400 text-xs -mt-1">LETRAS E NÚMEROS</p>
+          <div class="mt-3">
+            <span class="inline-block bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full age-chip">ALFABETIZAÇÃO</span>
+            <div class="text-[10px] text-blue-500 mt-0.5">PRIMEIRAS PALAVRAS</div>
           </div>
         </div>
       </div>
 
-      <!-- 6 a 10 -->
-      <div class="age-card p-6 cursor-pointer" onclick="openCategory('6-10')">
+      <div class="age-card p-4 cursor-pointer" onclick="openCategory('6-10')">
         <div class="glow"></div>
         <div class="relative">
-          <div class="text-5xl mb-3">🧮</div>
-          <h3 class="text-xl font-extrabold text-green-600">6 A 10 ANOS</h3>
-          <p class="text-green-400 text-sm -mt-1">LEITURA E MATEMÁTICA</p>
-          <div class="mt-4">
-            <span class="inline-block bg-green-100 text-green-600 px-3 py-1 rounded-full age-chip">RACIOCÍNIO LÓGICO</span>
-            <div class="text-[11px] text-green-500 mt-1">RESOLUÇÃO DE PROBLEMAS</div>
+          <div class="text-4xl mb-2">🧮</div>
+          <h3 class="text-lg font-extrabold text-green-600">6 A 10 ANOS</h3>
+          <p class="text-green-400 text-xs -mt-1">LEITURA E MATEMÁTICA</p>
+          <div class="mt-3">
+            <span class="inline-block bg-green-100 text-green-600 px-2 py-0.5 rounded-full age-chip">RACIOCÍNIO LÓGICO</span>
+            <div class="text-[10px] text-green-500 mt-0.5">RESOLUÇÃO DE PROBLEMAS</div>
           </div>
         </div>
       </div>
 
-      <!-- 11 a 14 -->
-      <div class="age-card p-6 cursor-pointer" onclick="openCategory('11-14')">
+      <div class="age-card p-4 cursor-pointer" onclick="openCategory('11-14')">
         <div class="glow"></div>
         <div class="relative">
-          <div class="text-5xl mb-3">🔬</div>
-          <h3 class="text-xl font-extrabold text-indigo-600">11 A 14 ANOS</h3>
-          <p class="text-indigo-400 text-sm -mt-1">CIÊNCIAS E CULTURA</p>
-          <div class="mt-4">
-            <span class="inline-block bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full age-chip">PENSAMENTO CRÍTICO</span>
-            <div class="text-[11px] text-indigo-500 mt-1">PROJETOS AVANÇADOS</div>
+          <div class="text-4xl mb-2">🔬</div>
+          <h3 class="text-lg font-extrabold text-indigo-600">11 A 14 ANOS</h3>
+          <p class="text-indigo-400 text-xs -mt-1">CIÊNCIAS E CULTURA</p>
+          <div class="mt-3">
+            <span class="inline-block bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full age-chip">PENSAMENTO CRÍTICO</span>
+            <div class="text-[10px] text-indigo-500 mt-0.5">PROJETOS AVANÇADOS</div>
           </div>
         </div>
       </div>
 
-      <!-- NAEe -->
-      <div class="age-card p-6 cursor-pointer" onclick="openCategory('naee')">
+      <div class="age-card p-4 cursor-pointer" onclick="openCategory('naee')">
         <div class="glow"></div>
         <div class="relative">
-          <div class="text-5xl mb-3">🌻</div>
-          <h3 class="text-xl font-extrabold text-orange-600">SALA DO AEE</h3>
-          <p class="text-orange-400 text-sm -mt-1">EDUCAÇÃO ESPECIAL</p>
-          <div class="mt-4">
-            <span class="inline-block bg-orange-100 text-orange-600 px-3 py-1 rounded-full age-chip">JOGOS ADAPTADOS</span>
-            <div class="text-[11px] text-orange-500 mt-1">INCLUSÃO E ACESSIBILIDADE</div>
+          <div class="text-4xl mb-2">🌻</div>
+          <h3 class="text-lg font-extrabold text-orange-600">SALA DO AEE</h3>
+          <p class="text-orange-400 text-xs -mt-1">EDUCAÇÃO ESPECIAL</p>
+          <div class="mt-3">
+            <span class="inline-block bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full age-chip">JOGOS ADAPTADOS</span>
+            <div class="text-[10px] text-orange-500 mt-0.5">INCLUSÃO E ACESSIBILIDADE</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="age-card p-4 cursor-pointer" onclick="openCategory('computacional')">
+        <div class="glow"></div>
+        <div class="relative">
+          <div class="text-4xl mb-2">🤖</div>
+          <h3 class="text-lg font-extrabold text-cyan-600">COMPUTAÇÃO</h3>
+          <p class="text-cyan-400 text-xs -mt-1">PENSAMENTO COMPUTACIONAL</p>
+          <div class="mt-3">
+            <span class="inline-block bg-cyan-100 text-cyan-600 px-2 py-0.5 rounded-full age-chip">LÓGICA E ALGORITMOS</span>
+            <div class="text-[10px] text-cyan-500 mt-0.5">PROGRAMAÇÃO DESPLUGADA</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- LISTA DE JOGOS POR CATEGORIA -->
-    <section id="gamesSection" class="hidden mt-10">
+    <section id="gamesSection" class="hidden mt-8">
       <div class="flex items-center justify-between mb-4">
-        <h3 id="gamesSectionTitle" class="text-2xl font-bold text-white drop-shadow">Jogos</h3>
-        <button onclick="backHome()" class="bg-white/90 hover:bg-white text-purple-700 font-bold py-2 px-4 rounded-full shadow">⬅️ Voltar</button>
+        <h3 id="gamesSectionTitle" class="text-xl font-bold text-white drop-shadow">Jogos</h3>
+        <button onclick="backHome()" class="bg-white/90 hover:bg-white text-purple-700 font-bold py-1 px-4 text-sm rounded-full shadow">⬅️ Voltar</button>
       </div>
-      <div id="gamesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      <div id="gamesGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
     </section>
   </main>
 
-  <!-- Mascote CAPI -->
-	<div id="capiContainer" class="fixed bottom-6 right-6 flex flex-col items-end gap-2">
+  <div id="capiContainer" class="fixed bottom-4 right-4 flex flex-col items-end gap-2">
 	  <div id="capiSpeech" class="capi-bubble hidden max-w-xs">
-		<p id="capiMessage" class="text-purple-800 font-semibold"></p>
+		<p id="capiMessage" class="text-purple-800 font-semibold text-sm"></p>
 	  </div>
-	  <div id="capi" class="cursor-pointer bg-orange-400 rounded-full shadow-2xl hover:bg-orange-500 flex items-center justify-center w-24 h-24" title="CAPI — seu ajudante!">
+	  <div id="capi" class="cursor-pointer bg-orange-400 rounded-full shadow-2xl hover:bg-orange-500 flex items-center justify-center w-20 h-20" title="CAPI — seu ajudante!">
 		<img src="img/capi2.png" alt="Capi" class="object-contain rounded-full">
 	  </div>
 	</div>
 
-	  <script>
+	<script>
     /* ======= CONFIG ======= */
     const BASE_DIR = "games";
-    const CATEGORY_ORDER = ["1-3","4-5","6-10","11-14","naee"];
+    const CATEGORY_ORDER = ["1-3","4-5","6-10","11-14","naee", "computacional"];
     const CATEGORY_TITLES = {
       "1-3":"JOGOS PARA 3 ANOS",
       "4-5":"JOGOS PARA 4 E 5 ANOS",
       "6-10":"JOGOS PARA 6 A 10 ANOS",
       "11-14":"JOGOS PARA 11 A 14 ANOS",
-      "naee":"SALA DO AEE - EDUCAÇÃO ESPECIAL"
+      "naee":"SALA DO AEE - EDUCAÇÃO ESPECIAL",
+      "computacional": "PENSAMENTO COMPUTACIONAL E LÓGICA"
     };
 
-    let entries = [];                 // {path, title, category}
-    let presentCategories = new Set();// categorias presentes
+    let entries = [];
+    let presentCategories = new Set();
     let capiEnabled = true;
 
     // Refs UI
@@ -256,8 +270,8 @@
     $("#toggleCapi").addEventListener("click", ()=>{
       capiEnabled = !capiEnabled;
       $("#capiContainer").style.display = capiEnabled ? "block" : "none";
-      $("#capiToggleText").textContent = capiEnabled ? "❌ DESABILITAR CAPI" : "✅ HABILITAR CAPI";
-      if(capiEnabled) showCapiMessage("OBA! ESTOU DE VOLTA! 🎉");
+      $("#capiToggleText").textContent = capiEnabled ? "❌ CAPI" : "✅ CAPI";
+      if(capiEnabled) showCapiMessage("OBA! VOLTEI! 🎉");
     });
 
     /* ======= HELPERS ======= */
@@ -280,20 +294,36 @@
       categoryFilterEl.innerHTML = `<option value="">Todas</option>` + cats.map(c=>`<option value="${c}">${c}</option>`).join("");
     }
 
+    // ==== GRID DE JOGOS COM IMAGEM ====
     function drawGamesGrid(list){
       if(list.length===0){
         gamesGrid.innerHTML = `<div class="col-span-full text-center py-8 text-white/90">
           <div class="text-4xl mb-2">😔</div><p class="text-xl font-bold">NENHUM JOGO ENCONTRADO</p></div>`;
         return;
       }
-      gamesGrid.innerHTML = list.map(item=>`
-        <a href="${encodeURI(item.path)}" class="game-card block" title="${item.title}">
-          <div class="font-bold">${item.title}</div>
+      
+      gamesGrid.innerHTML = list.map(item => {
+        // Tenta prever a imagem
+        const thumbPath = item.path.replace(/\.html?$/i, ".png");
+        return `
+        <a href="${encodeURI(item.path)}" class="game-card group" title="${item.title}">
+          <div class="game-thumb-container">
+            <img 
+              src="${encodeURI(thumbPath)}" 
+              alt="${item.title}" 
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')"
+            >
+            <div class="hidden absolute inset-0 flex items-center justify-center text-3xl text-white/50">
+               🎮
+            </div>
+          </div>
+          <div class="font-bold uppercase tracking-wider text-xs md:text-sm line-clamp-2">${item.title}</div>
         </a>
-      `).join("");
+      `}).join("");
     }
 
-    /* ======= BUSCA NA HOME ======= */
+    /* ======= BUSCA ======= */
     function renderSearchResults(){
       const q = (qEl.value||"").trim().toUpperCase();
       const catFilter = categoryFilterEl.value;
@@ -314,18 +344,16 @@
 
       if(filtered.length===0){
         searchResults.classList.remove("hidden");
-        resultsList.innerHTML = `<div class="text-center text-gray-600 py-6">Nenhum jogo encontrado.</div>`;
+        resultsList.innerHTML = `<div class="text-center text-gray-600 py-4 text-sm">Nenhum jogo encontrado.</div>`;
         return;
       }
 
-      // lista simples com título e local
       const html = filtered.map(e=>`
-        <a href="${encodeURI(e.path)}" class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg hover:bg-purple-50 transition">
-          <div>
-            <div class="font-semibold text-purple-700">${e.title}</div>
-            <div class="text-xs text-gray-600">${e.path}</div>
+        <a href="${encodeURI(e.path)}" class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg hover:bg-purple-50 transition text-sm">
+          <div class="truncate">
+            <div class="font-semibold text-purple-700 truncate">${e.title}</div>
           </div>
-          <span class="text-[11px] px-2 py-1 rounded-full bg-purple-100 text-purple-700 uppercase" style="font-size: larger;">${e.category}</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 uppercase whitespace-nowrap">${e.category}</span>
         </a>
       `).join("");
 
@@ -333,11 +361,10 @@
       searchResults.classList.remove("hidden");
     }
 
-    // mostrar/esconder barra de busca só na home
     toggleSearchBtn.addEventListener("click", ()=>{
       const open = searchBar.classList.contains("hidden");
       searchBar.classList.toggle("hidden");
-      if(open) { showCapiMessage("VAMOS BUSCAR JOGOS INCRÍVEIS! 🔍"); }
+      if(open) { showCapiMessage("VAMOS BUSCAR! 🔍"); }
       else { showCapiMessage("TELA PRINCIPAL! 🏠"); searchResults.classList.add("hidden"); qEl.value=""; categoryFilterEl.value=""; }
     });
     clearBtn.addEventListener("click", ()=>{
@@ -346,12 +373,12 @@
     qEl.addEventListener("input", renderSearchResults);
     categoryFilterEl.addEventListener("change", renderSearchResults);
 
-    /* ======= FLUXO: CARREGAR MANIFESTO (OBRIGATÓRIO) ======= */
+    /* ======= LOAD MANIFEST ======= */
     function loadManifest(){
       const m = window.CAPI_MANIFEST;
       if(!m || !Array.isArray(m.entries)){
-        manifestInfo.innerHTML = `<span class="text-rose-600 font-semibold">Manifesto não encontrado.</span> Execute <strong>generate-manifest.vbs</strong>.`;
-        showCapiMessage("Precisa gerar o manifesto primeiro. 📄");
+        manifestInfo.innerHTML = `<span class="text-rose-600 font-semibold">Manifesto ausente.</span>`;
+        showCapiMessage("Erro no manifesto. 📄");
         return false;
       }
       const fixed = [];
@@ -366,54 +393,37 @@
       entries = fixed;
       presentCategories = new Set(entries.map(e=>e.category));
       renderFilters();
-      manifestInfo.textContent = `Manifesto: ${m.generated_at || "desconhecido"} • Jogos: ${entries.length}`;
-      showCapiMessage(`Manifesto carregado • ${entries.length} jogo(s)`);
+      manifestInfo.textContent = `${entries.length} jogos carregados`;
       return true;
     }
 
-    /* ======= NAVEGAÇÃO DE CATEGORIA ======= */
+    /* ======= NAV ======= */
     function openCategory(cat){
       const list = entries.filter(e=>e.category===cat);
       gamesSectionTitle.textContent = CATEGORY_TITLES[cat] || "Jogos";
       ageGroupsSection.classList.add("hidden");
-      searchBar.classList.add("hidden");      // busca só na home
-      searchResults.classList.add("hidden");  // e resultados também
+      searchBar.classList.add("hidden");
+      searchResults.classList.add("hidden");
       gamesSection.classList.remove("hidden");
       drawGamesGrid(list);
-      showCapiMessage(`ÓTIMA ESCOLHA! 💡`);
+      showCapiMessage(`BOA ESCOLHA! 💡`);
     }
     function backHome(){
       gamesSection.classList.add("hidden");
       ageGroupsSection.classList.remove("hidden");
-      // não abre automaticamente a busca; fica como estava
       showCapiMessage("TELA PRINCIPAL! 🏠");
     }
 
-    /* ======= START ======= */
+    /* ======= INIT ======= */
     refreshBtn.addEventListener("click", ()=>location.reload());
 
     window.addEventListener("DOMContentLoaded", ()=>{
-      loadManifest();  // obrigatório
-      // dica inicial
-      setTimeout(()=> showCapiMessage("OLÁ! ESCOLHA SUA CATEGORIA OU CLIQUE EM BUSCAR JOGOS. 🎮"), 800);
+      loadManifest();
+      setTimeout(()=> showCapiMessage("OLÁ! VAMOS JOGAR? 🎮"), 800);
     });
 
-    // Expor funções de navegação no escopo global
     window.openCategory = openCategory;
     window.backHome = backHome;
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
