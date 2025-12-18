@@ -1,159 +1,72 @@
-' generate-manifest.vbs — gera games-manifest.js para estrutura com BASE_DIR = "games"
+' Script para gerar games-manifest.js automaticamente
+' Versão: Dinâmica (Escaneia todas as subpastas em "games")
+
 Option Explicit
 
-Const BASE_DIR = "games"
+Dim fso, currentDir, gamesDir, outputFile
+Dim outputContent, entryList
+Dim folder, subFolder, file
 
-Dim fso, wsh
 Set fso = CreateObject("Scripting.FileSystemObject")
-Set wsh = CreateObject("WScript.Shell")
 
-Dim rootDir
-rootDir = fso.GetParentFolderName(WScript.ScriptFullName)
-If rootDir = "" Then rootDir = fso.GetAbsolutePathName(".")
+' 1. Define diretórios
+currentDir = fso.GetAbsolutePathName(".")
+gamesDir = fso.BuildPath(currentDir, "games")
+outputFile = fso.BuildPath(currentDir, "games-manifest.js")
 
-Dim basePath
-basePath = fso.BuildPath(rootDir, BASE_DIR)
-If Not fso.FolderExists(basePath) Then
-  WScript.Echo "[ERRO] Pasta '" & BASE_DIR & "' não encontrada em: " & rootDir
-  WScript.Quit 1
+' Verifica se a pasta games existe
+If Not fso.FolderExists(gamesDir) Then
+    MsgBox "A pasta 'games' nao foi encontrada!", 16, "Erro"
+    WScript.Quit
 End If
 
-Dim cats : cats = Array("1-3","4-5","6-10","11-14","naee")
+' 2. Começa a montar o JSON
+outputContent = "window.CAPI_MANIFEST = {" & vbCrLf & _
+                "  ""generated_at"": """ & Now & """," & vbCrLf & _
+                "  ""entries"": ["
 
-Dim excludeDirs
-excludeDirs = Array(".git",".github","assets","static","img","images","css","js","vendor","node_modules")
+entryList = ""
 
-Dim excludeFilesTop
-excludeFilesTop = Array("README.md",".gitignore",".gitattributes","LICENSE","games-manifest.js","generate-manifest.vbs","index.html")
+' 3. Varre TODAS as subpastas dentro de 'games'
+Set folder = fso.GetFolder(gamesDir)
 
-Dim listJson : listJson = "["
-Dim isFirst : isFirst = True
-
-Dim i
-For i = 0 To UBound(cats)
-  Dim cat, catPath
-  cat = cats(i)
-  catPath = fso.BuildPath(basePath, cat)
-  If fso.FolderExists(catPath) Then
-    Walk catPath, cat
-  End If
+For Each subFolder In folder.SubFolders
+    ' Procura arquivos HTML dentro de cada subpasta
+    For Each file In subFolder.Files
+        If LCase(fso.GetExtensionName(file.Name)) = "html" Or LCase(fso.GetExtensionName(file.Name)) = "htm" Then
+            
+            ' Cria o caminho relativo (ex: games/computacional/jogo.html)
+            Dim relativePath
+            relativePath = "games/" & subFolder.Name & "/" & file.Name
+            
+            ' Limpa o nome para usar como Título (tira a extensão)
+            Dim title
+            title = Replace(file.Name, ".html", "")
+            title = Replace(title, ".htm", "")
+            ' Remove underscores e hifens para ficar bonito
+            title = Replace(title, "-", " ")
+            title = Replace(title, "_", " ")
+            
+            ' Adiciona vírgula se não for o primeiro item
+            If entryList <> "" Then entryList = entryList & "," & vbCrLf
+            
+            ' Adiciona ao JSON
+            entryList = entryList & "    { ""path"": """ & relativePath & """, ""title"": """ & UCase(title) & """ }"
+        End If
+    Next
 Next
 
-listJson = listJson & "]"
+' 4. Finaliza e Salva
+outputContent = outputContent & vbCrLf & entryList & vbCrLf & "  ]" & vbCrLf & "};"
 
-Dim stamp : stamp = NowISO()
-Dim out
-out = "window.CAPI_MANIFEST = {""generated_at"":""" & J(stamp) & """,""entries"":" & listJson & "};" & vbCrLf
+' Escreve o arquivo (Forçando codificação simples para evitar erros de caractere)
+Dim objStream
+Set objStream = CreateObject("ADODB.Stream")
+objStream.CharSet = "utf-8"
+objStream.Open
+objStream.WriteText outputContent
+objStream.SaveToFile outputFile, 2 ' 2 = Sobrescrever
+objStream.Close
 
-Dim outPath
-outPath = fso.BuildPath(rootDir, "games-manifest.js")
-If WriteUtf8(outPath, out) Then
-  WScript.Echo "[OK] Manifesto gerado: " & outPath
-Else
-  WScript.Echo "[ERRO] Falha ao escrever: " & outPath
-End If
+MsgBox "Manifesto atualizado com sucesso!" & vbCrLf & "Novos jogos detectados.", 64, "Sucesso"
 
-' ====== funções ======
-Sub Walk(folderPath, catName)
-  Dim d, f
-  ' arquivos
-  For Each f In fso.GetFolder(folderPath).Files
-    If LCase(fso.GetExtensionName(f.Name)) = "html" Then
-      If Not IsInArray(LCase(f.Name), MapLower(excludeFilesTop)) Then
-        AddEntry f.Path, catName
-      End If
-    End If
-  Next
-  ' subpastas
-  For Each d In fso.GetFolder(folderPath).SubFolders
-    If Not IsInArray(d.Name, excludeDirs) Then
-      Walk d.Path, catName
-    End If
-  Next
-End Sub
-
-Sub AddEntry(fullPath, catName)
-  Dim relFromRoot, relNormalized, title
-  ' Caminho relativo a partir da RAIZ do projeto (onde está o index.html)
-  relFromRoot = Replace(fullPath, rootDir & "\", "")
-  relNormalized = Replace(relFromRoot, "\", "/")
-  ' Garante prefixo "games/"
-  If LCase(Left(relNormalized, Len(BASE_DIR)+1)) <> LCase(BASE_DIR & "/") Then
-    relNormalized = BASE_DIR & "/" & relNormalized
-  End If
-  ' Ignora um "index.html" que por acaso esteja na raiz do projeto
-  If LCase(relNormalized) = "index.html" Then Exit Sub
-
-  title = ReadTitle(fullPath)
-  If title = "" Then title = StripExt(fso.GetFileName(fullPath))
-
-  If Not isFirst Then
-    listJson = listJson & ","
-  Else
-    isFirst = False
-  End If
-  listJson = listJson & "{""path"":""" & J(relNormalized) & """,""title"":""" & J(title) & """,""category"":""" & J(catName) & """}"
-End Sub
-
-Function ReadTitle(p)
-  On Error Resume Next
-  Dim s, txt, re, m
-  ReadTitle = ""
-  Set s = CreateObject("ADODB.Stream")
-  s.Type = 1 : s.Open : s.LoadFromFile p
-  s.Position = 0 : s.Type = 2 : s.Charset = "utf-8"
-  txt = s.ReadText(-1)
-  s.Close : Set s = Nothing
-  If Len(txt) = 0 Then Exit Function
-
-  Set re = New RegExp
-  re.Pattern = "<title[^>]*>([\s\S]*?)</title>"
-  re.IgnoreCase = True
-  re.Global = False
-  Set m = re.Execute(txt)
-  If m.Count > 0 Then ReadTitle = Trim(m(0).SubMatches(0))
-End Function
-
-Function StripExt(n)
-  Dim p : p = InStrRev(n,".")
-  If p>0 Then StripExt = Left(n,p-1) Else StripExt = n
-End Function
-
-Function J(s)
-  Dim r : r = s
-  r = Replace(r, "\", "\\")
-  r = Replace(r, """", "\""")
-  r = Replace(r, vbCrLf, "\n")
-  r = Replace(r, vbCr, "\n")
-  r = Replace(r, vbLf, "\n")
-  J = r
-End Function
-
-Function WriteUtf8(path, content)
-  On Error Resume Next
-  Dim st : Set st = CreateObject("ADODB.Stream")
-  st.Type = 2 : st.Charset = "utf-8" : st.Open
-  st.WriteText content
-  st.SaveToFile path, 2
-  st.Close : Set st = Nothing
-  WriteUtf8 = True
-End Function
-
-Function IsInArray(v, arr)
-  Dim k
-  For k = 0 To UBound(arr)
-    If LCase(arr(k)) = LCase(v) Then IsInArray = True : Exit Function
-  Next
-  IsInArray = False
-End Function
-
-Function MapLower(arr)
-  Dim i, out : ReDim out(UBound(arr))
-  For i=0 To UBound(arr) : out(i)=LCase(arr(i)) : Next
-  MapLower = out
-End Function
-
-Function NowISO()
-  Dim d: d = Now
-  NowISO = Year(d) & "-" & Right("0"&Month(d),2) & "-" & Right("0"&Day(d),2) & "T" & Right("0"&Hour(d),2) & ":" & Right("0"&Minute(d),2) & ":" & Right("0"&Second(d),2)
-End Function
