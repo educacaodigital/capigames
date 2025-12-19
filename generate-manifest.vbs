@@ -1,5 +1,6 @@
 ' Script para gerar games-manifest.js automaticamente
-' Versão: Dinâmica (Escaneia todas as subpastas em "games")
+' Versão: LER TÍTULO DO HTML (<title>...</title>)
+' Se não achar o title, usa o nome do arquivo.
 
 Option Explicit
 
@@ -31,42 +32,88 @@ entryList = ""
 Set folder = fso.GetFolder(gamesDir)
 
 For Each subFolder In folder.SubFolders
-    ' Procura arquivos HTML dentro de cada subpasta
     For Each file In subFolder.Files
+        ' Verifica se é HTML
         If LCase(fso.GetExtensionName(file.Name)) = "html" Or LCase(fso.GetExtensionName(file.Name)) = "htm" Then
             
-            ' Cria o caminho relativo (ex: games/computacional/jogo.html)
-            Dim relativePath
+            Dim relativePath, finalTitle
             relativePath = "games/" & subFolder.Name & "/" & file.Name
             
-            ' Limpa o nome para usar como Título (tira a extensão)
-            Dim title
-            title = Replace(file.Name, ".html", "")
-            title = Replace(title, ".htm", "")
-            ' Remove underscores e hifens para ficar bonito
-            title = Replace(title, "-", " ")
-            title = Replace(title, "_", " ")
+            ' Tenta ler o <title> de dentro do arquivo
+            finalTitle = GetHtmlTitle(file.Path)
             
-            ' Adiciona vírgula se não for o primeiro item
+            ' Se não achou título no código, usa o nome do arquivo limpo
+            If finalTitle = "" Then
+                finalTitle = CleanFileName(file.Name)
+            End If
+            
+            ' Adiciona vírgula se necessário
             If entryList <> "" Then entryList = entryList & "," & vbCrLf
             
-            ' Adiciona ao JSON
-            entryList = entryList & "    { ""path"": """ & relativePath & """, ""title"": """ & UCase(title) & """ }"
+            ' Adiciona ao JSON (Title em UpperCase para manter padrão)
+            entryList = entryList & "    { ""path"": """ & relativePath & """, ""title"": """ & UCase(finalTitle) & """ }"
         End If
     Next
 Next
 
-' 4. Finaliza e Salva
+' 4. Finaliza e Salva o manifesto
 outputContent = outputContent & vbCrLf & entryList & vbCrLf & "  ]" & vbCrLf & "};"
 
-' Escreve o arquivo (Forçando codificação simples para evitar erros de caractere)
-Dim objStream
-Set objStream = CreateObject("ADODB.Stream")
-objStream.CharSet = "utf-8"
-objStream.Open
-objStream.WriteText outputContent
-objStream.SaveToFile outputFile, 2 ' 2 = Sobrescrever
-objStream.Close
+WriteFileUTF8 outputFile, outputContent
 
-MsgBox "Manifesto atualizado com sucesso!" & vbCrLf & "Novos jogos detectados.", 64, "Sucesso"
+MsgBox "Manifesto atualizado!" & vbCrLf & "Os nomes agora foram pegos da tag <title> dos jogos.", 64, "Sucesso"
 
+' ==========================================
+' FUNÇÕES AUXILIARES
+' ==========================================
+
+' Função para ler o arquivo e extrair o conteúdo da tag <title>
+Function GetHtmlTitle(filePath)
+    On Error Resume Next
+    Dim objStream, content, regex, matches
+    Set objStream = CreateObject("ADODB.Stream")
+    
+    ' Abre arquivo como UTF-8 para não quebrar acentos
+    objStream.CharSet = "utf-8"
+    objStream.Open
+    objStream.LoadFromFile filePath
+    content = objStream.ReadText
+    objStream.Close
+    
+    ' Procura por <title>...</title> usando Regex
+    Set regex = New RegExp
+    regex.IgnoreCase = True
+    regex.Global = False
+    ' Padrão: <title (qualquer coisa) > (texto) </title>
+    regex.Pattern = "<title[^>]*>([\s\S]*?)<\/title>"
+    
+    If regex.Test(content) Then
+        Set matches = regex.Execute(content)
+        GetHtmlTitle = Trim(matches(0).SubMatches(0))
+    Else
+        GetHtmlTitle = ""
+    End If
+    
+    If Err.Number <> 0 Then GetHtmlTitle = ""
+End Function
+
+' Função para escrever arquivo em UTF-8 (para salvar os acentos corretamente no manifesto)
+Sub WriteFileUTF8(filePath, textContent)
+    Dim objStream
+    Set objStream = CreateObject("ADODB.Stream")
+    objStream.CharSet = "utf-8"
+    objStream.Open
+    objStream.WriteText textContent
+    objStream.SaveToFile filePath, 2 ' 2 = Sobrescrever
+    objStream.Close
+End Sub
+
+' Fallback: Limpa o nome do arquivo se não tiver title
+Function CleanFileName(fName)
+    Dim t
+    t = Replace(fName, ".html", "")
+    t = Replace(t, ".htm", "")
+    t = Replace(t, "-", " ")
+    t = Replace(t, "_", " ")
+    CleanFileName = t
+End Function
