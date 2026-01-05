@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👨‍🎨O PINTOR ABSTRATO</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --panel-color: #252526;
+            --accent-color: #007acc;
+            --text-color: #d4d4d4;
+            --highlight: #ce9178;
+            --frame-color: #5d4037;
+            --frame-shadow: #3e2723;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Consolas', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- Cabeçalho --- */
+        header {
+            background-color: #333;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            height: 50px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        h1 { margin: 0; font-size: 1.2rem; color: var(--accent-color); }
+
+        .header-buttons { display: flex; gap: 10px; }
+
+        .nav-btn {
+            background: #444;
+            border: 1px solid #555;
+            color: white;
+            padding: 5px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .nav-btn:hover { background: #555; }
+        .btn-info { background-color: var(--accent-color); border: none; }
+        
+        .btn-sound.playing { border-color: #69F0AE; color: #69F0AE; }
+
+        /* --- Palco Principal --- */
+        .main-stage {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* --- Moldura --- */
+        .frame-wrapper {
+            height: 80vh; 
+            max-height: 800px;
+            aspect-ratio: 1 / 1;
+            
+            position: relative;
+            background-color: #fff;
+            border: 20px solid var(--frame-color);
+            border-radius: 4px;
+            box-shadow: 
+                inset 0 0 30px rgba(0,0,0,0.6),
+                0 15px 30px rgba(0,0,0,0.5),
+                0 0 0 2px #3e2723;
+            display: flex;
+        }
+
+        /* Grid 12x12 */
+        #canvas-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr); 
+            grid-template-rows: repeat(12, 1fr);
+            width: 100%;
+            height: 100%;
+            gap: 1px;
+            background-color: #e0e0e0;
+            border: 2px solid #ddd;
+        }
+
+        .frame-label {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #d4af37;
+            color: #000;
+            padding: 4px 15px;
+            font-size: 0.8rem;
+            font-family: serif;
+            font-weight: bold;
+            border: 1px solid #000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            white-space: nowrap;
+        }
+
+        .pixel {
+            background-color: #222;
+            transition: background-color 0.1s;
+        }
+
+        .pixel.active {
+            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.9);
+            z-index: 10;
+        }
+
+        /* --- Painel de Controle --- */
+        .controls {
+            background-color: var(--panel-color);
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .controls-scroll-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--accent-color); font-size: 0.9rem; }
+
+        .color-palette { display: flex; gap: 8px; flex-wrap: wrap; }
+        .color-opt {
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;
+        }
+        .color-opt.selected { border-color: white; transform: scale(1.1); box-shadow: 0 0 8px rgba(255,255,255,0.4); }
+
+        #sequence-list {
+            background: #151515;
+            padding: 10px;
+            height: 150px;
+            overflow-y: auto;
+            border: 1px solid #444;
+            font-size: 0.85em;
+            list-style: none;
+            margin: 0;
+            font-family: 'Consolas', monospace;
+            border-radius: 4px;
+        }
+        #sequence-list li { padding: 4px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;}
+        
+        button {
+            padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.2s; font-size: 1rem;
+        }
+        .btn-action { background-color: #3e3e42; color: white; width: 48%; font-size: 0.9rem; }
+        .btn-action:hover { background-color: #505055; }
+        
+        .btn-run { background-color: #4CAF50; color: white; width: 100%; margin-top: auto; padding: 15px;}
+        .btn-run:hover { background-color: #45a049; }
+        .btn-reset { background-color: #f44336; color: white; width: 100%; }
+
+        @media (max-width: 900px) {
+            .main-stage { flex-direction: column; height: auto; overflow-y: auto; }
+            .frame-wrapper { width: 90vw; height: 90vw; max-height: 50vh; }
+            .controls { width: 90vw; height: auto; margin-bottom: 30px;}
+        }
+
+        /* --- Modal Detalhado --- */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(2px); }
+        .modal-content { background-color: var(--panel-color); margin: 5% auto; padding: 25px; border: 1px solid #555; width: 85%; max-width: 700px; max-height: 85vh; overflow-y: auto; border-radius: 8px; box-shadow: 0 0 25px rgba(0,0,0,0.8); }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: white; }
+        
+        .modal h2 { color: var(--accent-color); border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .modal h3 { color: var(--highlight); margin-top: 25px; border-bottom: 1px solid #333; padding-bottom: 5px;}
+        .modal p, .modal li { font-size: 0.95rem; line-height: 1.6; color: #ccc; }
+        
+        .concept-box { background: #333; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid var(--accent-color); }
+        .concept-box strong { color: white; display: block; margin-bottom: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="artista_digital.mp3" type="audio/mpeg">
+    </audio>
+
+    <header>
+        <button class="nav-btn" onclick="goBack()">⬅ Voltar</button>
+        <h1>🎨 O Pintor Abstrato</h1>
+        <div class="header-buttons">
+            <button class="nav-btn btn-sound" id="btn-sound" onclick="toggleMusic()">🎵 Som: Off</button>
+            <button class="nav-btn btn-info" onclick="toggleModal(true)">ℹ️INSTRUÇÕES</button>
+        </div>
+    </header>
+
+    <div class="main-stage">
+        <div class="frame-wrapper">
+            <div id="canvas-grid"></div>
+            <div class="frame-label">Obra Digital: "Sinfonia Lógica"</div>
+        </div>
+
+        <div class="controls">
+            <div class="controls-scroll-area">
+                <div class="control-group">
+                    <label>1. Paleta de Cores</label>
+                    <div class="color-palette">
+                        <div class="color-opt selected" style="background: #FF5252;" data-color="#FF5252"></div>
+                        <div class="color-opt" style="background: #448AFF;" data-color="#448AFF"></div>
+                        <div class="color-opt" style="background: #69F0AE;" data-color="#69F0AE"></div>
+                        <div class="color-opt" style="background: #FFD740;" data-color="#FFD740"></div>
+                        <div class="color-opt" style="background: #E040FB;" data-color="#E040FB"></div>
+                        <div class="color-opt" style="background: #FFFFFF;" data-color="#FFFFFF"></div>
+                        <div class="color-opt" style="background: #222;" data-color="#222" title="Apagar"></div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>2. Padrão de Comandos</label>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn-action" onclick="addCommand('paint')">🖌️ Pintar</button>
+                        <button class="btn-action" onclick="addCommand('move')">➡️ Mover</button>
+                    </div>
+                    <div style="text-align:right; margin-top: 5px;">
+                        <small style="cursor:pointer; text-decoration:underline; color:#999;" onclick="clearSequence()">Limpar Lista</small>
+                    </div>
+                </div>
+
+                <ul id="sequence-list"></ul>
+
+                <div class="control-group">
+                    <label>3. Repetição (Loop)</label>
+                    <div style="background: #333; padding: 8px; border-radius: 4px; display:flex; align-items:center; justify-content: space-between;">
+                        <span>Repetir Padrão:</span>
+                        <div>
+                            <input type="number" id="loop-count" value="1" min="1" max="144" style="width: 50px; padding: 5px; background: #222; border: 1px solid #555; color: white; text-align: center;">
+                            <span style="font-size:0.9em; margin-left:5px;">vezes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; color: #888; font-style: italic; font-size: 0.85em; margin-top:5px;" id="status-msg">
+                    Pronto.
+                </div>
+            </div>
+
+            <button class="btn-run" onclick="runProgram()">▶️ EXECUTAR CÓDIGO</button>
+            <button class="btn-reset" onclick="resetGrid()">♻️ Limpar Tela</button>
+        </div>
+    </div>
+
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleModal(false)">&times;</span>
+            <h2>📖 Manual do Professor & Aluno</h2>
+            
+            <p><strong>Objetivo do Jogo:</strong> Use a computação para criar arte. O jogador deve identificar padrões e usar repetição (loops) para preencher a tela, em vez de pintar manualmente cada quadrado.</p>
+
+            <h3>🧠 Conceitos de Computação</h3>
+            
+            <div class="concept-box">
+                <strong>1. Decomposição</strong>
+                É a habilidade de quebrar um problema grande em partes menores. Antes de programar, o aluno deve olhar para o objetivo (ex: "Quero fazer listras") e decompor isso em uma unidade mínima (ex: "Pintar um, Pular um").
+            </div>
+
+            <div class="concept-box">
+                <strong>2. Algoritmos (Sequenciamento)</strong>
+                Uma lista ordenada de passos. Os botões "Pintar" e "Mover" criam uma sequência exata que o computador seguirá cegamente. Se a ordem estiver errada, o desenho sai errado.
+            </div>
+
+            <div class="concept-box">
+                <strong>3. Abstração (O Loop)</strong>
+                Esta é a parte crucial. O aluno cria uma solução genérica (o padrão) e usa o parâmetro <em>"Repetir X vezes"</em> para abstrair o esforço manual. Isso ensina eficiência: escrever 2 linhas de código e repeti-las é melhor que escrever 144 linhas.
+            </div>
+
+            <h3>💡 Desafios Sugeridos (Grid 12x12)</h3>
+            <ul>
+                <li><strong>A Linha Tracejada:</strong> Crie uma linha alternando cores. <br><em>Solução:</em> [Pintar Cor A, Mover, Pintar Cor B, Mover] -> Repetir.</li>
+                
+                <li><strong>Listras Verticais Perfeitas:</strong> 
+                Como o grid tem <strong>12 colunas</strong>, você precisa de matemática. Qualquer padrão cuja soma de passos seja divisor de 12 (ex: padrões de 2, 3, 4 ou 6 passos) criará colunas retas perfeitas.</li>
+                
+                <li><strong>Arte Glitch (Erro Proposital):</strong> 
+                Tente preencher a tela com uma cor sólida, mas insira um erro proposital no padrão (ex: dois "Mover" seguidos) para criar falhas visuais interessantes.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // --- Áudio ---
+        const bgMusic = document.getElementById('bg-music');
+        const btnSound = document.getElementById('btn-sound');
+        let isMusicPlaying = false;
+
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                bgMusic.pause();
+                btnSound.innerHTML = "🎵 Som: Off";
+                btnSound.classList.remove('playing');
+            } else {
+                bgMusic.play().then(() => {
+                    btnSound.innerHTML = "🔊 Som: On";
+                    btnSound.classList.add('playing');
+                }).catch(error => {
+                    alert("Áudio não encontrado. Certifique-se que 'artista_digital.mp3' está na pasta.");
+                });
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        // --- Configuração 12x12 ---
+        const gridRows = 12;
+        const gridCols = 12;
+        const totalPixels = gridRows * gridCols; // 144
+        
+        let currentPos = 0;
+        let selectedColor = '#FF5252';
+        let commandSequence = []; 
+        let isRunning = false;
+
+        const gridEl = document.getElementById('canvas-grid');
+        const sequenceListEl = document.getElementById('sequence-list');
+        const statusEl = document.getElementById('status-msg');
+
+        function initGrid() {
+            gridEl.innerHTML = '';
+            for (let i = 0; i < totalPixels; i++) {
+                let pixel = document.createElement('div');
+                pixel.classList.add('pixel');
+                pixel.id = 'px-' + i;
+                pixel.title = `Pixel ${i}`;
+                gridEl.appendChild(pixel);
+            }
+            highlightCursor(0);
+        }
+
+        document.querySelectorAll('.color-opt').forEach(el => {
+            el.addEventListener('click', (e) => {
+                document.querySelectorAll('.color-opt').forEach(c => c.classList.remove('selected'));
+                e.target.classList.add('selected');
+                selectedColor = e.target.getAttribute('data-color');
+            });
+        });
+
+        function addCommand(type) {
+            if (isRunning) return;
+            
+            let text = "";
+            let item = { type: type, color: selectedColor };
+
+            if (type === 'paint') {
+                text = `<span>🖌️ Pintar</span> <span style="display:inline-block; width:12px; height:12px; background:${selectedColor}; border-radius:50%;"></span>`;
+            } else {
+                text = `<span style="color: var(--highlight)">➡️ Mover</span>`;
+            }
+
+            commandSequence.push(item);
+            
+            let li = document.createElement('li');
+            li.innerHTML = text;
+            sequenceListEl.appendChild(li);
+            sequenceListEl.scrollTop = sequenceListEl.scrollHeight;
+        }
+
+        function clearSequence() {
+            if (isRunning) return;
+            commandSequence = [];
+            sequenceListEl.innerHTML = '';
+        }
+
+        function highlightCursor(index) {
+            const active = document.querySelector('.pixel.active');
+            if (active) active.classList.remove('active');
+
+            if(index < totalPixels && index >= 0) {
+                const px = document.getElementById('px-' + index);
+                if(px) px.classList.add('active');
+            }
+        }
+
+        function resetGrid() {
+            if (isRunning) return;
+            currentPos = 0;
+            document.querySelectorAll('.pixel').forEach(p => {
+                p.style.backgroundColor = '#222';
+            });
+            highlightCursor(0);
+            statusEl.innerText = "Tela limpa.";
+        }
+
+        async function runProgram() {
+            if (isRunning) return;
+            if (commandSequence.length === 0) {
+                statusEl.innerText = "⚠️ Crie um padrão antes!";
+                return;
+            }
+
+            isRunning = true;
+            statusEl.innerText = "Executando...";
+            
+            const loopInput = document.getElementById('loop-count').value;
+            const loops = parseInt(loopInput);
+
+            for (let i = 0; i < loops; i++) {
+                for (let cmd of commandSequence) {
+                    
+                    if (currentPos >= totalPixels) {
+                        statusEl.innerText = "Fim da tela!";
+                        isRunning = false;
+                        highlightCursor(-1);
+                        return;
+                    }
+
+                    highlightCursor(currentPos);
+
+                    if (cmd.type === 'paint') {
+                        document.getElementById('px-' + currentPos).style.backgroundColor = cmd.color;
+                    } else if (cmd.type === 'move') {
+                        currentPos++;
+                    }
+
+                    await new Promise(r => setTimeout(r, 100)); 
+                }
+            }
+
+            highlightCursor(currentPos);
+            statusEl.innerText = "Arte concluída!";
+            isRunning = false;
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                alert("Histórico vazio.");
+            }
+        }
+
+        function toggleModal(show) {
+            document.getElementById('infoModal').style.display = show ? "block" : "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('infoModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        initGrid();
+
+    </script>
+</body>
+</html>
