@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕵️DETETIVE DE BUGS</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-green: #2ea043;
+            --accent-red: #da3633;
+            --accent-blue: #58a6ff;
+            --code-bg: #161b22;
+            --grid-border: #30363d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* NAVEGAÇÃO SUPERIOR */
+        .top-nav { width: 100%; display: flex; justify-content: flex-start; margin-bottom: 10px; }
+        .btn-back {
+            background-color: #21262d; color: #8b949e; border: 1px solid #30363d;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;
+            display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+        }
+        .btn-back:hover { background-color: #30363d; color: var(--text-color); border-color: #8b949e; }
+
+        h1 { margin-bottom: 5px; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 2px; }
+        .level-indicator { color: var(--accent-green); margin-bottom: 20px; font-weight: bold; font-size: 1.2em; }
+
+        .game-container {
+            display: flex; gap: 40px; margin-top: 20px; flex-wrap: wrap; justify-content: center;
+        }
+        .maze-area { display: flex; flex-direction: column; align-items: center; }
+
+        #grid {
+            display: grid; grid-template-columns: repeat(5, 75px); grid-template-rows: repeat(5, 75px);
+            gap: 4px; background-color: var(--grid-border); border: 4px solid var(--grid-border);
+            border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.6);
+        }
+
+        .cell {
+            width: 75px; height: 75px; background-color: #1c2128; display: flex;
+            justify-content: center; align-items: center; font-size: 32px; position: relative; border-radius: 4px;
+        }
+        .wall { background-color: #30363d; box-shadow: inset 0 0 10px #000; }
+        .goal { background-color: rgba(46, 160, 67, 0.2); border: 2px solid var(--accent-green); }
+
+        /* ROBÔ */
+        .robot-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; height: 100%; position: relative;
+        }
+        .robot-arrow {
+            font-size: 30px; color: var(--accent-blue); position: absolute; top: -20px; z-index: 10;
+            transition: transform 0.4s ease-in-out; filter: drop-shadow(0 0 5px var(--accent-blue));
+        }
+        .robot-face { font-size: 32px; z-index: 5; }
+        
+        /* CODE AREA */
+        .code-area {
+            background-color: var(--code-bg); padding: 20px; border-radius: 8px;
+            border: 1px solid var(--grid-border); width: 400px; display: flex; flex-direction: column;
+        }
+        #code-editor { max-height: 400px; overflow-y: auto; margin-bottom: 10px; }
+        .code-line {
+            padding: 10px; margin: 4px 0; background-color: #21262d; cursor: pointer;
+            border-left: 4px solid transparent; user-select: none; transition: all 0.2s;
+            font-family: 'Courier New', monospace; display: flex; align-items: center;
+            justify-content: space-between; border-radius: 4px;
+        }
+        .code-line:hover { background-color: #30363d; transform: translateX(2px); }
+        .code-line.active { border-left-color: var(--accent-blue); background-color: #30363d; }
+        .code-line.error { border-left-color: var(--accent-red); background-color: rgba(218, 54, 51, 0.15); }
+        .code-line.success { border-left-color: var(--accent-green); background-color: rgba(46, 160, 67, 0.15); }
+
+        .line-content { display: flex; align-items: center; flex-grow: 1; }
+        .line-number { color: #6e7681; margin-right: 12px; width: 20px; text-align: right; }
+        .command { color: var(--accent-blue); font-weight: bold; margin-right: 10px; }
+        .comment { color: #8b949e; font-size: 0.75em; font-style: italic; }
+
+        .delete-btn {
+            color: #da3633; font-weight: bold; padding: 4px 8px; border-radius: 4px;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .code-line:hover .delete-btn { opacity: 1; }
+
+        .add-line-btn {
+            width: 100%; padding: 8px; background-color: transparent; border: 2px dashed #30363d;
+            color: #8b949e; cursor: pointer; border-radius: 6px; margin-top: 5px; transition: 0.2s;
+        }
+        .add-line-btn:hover { border-color: var(--accent-green); color: var(--accent-green); background-color: rgba(46, 160, 67, 0.05); }
+
+        .controls { margin-top: auto; padding-top: 20px; display: flex; gap: 10px; }
+        button.action-btn { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; color: white; font-size: 14px; }
+        #btn-run { background-color: var(--accent-green); }
+        #btn-reset { background-color: #484f58; }
+
+        #console {
+            margin-top: 20px; width: 100%; height: 120px; background-color: #0d1117;
+            color: var(--accent-green); padding: 15px; box-sizing: border-box;
+            border-radius: 6px; font-size: 13px; overflow-y: auto;
+            border: 1px solid #30363d; font-family: 'Courier New', monospace;
+        }
+
+        .modal {
+            display: none; position: fixed; z-index: 100; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.9);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: #161b22; border: 2px solid var(--accent-green);
+            border-radius: 12px; padding: 40px; text-align: center; width: 400px;
+        }
+        .btn-next { background-color: var(--accent-blue); color: white; padding: 15px; width: 100%; border: none; border-radius: 6px; margin-top: 20px; font-size: 16px; cursor: pointer;}
+        .btn-next.restart { background-color: #da3633; } 
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <button class="btn-back" onclick="window.history.back()">⬅ Voltar</button>
+    </div>
+
+    <h1>🕵️ Detetive de Bugs</h1>
+    <div class="level-indicator">Nível: <span id="level-display">1</span> / 10</div>
+    
+    <div class="game-container">
+        <div class="maze-area">
+            <div id="grid"></div>
+            <div id="console">
+                <div>> Sistema pronto.</div>
+                <div style="color:#8b949e">> Adicione comandos e execute.</div>
+            </div>
+        </div>
+
+        <div class="code-area">
+            <div id="code-editor"></div>
+            <button class="add-line-btn" onclick="addCommand()">➕ Adicionar Comando</button>
+            
+            <div class="controls">
+                <button id="btn-reset" class="action-btn" onclick="reloadCurrentLevel()">↺ Reiniciar Fase</button>
+                <button id="btn-run" class="action-btn" onclick="runCode()">▶ Executar Código</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="victory-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title" style="color: var(--accent-green);">SUCESSO!</h2>
+            <div style="font-size: 60px; margin: 20px;">🤖⚡</div>
+            
+            <button id="btn-next-level" class="btn-next" onclick="goToNextLevel()">Próxima Fase >></button>
+            
+            <button id="btn-restart-game" class="btn-next restart" onclick="restartGame()" style="display:none;">↻ Jogar Novamente</button>
+        </div>
+    </div>
+
+    <script>
+        const CMD_MOVE = "robo.avancar()";
+        const CMD_LEFT = "robo.virarEsquerda()";
+        const CMD_RIGHT = "robo.virarDireita()";
+        const COMMANDS_LIST = [CMD_MOVE, CMD_LEFT, CMD_RIGHT];
+        
+        const COMMAND_DATA = {
+            [CMD_MOVE]: { hint: "// Anda 1 quadrado" },
+            [CMD_LEFT]: { hint: "// Gira 90° Anti-Horário" },
+            [CMD_RIGHT]: { hint: "// Gira 90° Horário" }
+        };
+
+        const DIR_NAMES = ["NORTE", "LESTE", "SUL", "OESTE"]; 
+
+        // --- DEFINIÇÃO CORRIGIDA DAS FASES (Todas 5x5) ---
+        const LEVELS = [
+            // FASE 1
+            { map: [[2,0,1,0,0], [1,3,1,0,0], [0,0,0,0,0], [0,0,0,0,0], [0,0,0,0,0]], startDir: 1, buggyCode: [CMD_MOVE, CMD_LEFT, CMD_MOVE] },
+            // FASE 2
+            { map: [[2,0,3,0,0], [1,1,1,1,0], [0,0,0,0,0], [0,0,0,0,0], [0,0,0,0,0]], startDir: 1, buggyCode: [CMD_MOVE] },
+            // FASE 3
+            { map: [[0,0,0,0,0], [0,2,0,0,0], [0,1,3,1,0], [0,0,0,0,0], [0,0,0,0,0]], startDir: 1, buggyCode: [CMD_MOVE, CMD_LEFT, CMD_MOVE] },
+            // FASE 4
+            { map: [[1,1,1,1,1], [1,1,1,3,1], [1,0,0,0,1], [1,0,1,1,1], [2,0,1,1,1]], startDir: 1, buggyCode: [CMD_MOVE] },
+            // FASE 5
+            { map: [[0,0,0,0,0], [0,2,0,3,0], [0,0,0,0,0], [0,0,0,0,0], [0,0,0,0,0]], startDir: 0, buggyCode: [CMD_MOVE, CMD_MOVE] },
+            // FASE 6
+            { map: [[2,0,0,0,3],[1,1,1,1,1],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]], startDir: 1, buggyCode: [CMD_MOVE, CMD_MOVE] },
+            // FASE 7 (Corrigida: Agora tem 5 linhas)
+            { map: [[2,0,1,0,0],[1,0,1,0,0],[1,0,0,0,0],[1,1,1,1,3],[0,0,0,0,0]], startDir: 2, buggyCode: [CMD_MOVE, CMD_LEFT] },
+            // FASE 8 (Corrigida: Agora tem 5 linhas)
+            { map: [[3,0,0,0,2],[1,1,1,1,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]], startDir: 3, buggyCode: [CMD_MOVE, CMD_LEFT, CMD_MOVE] },
+            // FASE 9
+            { map: [[0,0,0,0,3],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[2,0,0,0,0]], startDir: 0, buggyCode: [CMD_MOVE, CMD_MOVE, CMD_RIGHT] },
+            // FASE 10
+            { map: [[2,0,1,0,3],[0,0,1,0,0],[1,0,1,1,0],[0,0,0,0,0],[0,0,0,0,0]], startDir: 1, buggyCode: [CMD_MOVE, CMD_RIGHT, CMD_MOVE] }
+        ];
+
+        let currentLevelIdx = 0;
+        let robot = { x: 0, y: 0, dir: 1, visualAngle: 90 };
+        let codeLines = [];
+        let isRunning = false;
+
+        const gridEl = document.getElementById('grid');
+        const codeEditorEl = document.getElementById('code-editor');
+        const consoleEl = document.getElementById('console');
+        const levelDisplayEl = document.getElementById('level-display');
+        const modal = document.getElementById('victory-modal');
+        const modalTitle = document.getElementById('modal-title');
+        
+        // Botões separados para evitar confusão de lógica
+        const btnNextLevel = document.getElementById('btn-next-level');
+        const btnRestartGame = document.getElementById('btn-restart-game');
+
+        function init() { loadLevel(0); }
+
+        function loadLevel(index) {
+            currentLevelIdx = index;
+            levelDisplayEl.innerText = index + 1;
+            const levelData = LEVELS[index];
+            
+            // Segurança: Garante que o robô acha a posição inicial
+            let startFound = false;
+            for(let y=0; y<5; y++){
+                for(let x=0; x<5; x++){
+                    if(levelData.map[y][x] === 2) { 
+                        robot.x = x; robot.y = y; 
+                        startFound = true;
+                    }
+                }
+            }
+            if(!startFound) { robot.x = 0; robot.y = 0; } // Fallback
+
+            robot.dir = levelData.startDir;
+            robot.visualAngle = robot.dir * 90;
+
+            codeLines = levelData.buggyCode.map(cmd => ({ cmd: cmd }));
+            
+            isRunning = false;
+            renderGrid();
+            renderCode();
+            modal.style.display = "none";
+            log(`Fase ${index+1} carregada.`);
+        }
+
+        function reloadCurrentLevel() { loadLevel(currentLevelIdx); }
+        
+        // Funções para o Modal
+        function goToNextLevel() {
+            if (currentLevelIdx < LEVELS.length - 1) {
+                loadLevel(currentLevelIdx + 1);
+            }
+        }
+
+        function restartGame() {
+            loadLevel(0);
+        }
+
+        function addCommand() {
+            if(isRunning) return;
+            codeLines.push({ cmd: CMD_MOVE });
+            renderCode();
+            setTimeout(() => {
+                const editor = document.getElementById('code-editor');
+                editor.scrollTop = editor.scrollHeight;
+            }, 50);
+        }
+
+        function removeCommand(index, event) {
+            if(isRunning) return;
+            event.stopPropagation();
+            codeLines.splice(index, 1);
+            renderCode();
+        }
+
+        function cycleCommand(index) {
+            if(isRunning) return;
+            const curr = codeLines[index].cmd;
+            const nextIdx = (COMMANDS_LIST.indexOf(curr) + 1) % COMMANDS_LIST.length;
+            codeLines[index].cmd = COMMANDS_LIST[nextIdx];
+            renderCode();
+        }
+
+        function renderCode(active = -1, error = -1, success = -1) {
+            codeEditorEl.innerHTML = '';
+            codeLines.forEach((line, index) => {
+                const div = document.createElement('div');
+                div.className = 'code-line';
+                if (index === active) div.classList.add('active');
+                if (index === error) div.classList.add('error');
+                if (index === success) div.classList.add('success');
+                
+                div.innerHTML = `
+                    <div class="line-content">
+                        <span class="line-number">${index + 1}</span>
+                        <span class="command">${line.cmd}</span>
+                        <span class="comment">${COMMAND_DATA[line.cmd].hint}</span>
+                    </div>
+                    <span class="delete-btn" onclick="removeCommand(${index}, event)">✖</span>
+                `;
+                div.onclick = () => { if (!isRunning) cycleCommand(index); };
+                codeEditorEl.appendChild(div);
+            });
+        }
+
+        function renderGrid() {
+            gridEl.innerHTML = '';
+            const map = LEVELS[currentLevelIdx].map;
+            
+            for(let y=0; y<5; y++) {
+                for(let x=0; x<5; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    
+                    // Verifica se o mapa tem dados válidos antes de acessar
+                    if (map[y] && map[y][x] !== undefined) {
+                        if (map[y][x] === 1) cell.classList.add('wall');
+                        if (map[y][x] === 3) {
+                            cell.classList.add('goal');
+                            if (robot.x !== x || robot.y !== y) cell.innerHTML = '⚡';
+                        }
+                    }
+
+                    if (robot.x === x && robot.y === y) {
+                        const roboDiv = document.createElement('div');
+                        roboDiv.className = 'robot-container';
+
+                        const arrow = document.createElement('div');
+                        arrow.className = 'robot-arrow';
+                        arrow.innerHTML = '⬆️';
+                        arrow.style.transform = `rotate(${robot.visualAngle}deg)`;
+
+                        const face = document.createElement('div');
+                        face.className = 'robot-face';
+                        face.innerHTML = '🤖';
+                        
+                        roboDiv.appendChild(arrow);
+                        roboDiv.appendChild(face);
+                        cell.appendChild(roboDiv);
+                    }
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+
+        function log(msg, type = "info") {
+            const color = type === "error" ? "#da3633" : (type === "success" ? "#2ea043" : "#fff");
+            consoleEl.innerHTML += `<div style="color:${color}; border-left: 2px solid ${color}; padding-left: 5px; margin-bottom: 2px;">> ${msg}</div>`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function showVictory() {
+            log("ENERGIA ENCONTRADA!", "success");
+            
+            // Lógica para mostrar o botão certo
+            if (currentLevelIdx >= LEVELS.length - 1) {
+                // Última fase: Mostra reiniciar, esconde próximo
+                modalTitle.innerText = "PARABÉNS! JOGO ZERADO! 🏆";
+                btnNextLevel.style.display = "none";
+                btnRestartGame.style.display = "inline-block";
+            } else {
+                // Fases normais: Mostra próximo, esconde reiniciar
+                modalTitle.innerText = "SUCESSO!";
+                btnNextLevel.style.display = "inline-block";
+                btnRestartGame.style.display = "none";
+            }
+            
+            modal.style.display = "flex";
+            isRunning = false;
+        }
+
+        async function runCode() {
+            if (isRunning) return;
+            isRunning = true;
+            
+            // Reseta posição visualmente antes de rodar
+            const levelData = LEVELS[currentLevelIdx];
+            for(let y=0; y<5; y++){
+                for(let x=0; x<5; x++){
+                    if(levelData.map[y][x] === 2) { robot.x = x; robot.y = y; }
+                }
+            }
+            robot.dir = levelData.startDir;
+            robot.visualAngle = robot.dir * 90;
+            
+            renderGrid();
+            consoleEl.innerHTML = "";
+            log("Executando...", "info");
+
+            for (let i = 0; i < codeLines.length; i++) {
+                renderCode(i);
+                await new Promise(r => setTimeout(r, 800));
+                
+                const cmd = codeLines[i].cmd;
+                
+                if (cmd === CMD_MOVE) {
+                    moveRobot();
+                    log(`Avançou`);
+                }
+                else if (cmd === CMD_LEFT) {
+                    turn(-1);
+                    log(`Virou Esquerda`);
+                }
+                else if (cmd === CMD_RIGHT) {
+                    turn(1);
+                    log(`Virou Direita`);
+                }
+
+                renderGrid();
+
+                const status = checkStatus();
+                if (status !== "ok" && status !== "goal") {
+                    log("ERRO: " + status, "error");
+                    renderCode(-1, i);
+                    isRunning = false;
+                    return;
+                }
+                if (status === "goal") {
+                    renderCode(-1, -1, i);
+                    showVictory();
+                    return;
+                }
+            }
+            
+            if (LEVELS[currentLevelIdx].map[robot.y][robot.x] === 3) {
+                 showVictory();
+            } else {
+                log("Fim do código. Objetivo não alcançado.", "error");
+                isRunning = false;
+            }
+        }
+
+        function moveRobot() {
+            if (robot.dir === 0) robot.y--;
+            if (robot.dir === 1) robot.x++;
+            if (robot.dir === 2) robot.y++;
+            if (robot.dir === 3) robot.x--;
+        }
+        
+        function turn(side) { 
+            robot.dir = (robot.dir + side + 4) % 4;
+            robot.visualAngle += (side * 90);
+        }
+        
+        function checkStatus() {
+            if (robot.x < 0 || robot.x >= 5 || robot.y < 0 || robot.y >= 5) return "Caiu do mapa!";
+            if (LEVELS[currentLevelIdx].map[robot.y][robot.x] === 1) return "Colisão com parede!";
+            if (LEVELS[currentLevelIdx].map[robot.y][robot.x] === 3) return "goal";
+            return "ok";
+        }
+
+        init();
+    </script>
+</body>
+</html>
