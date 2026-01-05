@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O CHEF ALGORÍTMICO - MASTER EDITION</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Russo+One&family=Inconsolata:wght@700&family=Permanent+Marker&display=swap');
+
+        :root {
+            --bg-color: #2c3e50;
+            --sidebar-bg: #d35400;
+            --code-bg: #34495e;
+            --accent: #27ae60;
+            --accent-hover: #2ecc71;
+            --error: #c0392b;
+        }
+
+        body {
+            font-family: 'Courier Prime', monospace;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- TELA DE INÍCIO --- */
+        #start-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 999;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; color: white; text-align: center;
+        }
+
+        .instruction-card {
+            background: var(--bg-color); border: 4px solid var(--sidebar-bg);
+            padding: 40px; max-width: 700px; border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
+        }
+
+        .instruction-card h1 { color: var(--sidebar-bg); font-family: 'Russo One', sans-serif; font-size: 2.5rem; margin-bottom: 10px; }
+        .instruction-card ul { text-align: left; margin: 20px 0; font-size: 1rem; line-height: 1.6; }
+        .start-btn {
+            background: var(--accent); color: white; border: none; padding: 15px 40px;
+            font-size: 1.5rem; font-weight: bold; cursor: pointer; border-radius: 5px;
+            font-family: 'Russo One', sans-serif; transition: transform 0.2s;
+        }
+        .start-btn:hover { transform: scale(1.05); background: var(--accent-hover); }
+
+        /* --- BARRA LATERAL (TERMINAL) --- */
+        .sidebar {
+            width: 340px; background-color: var(--sidebar-bg); color: white;
+            padding: 20px; display: flex; flex-direction: column; z-index: 10;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.3);
+        }
+
+        .btn-back-nav {
+            background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.4);
+            padding: 8px 15px; margin-bottom: 15px; cursor: pointer; font-family: 'Russo One';
+            border-radius: 4px; width: fit-content; transition: background 0.2s;
+        }
+        .btn-back-nav:hover { background: rgba(0,0,0,0.4); }
+
+        .sidebar h2 { margin-top: 0; font-family: 'Russo One'; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 10px; }
+
+        .terminal-input-area { display: flex; gap: 5px; margin-bottom: 5px; }
+        #commandInput { 
+            flex: 1; padding: 12px; font-family: 'Courier Prime', monospace; text-transform: uppercase;
+            border: 3px solid #a04000; font-weight: bold; outline: none; border-radius: 4px;
+        }
+        #commandInput:focus { border-color: #ffeaa7; }
+        .btn-terminal { background: #a04000; color: white; border: none; padding: 0 15px; cursor: pointer; font-weight: bold; font-family: 'Russo One'; border-radius: 4px;}
+        .btn-terminal:hover { background: #d35400; }
+        
+        #input-error-msg {
+            color: #ffdddd; background-color: rgba(192, 57, 43, 0.9);
+            font-size: 0.75rem; min-height: 25px; display: flex; align-items: center;
+            padding: 5px; margin-bottom: 15px; border-radius: 4px;
+        }
+
+        /* Lista de Ajuda */
+        .help-section { margin-top: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; font-size: 0.75rem; border: 2px dashed rgba(255,255,255,0.3); overflow-y: auto; max-height: 40vh;}
+        .help-section h4 { margin: 10px 0 5px 0; color: #f1c40f; border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .help-section h4:first-child { margin-top: 0; }
+        .help-section li { margin-bottom: 6px; cursor: pointer; padding: 3px; border-radius: 3px; transition: background 0.2s;}
+        .help-section li:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+        /* --- ÁREA PRINCIPAL --- */
+        .main-area { flex: 1; display: flex; flex-direction: row; }
+
+        /* Área de Código */
+        .coding-area {
+            flex: 1; padding: 20px; background-color: #ecf0f1;
+            display: flex; flex-direction: column; border-right: 4px solid #bdc3c7;
+        }
+        .code-container {
+            background-color: var(--code-bg); flex: 1; border-radius: 5px; padding: 20px;
+            color: #ecf0f1; overflow-y: auto; border: 4px solid #2c3e50;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+        }
+        .code-line {
+            padding: 8px; border-bottom: 1px dashed #7f8c8d; display: flex;
+            justify-content: space-between; align-items: center; font-size: 0.95rem;
+        }
+        .code-line span { color: #f1c40f; font-weight: bold; }
+        .remove-btn { color: #e74c3c; font-weight: bold; cursor: pointer; font-size: 1.2rem;}
+
+        .controls { margin-top: 15px; display: flex; gap: 10px; }
+        .btn { padding: 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: 'Russo One'; color: white; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.2);}
+        .btn:active { transform: translateY(2px); box-shadow: none; }
+        .btn-run { background-color: var(--accent); flex: 2; }
+        .btn-run:hover { background-color: var(--accent-hover); }
+        .btn-clear { background-color: var(--error); flex: 1; }
+
+        /* --- ÁREA VISUAL (COZINHA) --- */
+        .stage-area {
+            flex: 1.3; position: relative; display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-end; padding-bottom: 50px;
+            z-index: 0; overflow: hidden;
+            background-color: #ecf0f1;
+        }
+        /* Fundo com transparência */
+        .stage-area::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            
+            /* RESTAURADO AQUI: */
+            background-image: url('fundo_cozinha.png');
+            
+            background-size: cover; background-position: center; 
+            opacity: 0.35; z-index: -1;
+        }
+
+        /* Notificação de Ação (Toast) */
+        #action-toast {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(44, 62, 80, 0.9); color: #f1c40f; padding: 20px 40px;
+            font-family: 'Russo One'; font-size: 2rem; border-radius: 10px; border: 3px solid #f1c40f;
+            display: none; z-index: 100; animation: popIn 0.3s; text-shadow: 2px 2px 0 #000;
+        }
+        @keyframes popIn { from { transform: translate(-50%, -50%) scale(0); } to { transform: translate(-50%, -50%) scale(1); } }
+
+        /* --- COMANDA (TICKET) --- */
+        .ticket-holder {
+            position: absolute; top: 0; left: 0; width: 100%; height: 50px;
+            background: linear-gradient(to bottom, #bdc3c7, #8e9eab, #bdc3c7);
+            border-bottom: 4px solid #5f6c6d; display: flex; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 50;
+        }
+
+        .ticket {
+            background-color: #fffdf0;
+            width: 320px; padding: 25px 25px 40px 25px; margin-top: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            font-family: 'Inconsolata', monospace; color: #2c3e50;
+            transform-origin: top center; position: relative;
+            animation: swing 4s ease-in-out infinite alternate;
+        }
+        .ticket::after {
+            content: ""; position: absolute; bottom: -10px; left: 0; width: 100%; height: 10px;
+            background-image: linear-gradient(135deg, transparent 50%, #fffdf0 50%), linear-gradient(225deg, transparent 50%, #fffdf0 50%);
+            background-size: 20px 20px; background-repeat: repeat-x;
+        }
+
+        .ticket h3 { 
+            text-align: center; border-bottom: 3px dashed #333; padding-bottom: 10px; 
+            margin: 0 0 15px 0; font-size: 1.6rem; text-transform: uppercase; color: #000; letter-spacing: 2px;
+        }
+
+        .ticket-item { display: flex; align-items: flex-end; margin-bottom: 10px; font-size: 1.1rem; font-weight: 700; width: 100%; }
+        .ticket-name { white-space: nowrap; }
+        .ticket-dots { flex: 1; border-bottom: 3px dotted #bdc3c7; margin: 0 5px 4px 5px; }
+        .ticket-check { font-family: 'Permanent Marker', cursive; color: #c0392b; font-size: 1.4rem; min-width: 30px; text-align: right; }
+
+        .ticket-hint { 
+            margin-top: 20px; padding-top: 10px; border-top: 2px solid #333;
+            font-family: 'Permanent Marker', cursive; font-size: 1rem; color: #555; 
+            text-align: center; transform: rotate(-1deg);
+        }
+
+        /* --- MONTAGEM DO PRATO --- */
+        .plate-base {
+            width: 320px; height: 25px; background: #e0e0e0; border-radius: 50%;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.5); margin-bottom: 20px; z-index: 0;
+            border: 4px solid #95a5a6; background-image: linear-gradient(to right, #bdc3c7, #ffffff, #bdc3c7);
+        }
+        .plate-stack {
+            display: flex; flex-direction: column-reverse; align-items: center;
+            margin-bottom: -18px; z-index: 1; min-height: 50px;
+        }
+
+        /* --- CLASSE BASE GERAL (LIMPA, SEM SOMBRAS) --- */
+        .ingredient {
+            background-color: transparent !important;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center bottom;
+            
+            margin: -20px 0; position: relative;
+            
+            animation: dropIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* --- CONFIGURAÇÃO DAS IMAGENS --- */
+        .pao-baixo { width: 260px; height: 65px; z-index: 5; background-image: url('ing_pao_baixo.png'); }
+        .cebola { width: 240px; height: 45px; z-index: 8; background-image: url('ing_cebola.png'); }
+        
+        /* CARNE */
+        .carne { width: 250px; height: 70px; z-index: 10; background-image: url('ing_carne.png'); transition: filter 0.3s; }
+        
+        /* Filtros de cor da carne */
+        .carne-mal { filter: sepia(0.3) saturate(1.8) hue-rotate(-15deg); }
+        .carne-ponto { filter: brightness(0.95); }
+        .carne-bem { filter: brightness(0.6) contrast(1.3) sepia(0.4); }
+
+        .queijo { width: 260px; height: 45px; z-index: 15; margin-top: -25px; background-image: url('ing_queijo.png'); }
+        .alface { width: 270px; height: 55px; z-index: 20; background-image: url('ing_alface.png'); }
+        .tomate { width: 240px; height: 40px; z-index: 25; background-image: url('ing_tomate.png'); }
+        .pao-cima { width: 270px; height: 85px; z-index: 30; margin-top: -30px; background-image: url('ing_pao_cima.png'); }
+
+
+        /* MODAL DE RESULTADO */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: white; padding: 40px; border: 5px solid #2c3e50;
+            text-align: center; max-width: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .modal h2 { margin-top: 0; font-family: 'Russo One'; font-size: 2.2rem;}
+        .success { color: var(--accent); }
+        .fail { color: var(--error); }
+        .modal-msg { font-size: 1.2rem; margin: 20px 0; }
+
+        @keyframes dropIn { from { transform: translateY(-400px) rotate(5deg); opacity: 0; } to { transform: translateY(0) rotate(0deg); opacity: 1; } }
+        @keyframes swing { from { transform: rotate(-2deg); } to { transform: rotate(2deg); } }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="musica_chefe.mp3" type="audio/mp3">
+    </audio>
+
+    <div id="start-screen">
+        <div class="instruction-card">
+            <h1>CHEF ALGORÍTMICO</h1>
+            <h3>MASTER EDITION</h3>
+            <ul>
+                <li><strong>1. PREPARAÇÃO:</strong> Alguns ingredientes precisam de preparo prévio (ex: Cortar o pão).</li>
+                <li><strong>2. PONTO DA CARNE:</strong> O cliente escolhe: Mal Passada, Ao Ponto ou Bem Passada.</li>
+                <li><strong>3. SINTAXE:</strong> Digite os comandos exatamente como no menu de ajuda.</li>
+                <li><strong>4. EXECUÇÃO:</strong> Monte o algoritmo e clique em SERVIR.</li>
+            </ul>
+            <br>
+            <button class="start-btn" onclick="startGame()">ENTRAR NA COZINHA</button>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <button class="btn-back-nav" onclick="goBack()">⬅ SAIR DO JOGO</button>
+        <h2>TERMINAL</h2>
+        
+        <div class="terminal-input-area">
+            <input type="text" id="commandInput" placeholder="DIGITE O COMANDO..." autocomplete="off">
+            <button class="btn-terminal" onclick="handleInput()">↵</button>
+        </div>
+        <div id="input-error-msg"></div>
+
+        <div class="help-section">
+             <div id="help-content"></div>
+        </div>
+    </div>
+
+    <div class="main-area">
+        <div class="coding-area">
+            <h3>📝 ALGORITMO (RECEITA)</h3>
+            <div class="code-container" id="code-list">
+                <div style="padding:10px; color: #7f8c8d;">// AGUARDANDO COMANDOS...</div>
+            </div>
+            <div class="controls">
+                <button class="btn btn-clear" onclick="clearCode()">LIMPAR TUDO</button>
+                <button class="btn btn-run" onclick="runCode()">SERVIR PRATO</button>
+            </div>
+        </div>
+
+        <div class="stage-area">
+            <div id="action-toast">AÇÃO</div>
+            
+            <div class="ticket-holder">
+                <div class="ticket">
+                    <h3>MESA #<span id="level-id">1</span></h3>
+                    <div id="ticket-items">
+                        </div>
+                    <div class="ticket-hint" id="ticket-hint-text">
+                        DICA DO GARÇOM...
+                    </div>
+                </div>
+            </div>
+
+            <div class="plate-stack" id="plate"></div>
+            <div class="plate-base"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="result-modal">
+        <div class="modal-content">
+            <h2 id="modal-title">RESULTADO</h2>
+            <p id="modal-msg" class="modal-msg">MENSAGEM</p>
+            <button class="btn btn-run" id="modal-btn">CONTINUAR</button>
+        </div>
+    </div>
+
+    <script>
+        // --- NAVEGAÇÃO ---
+        function goBack() { window.history.back(); }
+        function setInput(text) { 
+            const input = document.getElementById('commandInput');
+            input.value = text;
+            input.focus();
+        }
+
+        // --- DADOS DO JOGO ---
+        const actionsMap = {
+            "CORTE O PÃO": { type: 'action', key: 'acao_corte', display: '🔪 CORTANDO PÃO...' }
+        };
+
+        const ingredientsMap = {
+            "ADICIONE A BASE DO PÃO": { key: "pao_baixo", display: "BASE DO PÃO" },
+            "ADICIONE A CEBOLA": { key: "cebola", display: "CEBOLA ROXA" },
+            "ADICIONE O QUEIJO": { key: "queijo", display: "QUEIJO CHEDDAR" },
+            "ADICIONE O ALFACE": { key: "alface", display: "ALFACE AMERICANA" },
+            "ADICIONE O TOMATE": { key: "tomate", display: "TOMATE FATIADO" },
+            "ADICIONE O TOPO DO PÃO": { key: "pao_cima", display: "TOPO DO PÃO" },
+            "ADICIONE CARNE MAL PASSADA": { key: "carne_mal", display: "CARNE (MAL PAS.)", baseClass: "carne carne-mal" },
+            "ADICIONE CARNE AO PONTO": { key: "carne_ponto", display: "CARNE (AO PONTO)", baseClass: "carne carne-ponto" },
+            "ADICIONE CARNE BEM PASSADA": { key: "carne_bem", display: "CARNE (BEM PAS.)", baseClass: "carne carne-bem" }
+        };
+
+        const visualClasses = {
+            'pao_baixo': 'pao-baixo',
+            'cebola': 'cebola',
+            'queijo': 'queijo',
+            'alface': 'alface',
+            'tomate': 'tomate',
+            'pao_cima': 'pao-cima'
+        };
+
+        const levels = [
+            {
+                id: 1,
+                target: ['acao_corte', 'pao_baixo', 'carne_ponto', 'pao_cima'],
+                displayItems: ["CORTAR PÃO", "BASE TRADICIONAL", "CARNE AO PONTO", "TOPO TRADICIONAL"],
+                hint: "NÃO SE ESQUEÇA DE CORTAR O PÃO ANTES DE TUDO!"
+            },
+            {
+                id: 2,
+                target: ['acao_corte', 'pao_baixo', 'carne_bem', 'queijo', 'pao_cima'],
+                displayItems: ["CORTAR PÃO", "BASE", "CARNE BEM PASSADA", "QUEIJO CHEDDAR", "TOPO"],
+                hint: "CLIENTE QUER A CARNE BEM PASSADA. CUIDADO."
+            },
+            {
+                id: 3,
+                target: ['acao_corte', 'pao_baixo', 'alface', 'carne_mal', 'cebola', 'pao_cima'],
+                displayItems: ["CORTAR", "BASE", "ALFACE", "CARNE MAL PASSADA", "CEBOLA ROXA", "TOPO"],
+                hint: "CEBOLA POR CIMA DA CARNE VERMELHINHA."
+            },
+            {
+                id: 4,
+                target: ['acao_corte', 'pao_baixo', 'carne_ponto', 'queijo', 'carne_ponto', 'queijo', 'pao_cima'],
+                displayItems: ["CORTAR", "BASE", "CARNE (PONTO)", "QUEIJO", "CARNE (PONTO)", "QUEIJO", "TOPO"],
+                hint: "DUPLO COM QUEIJO. MANTENHA O PADRÃO."
+            }
+        ];
+
+        let currentLevelIndex = 0;
+        let userCode = [];
+        let isRunning = false;
+
+        // --- INICIALIZAÇÃO ---
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            
+            // --- TOCA A MÚSICA AO INICIAR ---
+            const music = document.getElementById('bg-music');
+            if(music) {
+                music.volume = 0.4; // Volume baixo (0.0 a 1.0)
+                music.play().catch(e => console.log("Erro ao tocar áudio:", e));
+            }
+
+            init();
+        }
+
+        function init() {
+            populateHelpList();
+            loadLevel(currentLevelIndex);
+            setupInputListeners();
+        }
+
+        // Gera a lista de ajuda na sidebar
+        function populateHelpList() {
+             const container = document.getElementById('help-content');
+             container.innerHTML = '';
+
+             const createGroup = (title, items) => {
+                 const h4 = document.createElement('h4');
+                 h4.innerText = title;
+                 container.appendChild(h4);
+                 const ul = document.createElement('ul');
+                 ul.style.listStyle = "none"; ul.style.padding = "0"; ul.style.margin = "0 0 10px 0";
+                 
+                 items.forEach(cmd => {
+                     const li = document.createElement('li');
+                     li.innerText = `> ${cmd}`;
+                     li.onclick = () => setInput(cmd);
+                     ul.appendChild(li);
+                 });
+                 container.appendChild(ul);
+             };
+
+             createGroup("AÇÕES DE PREPARO", ["CORTE O PÃO"]);
+             createGroup("CARNES (PONTO)", ["ADICIONE CARNE MAL PASSADA", "ADICIONE CARNE AO PONTO", "ADICIONE CARNE BEM PASSADA"]);
+             createGroup("INGREDIENTES", ["ADICIONE A BASE DO PÃO", "ADICIONE O QUEIJO", "ADICIONE A CEBOLA", "ADICIONE O ALFACE", "ADICIONE O TOMATE", "ADICIONE O TOPO DO PÃO"]);
+        }
+
+        function setupInputListeners() {
+            document.getElementById('commandInput').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') handleInput();
+            });
+        }
+
+        // --- LÓGICA DO JOGO ---
+
+        function loadLevel(index) {
+            if (index >= levels.length) {
+                showModal("PARABÉNS, CHEF!", "VOCÊ COMPLETOU O TURNO COM PERFEIÇÃO!", true, true);
+                return;
+            }
+            const level = levels[currentLevelIndex];
+            
+            document.getElementById('level-id').innerText = level.id;
+            document.getElementById('ticket-hint-text').innerText = "OBS: " + level.hint;
+            
+            const ticketList = document.getElementById('ticket-items');
+            ticketList.innerHTML = '';
+            
+            level.displayItems.forEach(itemText => {
+                const div = document.createElement('div');
+                div.className = 'ticket-item';
+                div.innerHTML = `
+                    <span class="ticket-name">- ${itemText}</span>
+                    <span class="ticket-dots"></span>
+                    <span class="ticket-check">[ ]</span>
+                `;
+                ticketList.appendChild(div);
+            });
+
+            clearCode();
+        }
+
+        function handleInput() {
+            if (isRunning) return;
+            const inputField = document.getElementById('commandInput');
+            const errorMsg = document.getElementById('input-error-msg');
+            const rawInput = inputField.value.trim().toUpperCase();
+
+            if (rawInput === "") return;
+
+            let foundItem = null;
+            let foundType = '';
+
+            if (actionsMap[rawInput]) {
+                foundItem = actionsMap[rawInput];
+                foundType = 'action';
+            } else if (ingredientsMap[rawInput]) {
+                foundItem = ingredientsMap[rawInput];
+                foundType = 'ingredient';
+            }
+
+            if (foundItem) {
+                userCode.push({ ...foundItem, commandText: rawInput });
+                renderCodeList();
+                inputField.value = '';
+                errorMsg.innerText = ""; 
+            } else {
+                errorMsg.innerHTML = `⚠️ COMANDO DESCONHECIDO: "${rawInput}"`;
+                inputField.style.borderColor = "var(--error)";
+                setTimeout(() => { inputField.style.borderColor = "#a04000"; }, 500);
+            }
+        }
+
+        function renderCodeList() {
+            const list = document.getElementById('code-list');
+            list.innerHTML = '';
+            
+            if (userCode.length === 0) {
+                list.innerHTML = '<div style="padding:10px; color: #7f8c8d;">// SEU ALGORITMO...</div>';
+                return;
+            }
+
+            userCode.forEach((itemObj, index) => {
+                const div = document.createElement('div');
+                div.className = 'code-line';
+                div.innerHTML = `
+                    <code>${index + 1}. <span>${itemObj.commandText}</span>;</code>
+                    <div class="remove-btn" onclick="removeCommand(${index})">×</div>
+                `;
+                list.appendChild(div);
+            });
+            list.scrollTop = list.scrollHeight;
+        }
+
+        function removeCommand(index) {
+            if (isRunning) return;
+            userCode.splice(index, 1);
+            renderCodeList();
+        }
+
+        function clearCode() {
+            if (isRunning) return;
+            userCode = [];
+            renderCodeList();
+            document.getElementById('plate').innerHTML = '';
+            document.getElementById('input-error-msg').innerText = "";
+        }
+
+        // --- EXECUÇÃO (VISUALIZAÇÃO) ---
+
+        async function runCode() {
+            if (userCode.length === 0) {
+                document.getElementById('input-error-msg').innerText = "⚠️ A RECEITA ESTÁ VAZIA.";
+                return;
+            }
+
+            isRunning = true;
+            const plate = document.getElementById('plate');
+            const toast = document.getElementById('action-toast');
+            plate.innerHTML = ''; 
+            document.getElementById('input-error-msg').innerText = ""; 
+
+            for (let i = 0; i < userCode.length; i++) {
+                const step = userCode[i];
+                const codeLines = document.querySelectorAll('.code-line');
+                
+                if(codeLines[i]) {
+                    codeLines[i].style.backgroundColor = '#2c3e50';
+                    codeLines[i].style.color = '#fff';
+                }
+
+                if (step.type === 'action') {
+                    toast.innerText = step.display;
+                    toast.style.display = 'block';
+                    await new Promise(r => setTimeout(r, 1500)); 
+                    toast.style.display = 'none';
+                } else {
+                    const el = document.createElement('div');
+                    const className = step.baseClass || visualClasses[step.key];
+                    el.className = `ingredient ${className}`;
+                    plate.appendChild(el);
+                    
+                    await new Promise(r => setTimeout(r, 1500)); 
+                }
+
+                if(codeLines[i]) {
+                    codeLines[i].style.backgroundColor = 'transparent';
+                    codeLines[i].style.color = 'inherit';
+                }
+            }
+
+            validateResult();
+            isRunning = false;
+        }
+
+        function validateResult() {
+            const currentLevel = levels[currentLevelIndex];
+            const target = currentLevel.target;
+            const userKeys = userCode.map(u => u.key);
+            const success = JSON.stringify(userKeys) === JSON.stringify(target);
+
+            if (success) {
+                showModal("PEDIDO PRONTO! 🛎️", "TUDO PERFEITO. O CLIENTE ADOROU.", true);
+            } else {
+                let msg = "A ORDEM OU OS INGREDIENTES ESTÃO ERRADOS.";
+                if (!userKeys.includes('acao_corte')) msg = "VOCÊ ESQUECEU DE CORTAR O PÃO!";
+                else if (userKeys.toString().includes('carne') && !success) msg = "VERIFIQUE O PONTO DA CARNE.";
+                
+                showModal("ALGO DEU ERRADO... 🐜", msg, false);
+            }
+        }
+
+        function showModal(titleText, msgText, isSuccess, isFinal = false) {
+            const modal = document.getElementById('result-modal');
+            const title = document.getElementById('modal-title');
+            const msg = document.getElementById('modal-msg');
+            const btn = document.getElementById('modal-btn');
+
+            title.innerText = titleText;
+            title.className = isSuccess ? "success" : "fail";
+            msg.innerText = msgText;
+            
+            modal.style.display = 'flex';
+
+            btn.onclick = () => {
+                modal.style.display = 'none';
+                if (isSuccess) {
+                    if(isFinal) {
+                        currentLevelIndex = 0; 
+                        loadLevel(0);
+                    } else {
+                        currentLevelIndex++;
+                        loadLevel(currentLevelIndex);
+                    }
+                }
+            };
+        }
+    </script>
+</body>
+</html>
