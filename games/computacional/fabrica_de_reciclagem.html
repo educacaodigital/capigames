@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>♻️MESTRE DA RECICLAGEM</title>
+    <style>
+        /* --- RESET E FONTE --- */
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            
+            /* CONFIGURAÇÃO DO FUNDO */
+            background: url('fundo_reciclar.png') no-repeat center center fixed;
+            background-size: cover;
+            
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- CABEÇALHO --- */
+        header {
+            background: linear-gradient(135deg, #00b894, #0984e3);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            color: white;
+            z-index: 10;
+            height: 80px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        /* Botão Voltar */
+        .btn-back {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-back:hover {
+            background-color: white;
+            color: #0984e3;
+        }
+
+        /* --- CONTAINER PRINCIPAL --- */
+        #main-container {
+            flex: 1;
+            display: flex;
+            margin: 20px;
+            background-color: rgba(255, 255, 255, 0.92);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* --- ÁREA DO JOGO (ESQUERDA) --- */
+        #game-area {
+            flex: 2;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            border-right: 1px solid #ccc;
+        }
+
+        /* --- ÁREA DO CÓDIGO (DIREITA) --- */
+        #code-panel {
+            flex: 1;
+            background-color: #2d3436;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            color: #ecf0f1;
+            font-family: 'Courier New', monospace;
+        }
+
+        h2 { color: #2d3436; margin: 0; font-size: 22px; }
+        
+        /* Display do Item */
+        #item-display-container {
+             height: 140px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             margin-top: 20px;
+        }
+
+        #item-display {
+            font-size: 100px;
+            animation: bounce 2s infinite;
+            transition: all 0.3s ease;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* --- LIXEIRAS --- */
+        .bins-container {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+            align-items: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .bin-wrapper {
+            width: 18%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .bin-img {
+            width: 100%;
+            height: auto;
+            max-height: 130px;
+            object-fit: contain;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+        }
+
+        .bin-label {
+            margin-top: 5px;
+            color: #636e72;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .bin-wrapper.active-drop { 
+            transform: scale(1.15); 
+            filter: brightness(1.2);
+        }
+
+        /* --- BOTÕES DE ESCOLHA --- */
+        #controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-choice {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        .btn-choice:active { transform: translateY(4px); box-shadow: none; }
+        
+        .btn-organic { background-color: #8D6E63; }
+        .btn-paper   { background-color: #2980b9; }
+        .btn-plastic { background-color: #e74c3c; }
+        .btn-glass   { background-color: #27ae60; }
+        .btn-metal   { background-color: #f1c40f; color: #333; }
+        
+        /* Botão Desfazer */
+        .btn-undo {
+            background-color: #b2bec3;
+            color: #2d3436;
+            margin-left: 15px; /* Separa dos outros */
+            border: 2px solid #636e72;
+        }
+        .btn-undo:hover { background-color: #dfe6e9; }
+
+        /* --- LISTA DE CÓDIGO --- */
+        #code-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            border-left: 3px solid #555;
+            padding-left: 15px;
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .code-line {
+            color: #dfe6e9;
+            padding: 6px;
+            border-bottom: 1px solid #444;
+            font-size: 14px;
+        }
+        
+        .code-line span { color: #fdcb6e; }
+        .code-line.executing { background-color: #0984e3; color: white; border-radius: 4px; }
+        .code-line.error { background-color: #d63031; color: white; border-radius: 4px; }
+        .code-line.success { background-color: #00b894; color: white; border-radius: 4px; }
+
+        #btn-run {
+            width: 100%;
+            padding: 15px;
+            background-color: #00b894;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none; 
+            font-weight: bold;
+            box-shadow: 0 5px 0 #008c70;
+            transition: all 0.2s;
+        }
+        #btn-run:hover { background-color: #00d2a8; }
+        #btn-run:active { transform: translateY(4px); box-shadow: none; }
+
+        #status-msg {
+            text-align: center;
+            font-weight: bold;
+            height: 30px;
+            margin-top: 10px;
+            color: #636e72;
+        }
+        
+        /* --- MODAIS --- */
+        .modal {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center; align-items: center; flex-direction: column;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        .modal h1 { font-size: 50px; color: white; margin-bottom: 10px; }
+        .modal p { color: #dfe6e9; font-size: 20px; margin-bottom: 30px; }
+        
+        .modal button { 
+            padding: 15px 30px; 
+            font-size: 20px; 
+            cursor: pointer; 
+            border-radius: 50px; 
+            border:none; 
+            background: linear-gradient(45deg, #0984e3, #00b894); 
+            color: white; 
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(0, 184, 148, 0.4);
+        }
+        .modal button:hover { transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="btn-back" onclick="window.history.back()">
+            ⬅ Voltar
+        </button>
+        <h1>♻️ Mestre da Reciclagem: Algoritmos</h1>
+        <div style="width: 100px;"></div>
+    </header>
+
+    <div id="main-container">
+        
+        <div id="game-area">
+            <div>
+                <h2>Fase <span id="level-num">1</span> <small style="color:#aaa">|</small> Item <span id="item-count">1</span>/10</h2>
+                <div id="status-msg">Programe a classificação...</div>
+            </div>
+
+            <div id="item-display-container">
+                <div id="item-display">❓</div>
+            </div>
+
+            <div id="controls">
+                <button class="btn-choice btn-organic" onclick="inputCommand('organic')">Orgânico</button>
+                <button class="btn-choice btn-paper" onclick="inputCommand('paper')">Papel</button>
+                <button class="btn-choice btn-plastic" onclick="inputCommand('plastic')">Plástico</button>
+                <button class="btn-choice btn-glass" onclick="inputCommand('glass')">Vidro</button>
+                <button class="btn-choice btn-metal" onclick="inputCommand('metal')">Metal</button>
+                <button class="btn-choice btn-undo" onclick="undoLastCommand()" title="Apagar último comando">↩️ Desfazer</button>
+            </div>
+
+            <div class="bins-container">
+                <div id="bin-organic" class="bin-wrapper">
+                    <img src="lixeira_organico.png" class="bin-img" alt="Orgânico">
+                    <span class="bin-label">Orgânico</span>
+                </div>
+                <div id="bin-paper" class="bin-wrapper">
+                    <img src="lixeira_papel.png" class="bin-img" alt="Papel">
+                    <span class="bin-label">Papel</span>
+                </div>
+                <div id="bin-plastic" class="bin-wrapper">
+                    <img src="lixeira_plastico.png" class="bin-img" alt="Plástico">
+                    <span class="bin-label">Plástico</span>
+                </div>
+                <div id="bin-glass" class="bin-wrapper">
+                    <img src="lixeira_vidro.png" class="bin-img" alt="Vidro">
+                    <span class="bin-label">Vidro</span>
+                </div>
+                <div id="bin-metal" class="bin-wrapper">
+                    <img src="lixeira_metal.png" class="bin-img" alt="Metal">
+                    <span class="bin-label">Metal</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="code-panel">
+            <h3 style="color:#b2bec3; border-bottom:1px solid #555; padding-bottom:10px; margin-top:0;"> 
+                📄 script: reciclagem
+            </h3>
+            <div id="code-list"></div>
+            <button id="btn-run" onclick="executeCode()">▶️ EXECUTAR CÓDIGO</button>
+        </div>
+    </div>
+
+    <div id="modal-gameover" class="modal">
+        <h1 style="color:#ff7675">BUG ENCONTRADO! 🐞</h1>
+        <p>O código parou porque um item foi para o lugar errado.</p>
+        <button onclick="restartLevel()">Tentar Novamente</button>
+    </div>
+
+    <div id="modal-win" class="modal">
+        <h1 style="color:#55efc4">SUCESSO! 🚀</h1>
+        <p>Todos os itens foram reciclados corretamente.</p>
+        <button onclick="nextLevel()">Próxima Fase ➡</button>
+    </div>
+
+    <script>
+        const dbItems = [
+            { name: "Casca Banana", type: "organic", emoji: "🍌" },
+            { name: "Maçã", type: "organic", emoji: "🍎" },
+            { name: "Folha", type: "organic", emoji: "🍂" },
+            { name: "Osso", type: "organic", emoji: "🦴" },
+            { name: "Resto Comida", type: "organic", emoji: "🍕" },
+            { name: "Jornal", type: "paper", emoji: "📰" },
+            { name: "Caixa Papelão", type: "paper", emoji: "📦" },
+            { name: "Caderno", type: "paper", emoji: "🗒️" },
+            { name: "Garrafa PET", type: "plastic", emoji: "🥤" },
+            { name: "Sacola", type: "plastic", emoji: "🛍️" },
+            { name: "Embalagem", type: "plastic", emoji: "🧴" },
+            { name: "Pote Vidro", type: "glass", emoji: "🫙" },
+            { name: "Garrafa Vidro", type: "glass", emoji: "🍾" },
+            { name: "Copo Quebrado", type: "glass", emoji: "🍸" },
+            { name: "Lata Refri", type: "metal", emoji: "🥫" },
+            { name: "Talher", type: "metal", emoji: "🥄" },
+            { name: "Parafuso", type: "metal", emoji: "🔩" }
+        ];
+
+        let currentLevel = 1;
+        let levelItems = []; 
+        let userCommands = []; 
+        let isExecuting = false;
+
+        initLevel();
+
+        function initLevel() {
+            levelItems = [];
+            userCommands = [];
+            isExecuting = false;
+            
+            document.getElementById('code-list').innerHTML = '';
+            document.getElementById('btn-run').style.display = 'none';
+            document.getElementById('controls').style.display = 'flex';
+            document.getElementById('status-msg').innerText = "Programe a classificação...";
+            document.getElementById('modal-win').style.display = 'none';
+            document.getElementById('modal-gameover').style.display = 'none';
+            
+            for(let i=0; i<10; i++) {
+                const random = dbItems[Math.floor(Math.random() * dbItems.length)];
+                levelItems.push(random);
+            }
+            showCurrentItem();
+        }
+
+        function showCurrentItem() {
+            const index = userCommands.length;
+            const display = document.getElementById('item-display');
+
+            // Se for menor que 10, mostra o item atual para programar
+            if (index < 10) {
+                document.getElementById('controls').style.display = 'flex';
+                document.getElementById('btn-run').style.display = 'none';
+
+                display.style.fontSize = "100px";
+                display.style.color = "#2c3e50";
+                display.style.fontWeight = "normal";
+                display.innerText = levelItems[index].emoji;
+                document.getElementById('item-count').innerText = index + 1;
+                document.getElementById('status-msg').innerText = "Programe a classificação...";
+                
+                // Pequena animação de entrada
+                display.style.opacity = 0;
+                setTimeout(() => display.style.opacity = 1, 100);
+            } else {
+                // Chegou a 10 itens
+                display.innerText = "EXECUTAR CÓDIGO";
+                display.style.fontSize = "40px";
+                display.style.fontWeight = "bold";
+                display.style.color = "#27ae60";
+
+                document.getElementById('status-msg').innerText = "Tudo pronto! Clique no botão verde à direita.";
+                document.getElementById('controls').style.display = 'none';
+                document.getElementById('btn-run').style.display = 'block';
+            }
+        }
+
+        function inputCommand(type) {
+            if (isExecuting) return;
+            const index = userCommands.length;
+            const item = levelItems[index];
+
+            userCommands.push(type);
+
+            const codeList = document.getElementById('code-list');
+            const line = document.createElement('div');
+            line.className = 'code-line';
+            line.id = `line-${index}`; // ID para manipular depois
+            line.innerHTML = `${index + 1}. processar_item("${item.name}", <span>"${type}"</span>);`;
+            codeList.appendChild(line);
+            codeList.scrollTop = codeList.scrollHeight;
+
+            showCurrentItem();
+        }
+
+        // --- NOVA FUNÇÃO DESFAZER ---
+        function undoLastCommand() {
+            // Só pode desfazer se houver comandos e não estiver executando
+            if (userCommands.length === 0 || isExecuting) return;
+
+            // 1. Remove do Array de memória
+            userCommands.pop();
+
+            // 2. Remove a linha visual do painel
+            const codeList = document.getElementById('code-list');
+            if (codeList.lastChild) {
+                codeList.removeChild(codeList.lastChild);
+            }
+
+            // 3. Atualiza a tela para mostrar o item anterior novamente
+            showCurrentItem();
+        }
+
+        async function executeCode() {
+            isExecuting = true;
+            document.getElementById('btn-run').style.display = 'none';
+            // Esconde o botão desfazer durante a execução
+            document.getElementById('controls').style.display = 'none'; 
+            
+            document.getElementById('status-msg').innerText = "Executando script... Aguarde.";
+            
+            const display = document.getElementById('item-display');
+            display.style.fontSize = "100px";
+
+            for (let i = 0; i < 10; i++) {
+                const item = levelItems[i];
+                const command = userCommands[i];
+                const lineDiv = document.getElementById(`line-${i}`);
+
+                if(i > 0) document.getElementById(`line-${i-1}`).classList.remove('executing');
+                lineDiv.classList.add('executing');
+
+                display.innerText = item.emoji;
+                display.style.color = "#2c3e50";
+
+                await new Promise(r => setTimeout(r, 700));
+                
+                const bin = document.getElementById(`bin-${command}`);
+                bin.classList.add('active-drop'); 
+
+                if (command === item.type) {
+                    lineDiv.classList.remove('executing');
+                    lineDiv.classList.add('success');
+                    lineDiv.innerHTML += " ✅";
+                } else {
+                    lineDiv.classList.remove('executing');
+                    lineDiv.classList.add('error');
+                    lineDiv.innerHTML += " ❌ Erro!";
+                    bin.classList.remove('active-drop');
+                    gameOver();
+                    return; 
+                }
+
+                await new Promise(r => setTimeout(r, 300));
+                bin.classList.remove('active-drop');
+            }
+            winGame();
+        }
+
+        function gameOver() {
+            setTimeout(() => { document.getElementById('modal-gameover').style.display = 'flex'; }, 500);
+        }
+
+        function winGame() {
+            setTimeout(() => { document.getElementById('modal-win').style.display = 'flex'; }, 500);
+        }
+
+        function restartLevel() {
+            userCommands = [];
+            isExecuting = false;
+            document.getElementById('code-list').innerHTML = '';
+            document.getElementById('modal-gameover').style.display = 'none';
+            
+            // Reabilita os controles
+            document.getElementById('controls').style.display = 'flex';
+            document.getElementById('btn-run').style.display = 'none';
+            showCurrentItem();
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            document.getElementById('level-num').innerText = currentLevel;
+            initLevel();
+        }
+    </script>
+</body>
+</html>
