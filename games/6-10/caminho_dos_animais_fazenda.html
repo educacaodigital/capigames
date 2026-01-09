@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labirinto dos Animais</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CSS UNIFICADO --- */
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #e4f5fc;
+            background-image: radial-gradient(#ffffff 20%, transparent 20%), radial-gradient(#ffffff 20%, transparent 20%);
+            background-position: 0 0, 50px 50px;
+            background-size: 100px 100px;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .screen-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            padding: 10px;
+        }
+
+        .btn-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background-color: #ff6b6b;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-circle:hover { transform: scale(1.1); background-color: #ee5253; }
+
+        .menu-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .main-title {
+            font-family: 'Chewy', cursive;
+            font-size: 4.5rem;
+            text-shadow: 4px 4px 0px #fff, 7px 7px 0px rgba(0,0,0,0.1);
+            line-height: 1.1;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .c-1 { color: #FF6B6B; } .c-2 { color: #4ECDC4; } .c-3 { color: #FFE66D; text-shadow: 4px 4px 0px #ebcd26; }
+        .c-4 { color: #FF9F43; } .c-5 { color: #54a0ff; } .c-6 { color: #5f27cd; }
+
+        .animal-card-btn {
+            width: 130px; height: 140px;
+            border: 4px solid #fff;
+            border-radius: 25px;
+            background: white;
+            box-shadow: 0 10px 0px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .animal-card-btn:hover { transform: translateY(-5px); box-shadow: 0 15px 0px rgba(0,0,0,0.1); }
+
+        .animal-emoji { font-size: 4rem; z-index: 2; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1)); }
+        .animal-name { font-family: 'Chewy', cursive; font-size: 1.5rem; color: #555; z-index: 2; margin-top: 5px; }
+
+        .bg-circle { position: absolute; width: 100px; height: 100px; border-radius: 50%; top: -20px; z-index: 1; }
+
+        .game-container { max-width: 800px; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+        .game-wrapper {
+            width: 100%; height: 60vh; max-height: 500px;
+            position: relative; background-color: #ffffff;
+            border-radius: 20px; border: 8px solid #333; overflow: hidden;
+        }
+
+        .instruction-text {
+            font-family: 'Chewy', cursive; font-size: 1.8rem; color: #333;
+            background: rgba(255,255,255,0.8); padding: 5px 20px; border-radius: 20px;
+        }
+
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        #items-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+
+        .game-item {
+            position: absolute; width: 70px; height: 70px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 3rem; cursor: grab; pointer-events: auto; z-index: 20;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+        }
+
+        .success-anim { animation: bounce 0.6s; }
+        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.4); } }
+    </style>
+</head>
+<body>
+
+    <div id="menu-screen" class="screen-container fade-in">
+        <div class="top-bar">
+            <button class="btn-circle shadow" onclick="window.location.reload()">⬅</button>
+        </div>
+        <div class="menu-content text-center">
+            <h1 class="main-title mb-4">
+                <span class="c-1">E</span><span class="c-2">s</span><span class="c-3">c</span><span class="c-4">o</span><span class="c-5">l</span><span class="c-6">h</span><span class="c-1">a</span>
+                <br>
+                <span class="c-2">o</span> <span class="c-3">A</span><span class="c-4">n</span><span class="c-5">i</span><span class="c-6">m</span><span class="c-1">a</span><span class="c-2">l</span><span class="c-3">!</span>
+            </h1>
+            <div id="animal-buttons" class="d-flex flex-wrap gap-4 justify-content-center mt-4"></div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen-container d-none fade-in">
+        <div class="container game-container py-3">
+            <div class="d-flex justify-content-between align-items-center mb-3 w-100">
+                <button id="btn-back" class="btn btn-warning rounded-pill shadow fw-bold px-4">⬅ Menu</button>
+                <h3 id="game-title" class="m-0 title-font text-white text-shadow" style="text-shadow: 2px 2px 4px #000">Gato</h3>
+                <button id="btn-new-maze" class="btn btn-success rounded-pill shadow px-4">🔄 Novo</button>
+            </div>
+            <div class="game-wrapper shadow-lg mx-auto">
+                <canvas id="gameCanvas"></canvas>
+                <div id="items-layer"></div>
+            </div>
+            <p class="instruction-text mt-3">Leve o animal até a comida!</p>
+        </div>
+    </div>
+
+    <script>
+        /* --- JAVASCRIPT UNIFICADO --- */
+        const animalsData = [
+            { id: 'cat', name: 'Gato', animalImg: '🐱', objectImg: '🐟', successImg: '✅', bg: '#ffeaa7' },
+            { id: 'dog', name: 'Cão', animalImg: '🐶', objectImg: '🦴', successImg: '✅', bg: '#fab1a0' },
+            { id: 'chicken', name: 'Galinha', animalImg: '🐔', objectImg: '🌽', successImg: '✅', bg: '#ff7675' },
+            { id: 'bear', name: 'Urso', animalImg: '🐻', objectImg: '🍯', successImg: '✅', bg: '#fdcb6e' },
+            { id: 'ant', name: 'Formiga', animalImg: '🐜', objectImg: '🍬', successImg: '✅', bg: '#636e72' },
+            { id: 'lion', name: 'Leão', animalImg: '🦁', objectImg: '🥩', successImg: '✅', bg: '#e17055' }
+        ];
+
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const buttonsContainer = document.getElementById('animal-buttons');
+        const gameTitle = document.getElementById('game-title');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const itemsLayer = document.getElementById('items-layer');
+
+        const sensorCanvas = document.createElement('canvas');
+        const sensorCtx = sensorCanvas.getContext('2d');
+
+        let currentAnimal = null;
+        let maze = null;
+        let isDragging = false;
+        let draggedItem = null;
+        let canvasRect;
+
+        const cols = 6;
+        const rows = 5;
+        let cellWidth, cellHeight;
+
+        function init() {
+            createMenuButtons();
+            document.getElementById('btn-back').addEventListener('click', showMenu);
+            document.getElementById('btn-new-maze').addEventListener('click', () => {
+                if(currentAnimal) startGame(currentAnimal);
+            });
+
+            window.addEventListener('mousemove', moveDrag);
+            window.addEventListener('mouseup', endDrag);
+            window.addEventListener('touchmove', moveDrag, {passive: false});
+            window.addEventListener('touchend', endDrag);
+        }
+
+        function createMenuButtons() {
+            buttonsContainer.innerHTML = '';
+            animalsData.forEach(animal => {
+                const btn = document.createElement('div');
+                btn.className = 'animal-card-btn';
+                btn.innerHTML = `
+                    <div class="bg-circle" style="background-color: ${animal.bg}40;"></div>
+                    <span class="animal-emoji">${animal.animalImg}</span>
+                    <span class="animal-name" style="color: ${animal.bg}; filter: brightness(0.6);">${animal.name}</span>
+                `;
+                btn.onclick = () => startGame(animal);
+                buttonsContainer.appendChild(btn);
+            });
+        }
+
+        function showMenu() {
+            gameScreen.classList.add('d-none');
+            menuScreen.classList.remove('d-none');
+        }
+
+        function startGame(animal) {
+            currentAnimal = animal;
+            gameTitle.innerText = animal.name;
+            menuScreen.classList.add('d-none');
+            gameScreen.classList.remove('d-none');
+            setTimeout(() => {
+                setupCanvas();
+                generateLevel();
+            }, 100);
+        }
+
+        function setupCanvas() {
+            canvas.width = sensorCanvas.width = canvas.offsetWidth;
+            canvas.height = sensorCanvas.height = canvas.offsetHeight;
+            canvasRect = canvas.getBoundingClientRect();
+            cellWidth = canvas.width / cols;
+            cellHeight = canvas.height / rows;
+        }
+
+        function generateLevel() {
+            maze = new Maze(cols, rows);
+            maze.generate();
+            drawVisualMaze();
+            drawSensorMaze();
+            placeItems();
+        }
+
+        function drawVisualMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const wallThickness = Math.min(cellWidth, cellHeight) * 0.65;
+            const pathThickness = Math.min(cellWidth, cellHeight) * 0.50;
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = wallThickness;
+            ctx.lineCap = 'round';
+            drawMazePath(ctx);
+            ctx.stroke();
+            drawJunctions(ctx, wallThickness / 2, '#000000');
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = pathThickness;
+            ctx.lineCap = 'round';
+            drawMazePath(ctx);
+            ctx.stroke();
+            drawJunctions(ctx, pathThickness / 2, '#ffffff');
+        }
+
+        function drawSensorMaze() {
+            sensorCtx.clearRect(0, 0, sensorCanvas.width, sensorCanvas.height);
+            sensorCtx.fillStyle = '#000000';
+            sensorCtx.fillRect(0, 0, sensorCanvas.width, sensorCanvas.height);
+            const pathThickness = Math.min(cellWidth, cellHeight) * 0.40;
+            sensorCtx.beginPath();
+            sensorCtx.strokeStyle = '#ffffff';
+            sensorCtx.lineWidth = pathThickness;
+            sensorCtx.lineCap = 'round';
+            drawMazePath(sensorCtx);
+            sensorCtx.stroke();
+            drawJunctions(sensorCtx, pathThickness / 2, '#ffffff');
+        }
+
+        function drawMazePath(context) {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    let cell = maze.grid[r][c];
+                    let x = c * cellWidth + cellWidth / 2;
+                    let y = r * cellHeight + cellHeight / 2;
+                    if (!cell.walls.right) {
+                        context.moveTo(x, y);
+                        context.quadraticCurveTo(x + cellWidth / 2, y + cell.curves.right, x + cellWidth, y);
+                    }
+                    if (!cell.walls.bottom) {
+                        context.moveTo(x, y);
+                        context.quadraticCurveTo(x + cell.curves.bottom, y + cellHeight / 2, x, y + cellHeight);
+                    }
+                }
+            }
+        }
+
+        function drawJunctions(context, radius, color) {
+            context.fillStyle = color;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (maze.grid[r][c].visited) {
+                        let x = c * cellWidth + cellWidth / 2;
+                        let y = r * cellHeight + cellHeight / 2;
+                        context.beginPath();
+                        context.arc(x, y, radius, 0, Math.PI * 2);
+                        context.fill();
+                    }
+                }
+            }
+        }
+
+        class Maze {
+            constructor(cols, rows) {
+                this.cols = cols; this.rows = rows; this.grid = []; this.stack = [];
+                for (let r = 0; r < rows; r++) {
+                    let row = [];
+                    for (let c = 0; c < cols; c++) {
+                        row.push({
+                            c, r, walls: { top: true, right: true, bottom: true, left: true },
+                            visited: false, curves: { right: (Math.random() * 20) - 10, bottom: (Math.random() * 20) - 10 }
+                        });
+                    }
+                    this.grid.push(row);
+                }
+            }
+            generate() {
+                let current = this.grid[0][0]; current.visited = true; this.stack.push(current);
+                while (this.stack.length > 0) {
+                    current = this.stack[this.stack.length - 1];
+                    let neighbors = this.getUnvisitedNeighbors(current);
+                    if (neighbors.length > 0) {
+                        let next = neighbors[Math.floor(Math.random() * neighbors.length)];
+                        this.removeWalls(current, next);
+                        next.visited = true; this.stack.push(next);
+                    } else { this.stack.pop(); }
+                }
+            }
+            getUnvisitedNeighbors(cell) {
+                let neighbors = []; let { c, r } = cell;
+                if (r > 0 && !this.grid[r - 1][c].visited) neighbors.push(this.grid[r - 1][c]);
+                if (c < this.cols - 1 && !this.grid[r][c + 1].visited) neighbors.push(this.grid[r][c + 1]);
+                if (r < this.rows - 1 && !this.grid[r + 1][c].visited) neighbors.push(this.grid[r + 1][c]);
+                if (c > 0 && !this.grid[r][c - 1].visited) neighbors.push(this.grid[r][c - 1]);
+                return neighbors;
+            }
+            removeWalls(a, b) {
+                let x = a.c - b.c; let y = a.r - b.r;
+                if (x === -1) { a.walls.right = false; b.walls.left = false; }
+                else if (x === 1) { a.walls.left = false; b.walls.right = false; }
+                if (y === -1) { a.walls.bottom = false; b.walls.top = false; }
+                else if (y === 1) { a.walls.top = false; b.walls.bottom = false; }
+            }
+        }
+
+        function placeItems() {
+            itemsLayer.innerHTML = '';
+            const startX = cellWidth / 2; const startY = cellHeight / 2;
+            const endX = canvas.width - (cellWidth / 2); const endY = canvas.height - (cellHeight / 2);
+
+            const animalDiv = document.createElement('div');
+            animalDiv.className = 'game-item';
+            animalDiv.innerText = currentAnimal.animalImg;
+            animalDiv.style.left = (startX - 35) + 'px';
+            animalDiv.style.top = (startY - 35) + 'px';
+            animalDiv.dataset.startX = startX; animalDiv.dataset.startY = startY;
+            animalDiv.dataset.endX = endX; animalDiv.dataset.endY = endY;
+            animalDiv.addEventListener('mousedown', startDrag);
+            animalDiv.addEventListener('touchstart', startDrag, {passive: false});
+            itemsLayer.appendChild(animalDiv);
+
+            const targetDiv = document.createElement('div');
+            targetDiv.id = 'target-item';
+            targetDiv.className = 'game-item';
+            targetDiv.innerText = currentAnimal.objectImg;
+            targetDiv.style.left = (endX - 35) + 'px';
+            targetDiv.style.top = (endY - 35) + 'px';
+            itemsLayer.appendChild(targetDiv);
+        }
+
+        function startDrag(e) {
+            if(e.target.classList.contains('completed')) return;
+            e.preventDefault();
+            isDragging = true; draggedItem = e.target;
+            canvasRect = canvas.getBoundingClientRect();
+        }
+
+        function moveDrag(e) {
+            if (!isDragging || !draggedItem) return;
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const x = clientX - canvasRect.left;
+            const y = clientY - canvasRect.top;
+            
+            const pixel = sensorCtx.getImageData(x, y, 1, 1).data;
+            if (pixel[0] < 200) { resetPosition(draggedItem); return; }
+            draggedItem.style.left = (x - 35) + 'px';
+            draggedItem.style.top = (y - 35) + 'px';
+        }
+
+        function endDrag(e) {
+            if (!isDragging || !draggedItem) return;
+            isDragging = false;
+            const curX = parseFloat(draggedItem.style.left) + 35;
+            const curY = parseFloat(draggedItem.style.top) + 35;
+            const endX = parseFloat(draggedItem.dataset.endX);
+            const endY = parseFloat(draggedItem.dataset.endY);
+            if (Math.hypot(curX - endX, curY - endY) < cellWidth * 0.6) { handleWin(draggedItem); } 
+            else { resetPosition(draggedItem); }
+            draggedItem = null;
+        }
+
+        function resetPosition(el) {
+            isDragging = false; el.style.transition = 'all 0.3s ease';
+            el.style.left = (parseFloat(el.dataset.startX) - 35) + 'px';
+            el.style.top = (parseFloat(el.dataset.startY) - 35) + 'px';
+            setTimeout(() => el.style.transition = '', 300);
+        }
+
+        function handleWin(el) {
+            el.style.left = (parseFloat(el.dataset.endX) - 35) + 'px';
+            el.style.top = (parseFloat(el.dataset.endY) - 35) + 'px';
+            el.innerText = currentAnimal.successImg;
+            el.classList.add('success-anim', 'completed');
+            document.getElementById('target-item').style.display = 'none';
+            el.style.backgroundColor = '#ffffff'; el.style.borderRadius = '50%'; el.style.border = '4px solid #4CAF50';
+        }
+
+        window.onload = init;
+        window.onresize = () => { if(currentAnimal) { setupCanvas(); generateLevel(); }};
+    </script>
+</body>
+</html>
