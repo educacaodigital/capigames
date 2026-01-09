@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caça-Palavras Divertido</title>
+    <style>
+        /* CSS UNIFICADO */
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 25%, #a6c1ee 50%, #96e6a1 75%, #f9f871 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2), 0 0 0 5px #4facfe;
+            border: 5px solid #f9f871;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        h1 {
+            color: #ff6b6b;
+            margin: 0;
+            text-shadow: 2px 2px 0px #f9f871;
+        }
+
+        .instruction {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 35px);
+            grid-template-rows: repeat(10, 35px);
+            gap: 4px;
+            background-color: #4facfe;
+            padding: 8px;
+            border-radius: 15px;
+        }
+
+        .letter-box {
+            background-color: #e0f7fa;
+            color: #0984e3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            user-select: none;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .letter-box:hover {
+            background-color: #b2ebf2;
+            transform: scale(1.1);
+        }
+
+        .letter-box.selected {
+            background-color: #ffeaa7;
+            color: #d35400;
+            transform: scale(1.1);
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        .letter-box.found {
+            background-color: #55efc4;
+            color: #006266;
+            animation: pop 0.3s ease;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .word-list {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 15px;
+            min-width: 150px;
+            border: 3px dashed #ffeaa7;
+        }
+
+        .word-list h3 {
+            margin-top: 0;
+            color: #ffa502;
+        }
+
+        .word-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .word-list li {
+            font-size: 1.2rem;
+            padding: 5px;
+            color: #636e72;
+            transition: all 0.3s;
+        }
+
+        .word-list li.found-word {
+            text-decoration: line-through;
+            color: #b2bec3;
+            opacity: 0.6;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            background-color: #ff7675;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #d63031;
+            transition: transform 0.1s;
+        }
+
+        button:hover {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #d63031;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 1.5rem;
+            color: #00b894;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: repeat(10, 28px);
+                grid-template-rows: repeat(10, 28px);
+            }
+            .letter-box {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <div class="container">
+            <h1> Caça-Palavras </h1>
+            <p class="instruction">Encontre as palavras ! Clique na <b>primeira</b> e na <b>última</b> letra.</p>
+            
+            <div class="game-area">
+                <div id="grid" class="grid"></div>
+                
+                <div class="word-list">
+                    <h3>Procure por:</h3>
+                    <ul id="words-to-find"></ul>
+                </div>
+            </div>
+
+            <button id="restartBtn">Novo Jogo</button>
+            <div id="message" class="hidden">Parabéns! Você achou tudo! 🎉</div>
+        </div>
+    </div>
+
+    <script>
+        // JS UNIFICADO
+        const gridElement = document.getElementById('grid');
+        const wordsListElement = document.getElementById('words-to-find');
+        const restartBtn = document.getElementById('restartBtn');
+        const messageDiv = document.getElementById('message');
+
+        const gridSize = 10;
+        const allWords = [
+            'GATO', 'CACHORRO', 'PEIXE', 'URSO', 'LEAO', 'PATO', 'SAPO', 'TIGRE', 'RATO', 'VACA', 
+            'LOBO', 'ZEBRA', 'MACACO', 'COELHO', 'GIRAFA', 'CORUJA', 'RAPOSA', 'TUCANO', 'FOCA',
+            'BANANA', 'UVA', 'MAÇA', 'PERA', 'LIMAO', 'MANGA', 'CAJU', 'COCO', 'MEL', 'BOLO',
+            'AZUL', 'VERDE', 'ROSA', 'ROXO', 'SOL', 'LUA', 'MAR', 'FLOR', 'CEU', 'NUVA',
+            'BOLA', 'PIPA', 'DADO', 'CASA', 'MESA', 'LIVRO', 'LAPIS', 'MOLA', 'ANEL'
+        ];
+        
+        let activeWords = [];
+        let grid = [];
+        let firstSelection = null;
+
+        function initGame() {
+            gridElement.innerHTML = '';
+            wordsListElement.innerHTML = '';
+            messageDiv.classList.add('hidden');
+            grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(''));
+            activeWords = [];
+
+            const shuffled = [...allWords].sort(() => 0.5 - Math.random());
+            const selectedWords = shuffled.slice(0, 5);
+
+            selectedWords.forEach(word => placeWord(word));
+            fillEmptySpaces();
+            renderGrid();
+            renderWordList(selectedWords);
+        }
+
+        function placeWord(word) {
+            let placed = false;
+            let attempts = 0;
+            while (!placed && attempts < 100) {
+                const direction = Math.random() > 0.5 ? 'H' : 'V';
+                const row = Math.floor(Math.random() * gridSize);
+                const col = Math.floor(Math.random() * gridSize);
+
+                if (canPlace(word, row, col, direction)) {
+                    for (let i = 0; i < word.length; i++) {
+                        if (direction === 'H') grid[row][col + i] = word[i];
+                        else grid[row + i][col] = word[i];
+                    }
+                    activeWords.push(word);
+                    placed = true;
+                }
+                attempts++;
+            }
+        }
+
+        function canPlace(word, row, col, direction) {
+            if (direction === 'H') {
+                if (col + word.length > gridSize) return false;
+                for (let i = 0; i < word.length; i++) {
+                    if (grid[row][col + i] !== '' && grid[row][col + i] !== word[i]) return false;
+                }
+            } else {
+                if (row + word.length > gridSize) return false;
+                for (let i = 0; i < word.length; i++) {
+                    if (grid[row + i][col] !== '' && grid[row + i][col] !== word[i]) return false;
+                }
+            }
+            return true;
+        }
+
+        function fillEmptySpaces() {
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    if (grid[r][c] === '') {
+                        grid[r][c] = letters.charAt(Math.floor(Math.random() * letters.length));
+                    }
+                }
+            }
+        }
+
+        function renderGrid() {
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('letter-box');
+                    cell.innerText = grid[r][c];
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    cell.addEventListener('click', handleCellClick);
+                    gridElement.appendChild(cell);
+                }
+            }
+        }
+
+        function renderWordList(words) {
+            words.forEach(word => {
+                const li = document.createElement('li');
+                li.innerText = word;
+                li.id = `word-${word}`;
+                wordsListElement.appendChild(li);
+            });
+        }
+
+        function handleCellClick(e) {
+            const cell = e.target;
+            if (cell.classList.contains('found')) return;
+
+            if (!firstSelection) {
+                firstSelection = cell;
+                cell.classList.add('selected');
+            } else {
+                const startRow = parseInt(firstSelection.dataset.row);
+                const startCol = parseInt(firstSelection.dataset.col);
+                const endRow = parseInt(cell.dataset.row);
+                const endCol = parseInt(cell.dataset.col);
+
+                checkSelection(startRow, startCol, endRow, endCol);
+                firstSelection.classList.remove('selected');
+                firstSelection = null;
+            }
+        }
+
+        function checkSelection(r1, c1, r2, c2) {
+            let selectedWord = "";
+            let cellsToCheck = [];
+
+            if (r1 === r2) {
+                const start = Math.min(c1, c2);
+                const end = Math.max(c1, c2);
+                for (let i = start; i <= end; i++) {
+                    selectedWord += grid[r1][i];
+                    cellsToCheck.push(document.querySelector(`.letter-box[data-row="${r1}"][data-col="${i}"]`));
+                }
+            } else if (c1 === c2) {
+                const start = Math.min(r1, r2);
+                const end = Math.max(r1, r2);
+                for (let i = start; i <= end; i++) {
+                    selectedWord += grid[i][c1];
+                    cellsToCheck.push(document.querySelector(`.letter-box[data-row="${i}"][data-col="${c1}"]`));
+                }
+            } else if (Math.abs(r1 - r2) === Math.abs(c1 - c2)) {
+                const rDir = r1 < r2 ? 1 : -1;
+                const cDir = c1 < c2 ? 1 : -1;
+                let r = r1, c = c1;
+                while(true) {
+                    selectedWord += grid[r][c];
+                    cellsToCheck.push(document.querySelector(`.letter-box[data-row="${r}"][data-col="${c}"]`));
+                    if (r === r2 && c === c2) break;
+                    r += rDir;
+                    c += cDir;
+                }
+            }
+
+            const reversedWord = selectedWord.split('').reverse().join('');
+            if (activeWords.includes(selectedWord) || activeWords.includes(reversedWord)) {
+                cellsToCheck.forEach(cell => cell.classList.add('found'));
+                const correctWord = activeWords.includes(selectedWord) ? selectedWord : reversedWord;
+                document.getElementById(`word-${correctWord}`).classList.add('found-word');
+                checkVictory();
+            }
+        }
+
+        function checkVictory() {
+            const allFound = document.querySelectorAll('.found-word').length;
+            if (allFound === activeWords.length) {
+                messageDiv.classList.remove('hidden');
+            }
+        }
+
+        restartBtn.addEventListener('click', initGame);
+        initGame();
+    </script>
+</body>
+</html>
