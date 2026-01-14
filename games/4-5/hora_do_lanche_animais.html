@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🍎HORA DO LANCHE</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Configurações Globais --- */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%; /* Garante altura total */
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* PROIBIDO ROLAGEM GERAL */
+        }
+
+        body {
+            font-family: 'Fredoka One', 'Arial', sans-serif;
+            background-color: #e0f7fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Padding seguro para não colar nas bordas da tela */
+            padding: 10px 10px 20px 10px; 
+            user-select: none;
+            text-transform: uppercase;
+        }
+
+        /* --- Estrutura Principal do Jogo --- */
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 600px; /* Limita largura em telas grandes para não esticar */
+            height: 100%;
+            flex: 1; /* Ocupa todo espaço disponível */
+        }
+
+        /* --- Cabeçalho Compacto --- */
+        header {
+            flex: 0 0 auto; /* Não cresce nem encolhe, usa o espaço que precisa */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1vh;
+        }
+
+        h1 {
+            color: #ffca28;
+            margin: 5px 0;
+            /* Tamanho dinâmico: entre 1.5rem e 3rem, baseado na largura da tela */
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0px #f57f17, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 3px 3px 0px rgba(0,0,0,0.2);
+            -webkit-text-stroke: 1px #fff;
+            text-align: center;
+            line-height: 1;
+        }
+
+        /* --- Painel de Instruções --- */
+        #instruction-box {
+            background: #ffffff;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 0px #b0bec5;
+            /* Tamanho da fonte dinâmico */
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            color: #455a64;
+            border: 3px solid #fff;
+            text-align: center;
+            width: 95%;
+        }
+
+        #target-number {
+            font-size: 1.4em;
+            color: #ff5252;
+            vertical-align: middle;
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        .highlight-text { color: #00bcd4; }
+
+        /* --- Zona do Animal (Flexível) --- */
+        #animal-zone {
+            flex: 2; /* Toma 2 partes do espaço vertical restante */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 0; /* Importante para flexbox não estourar */
+        }
+
+        .animal-emoji {
+            /* O tamanho do animal se adapta à altura da tela, mas tem limites */
+            font-size: clamp(8rem, 25vh, 14rem);
+            z-index: 2;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
+            cursor: pointer;
+            transition: transform 0.2s;
+            line-height: 1;
+        }
+
+        .eating { animation: chew 0.5s ease-in-out; }
+        @keyframes chew { 0% { transform: scale(1); } 50% { transform: scale(1.1) rotate(5deg); } 100% { transform: scale(1); } }
+
+        .speech-bubble {
+            position: absolute;
+            top: 5%;
+            right: 50%;
+            transform: translateX(80px);
+            background: #fff;
+            border-radius: 50%;
+            width: clamp(50px, 10vh, 70px);
+            height: clamp(50px, 10vh, 70px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.8rem;
+            color: #333;
+            border: 3px solid #333;
+            display: none;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+            z-index: 5;
+        }
+
+        /* --- Área das Comidas (Flexível e sem rolagem) --- */
+        #food-container {
+            flex: 3; /* Toma 3 partes do espaço (maior que o animal) */
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: flex-start; /* Itens começam do topo */
+            width: 100%;
+            border: 2px dashed rgba(0,0,0,0.1);
+            overflow: hidden; /* Esconde o que não couber, sem barra de rolagem */
+            min-height: 0;
+        }
+
+        .food-item {
+            /* Comida também usa tamanho dinâmico */
+            font-size: clamp(3.5rem, 9vh, 5rem);
+            cursor: grab;
+            transition: transform 0.2s;
+            touch-action: none;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+            line-height: 1;
+        }
+
+        .food-item:active { cursor: grabbing; transform: scale(1.1); }
+        .food-item.hidden { opacity: 0; pointer-events: none; }
+
+        /* --- Botão e Mensagens --- */
+        #success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 10px 100px rgba(0,0,0,0.5);
+            text-align: center;
+            display: none;
+            z-index: 100;
+            border: 8px solid #ffca28;
+            width: 85%;
+            max-width: 350px;
+        }
+
+        #success-message h2 {
+            color: #f57f17;
+            margin: 0 0 15px 0;
+            font-size: 2.2rem;
+        }
+
+        button {
+            background-color: #00acc1;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.4rem;
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 6px 0 #00838f;
+            text-transform: uppercase;
+        }
+
+        button:active { transform: translateY(6px); box-shadow: 0 0 0; }
+
+        .sound-hint {
+            font-family: 'Arial', sans-serif;
+            font-size: 0.75rem;
+            color: #666;
+            background: rgba(255,255,255,0.8);
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-bottom: 5px;
+        }
+
+        /* Ajuste fino para telas muito baixas (celular deitado) */
+        @media (max-height: 500px) {
+            #animal-zone { flex: 1; } /* Animal ocupa menos espaço */
+            #food-container { flex: 2; }
+            h1 { display: none; } /* Esconde título para ganhar espaço */
+            .sound-hint { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <header>
+            <h1>HORA DO LANCHE</h1>
+            
+            <div id="instruction-box">
+                <span id="animal-name" class="highlight-text">ANIMAL</span> QUER:<br>
+                <span id="target-number">5</span>
+                <span id="food-name" class="highlight-text">COMIDAS</span>
+            </div>
+        </header>
+
+        <div id="animal-zone" onclick="speakTarget()">
+            <div class="speech-bubble" id="count-bubble">0</div>
+            <div class="animal-emoji" id="main-animal">🐵</div>
+            <div class="sound-hint">🔊 TOQUE PARA OUVIR</div>
+        </div>
+
+        <div id="food-container">
+            </div>
+    </div>
+
+    <div id="success-message">
+        <h2>MUITO BEM! 🎉</h2>
+        <p>BARRIGA CHEIA!</p>
+        <button onclick="nextLevel()">PRÓXIMO ➡</button>
+    </div>
+
+    <script>
+        // --- Dados (Com singular e plural) ---
+        const characters = [
+            { id: 'caterpillar', name: 'A LAGARTA', emoji: '🐛', foodSingular: 'MAÇÃ', foodPlural: 'MAÇÃS', foodEmoji: '🍎', color: '#f0f9e8' },
+            { id: 'monkey', name: 'O MACACO', emoji: '🐵', foodSingular: 'BANANA', foodPlural: 'BANANAS', foodEmoji: '🍌', color: '#fff3e0' },
+            { id: 'rabbit', name: 'O COELHO', emoji: '🐰', foodSingular: 'CENOURA', foodPlural: 'CENOURAS', foodEmoji: '🥕', color: '#fce4ec' },
+            { id: 'panda', name: 'O PANDA', emoji: '🐼', foodSingular: 'BAMBU', foodPlural: 'BAMBUS', foodEmoji: '🎋', color: '#e0f2f1' }
+        ];
+
+        let currentLevelTarget = 1;
+        let currentCount = 0;
+        let currentCharacter = null;
+        const maxFoodOnScreen = 15;
+
+        // Elementos
+        const targetDisplay = document.getElementById('target-number');
+        const animalNameDisplay = document.getElementById('animal-name');
+        const foodNameDisplay = document.getElementById('food-name');
+        const foodContainer = document.getElementById('food-container');
+        const animalZone = document.getElementById('animal-zone');
+        const mainAnimalEmoji = document.getElementById('main-animal');
+        const countBubble = document.getElementById('count-bubble');
+        const successMsg = document.getElementById('success-message');
+        const body = document.body;
+
+        // Voz
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text.toLowerCase());
+            utterance.lang = 'pt-BR';
+            utterance.rate = 1.1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function getFoodName() {
+            return currentLevelTarget === 1 ? currentCharacter.foodSingular : currentCharacter.foodPlural;
+        }
+
+        function speakTarget() {
+            speak(`${currentCharacter.name} quer ${currentLevelTarget} ${getFoodName()}`);
+        }
+
+        // Init
+        function initGame() {
+            currentLevelTarget = Math.floor(Math.random() * 10) + 1;
+            currentCharacter = characters[Math.floor(Math.random() * characters.length)];
+            currentCount = 0;
+            
+            targetDisplay.textContent = currentLevelTarget;
+            animalNameDisplay.textContent = currentCharacter.name;
+            foodNameDisplay.textContent = getFoodName();
+            mainAnimalEmoji.textContent = currentCharacter.emoji;
+            body.style.backgroundColor = currentCharacter.color;
+
+            countBubble.style.display = 'none';
+            countBubble.style.color = 'black';
+            successMsg.style.display = 'none';
+            mainAnimalEmoji.classList.remove('eating');
+            
+            generateFood();
+        }
+
+        function generateFood() {
+            foodContainer.innerHTML = '';
+            // Em telas menores, geramos um pouco menos de comida extra para não lotar
+            const isSmallScreen = window.innerHeight < 650;
+            const extraItems = isSmallScreen ? 3 : 6; 
+            const totalItems = Math.min(maxFoodOnScreen, currentLevelTarget + extraItems);
+
+            for (let i = 0; i < totalItems; i++) {
+                const item = document.createElement('div');
+                item.classList.add('food-item');
+                item.textContent = currentCharacter.foodEmoji;
+                item.setAttribute('draggable', true);
+                item.id = 'food-' + i;
+                
+                item.addEventListener('dragstart', dragStart);
+                item.addEventListener('touchstart', touchStart, {passive: false});
+                item.addEventListener('touchmove', touchMove, {passive: false});
+                item.addEventListener('touchend', touchEnd);
+
+                foodContainer.appendChild(item);
+            }
+        }
+
+        // Drag (Mouse)
+        function dragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+            setTimeout(() => { e.target.classList.add('hidden'); }, 0);
+        }
+
+        animalZone.addEventListener('dragover', (e) => e.preventDefault());
+        animalZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const id = e.dataTransfer.getData('text/plain');
+            const item = document.getElementById(id);
+            if(item) feedAnimal(item);
+        });
+
+        document.addEventListener('dragend', (e) => {
+            if(e.target.classList.contains('food-item') && !e.target.classList.contains('eaten')) {
+                e.target.classList.remove('hidden');
+            }
+        });
+
+        // Touch (Mobile)
+        let touchItem = null;
+        function touchStart(e) {
+            touchItem = e.target;
+            const touch = e.touches[0];
+            // Estratégia de movimento fixed para garantir suavidade
+            touchItem.style.position = 'fixed';
+            touchItem.style.zIndex = 1000;
+            // Centraliza o item no dedo
+            touchItem.style.left = (touch.clientX - (touchItem.offsetWidth/2)) + 'px';
+            touchItem.style.top = (touch.clientY - (touchItem.offsetHeight/2)) + 'px';
+        }
+
+        function touchMove(e) {
+            if (!touchItem) return;
+            e.preventDefault(); // Impede rolagem da tela
+            const touch = e.touches[0];
+            touchItem.style.left = (touch.clientX - (touchItem.offsetWidth/2)) + 'px';
+            touchItem.style.top = (touch.clientY - (touchItem.offsetHeight/2)) + 'px';
+        }
+
+        function touchEnd(e) {
+            if (!touchItem) return;
+            const animalRect = animalZone.getBoundingClientRect();
+            const itemRect = touchItem.getBoundingClientRect();
+
+            // Verifica se o centro do item está dentro da zona do animal
+            const itemCenterX = itemRect.left + itemRect.width / 2;
+            const itemCenterY = itemRect.top + itemRect.height / 2;
+
+            if (
+                itemCenterX > animalRect.left &&
+                itemCenterX < animalRect.right &&
+                itemCenterY > animalRect.top &&
+                itemCenterY < animalRect.bottom
+            ) {
+                feedAnimal(touchItem);
+            } else {
+                // Retorna ao fluxo normal se soltar fora
+                touchItem.style.position = 'static';
+                touchItem.style.zIndex = 'auto';
+            }
+            touchItem = null;
+        }
+
+        // Lógica
+        function feedAnimal(itemElement) {
+            itemElement.classList.add('eaten');
+            itemElement.remove();
+            currentCount++;
+            
+            mainAnimalEmoji.classList.remove('eating');
+            void mainAnimalEmoji.offsetWidth;
+            mainAnimalEmoji.classList.add('eating');
+
+            countBubble.textContent = currentCount;
+            countBubble.style.display = 'flex';
+
+            if (currentCount <= currentLevelTarget) speak(currentCount.toString());
+            checkWinCondition();
+        }
+
+        function checkWinCondition() {
+            if (currentCount === currentLevelTarget) {
+                setTimeout(() => {
+                    speak(`Muito bem!`);
+                    successMsg.style.display = 'block';
+                }, 800);
+            } else if (currentCount > currentLevelTarget) {
+                countBubble.style.color = 'red';
+                speak("Ops! Demais!");
+            }
+        }
+
+        function nextLevel() {
+            speak("Vamos lá!");
+            initGame();
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
