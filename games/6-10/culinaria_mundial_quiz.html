@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Culinária Mundial</title>
+<style>
+  * { box-sizing: border-box; }
+  
+  html, body{
+    height: 100%;
+    width: 100%;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(180deg, #FFF8E1, #ffe7a7);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+    overflow: hidden;
+  }
+
+  .game-wrapper {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  }
+
+  h1{
+    display: none;
+    margin: 0 auto 2vh auto; 
+    padding: 1.5vh 4vw;
+    width: fit-content;
+    max-width: 90%;
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-align: center;
+    color: #f7a837;
+    -webkit-text-stroke: 1.5px #dc8c10;
+    background: rgba(255, 255, 255, 0.80);
+    border: 0.5vh solid #FF9800;
+    border-radius: 50px;    
+    flex-shrink: 0;
+    box-shadow: 0 0.5vh 1vh rgba(0,0,0,0.1);
+  }
+
+  #intro{
+    position: fixed;
+    inset: 0;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)),
+      url('img/fundointro.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+
+  .intro-card {
+    background: rgba(255, 255, 255, 0.80);
+    backdrop-filter: blur(5px);
+    padding: 5vh 5vw;
+    border-radius: 35px;
+    max-width: 980px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    border: 10px double #FFB74D;
+    animation: fadeUp .8s ease;
+  }
+
+  .intro-card h2{
+    font-size: clamp(28px, 5vh, 48px);
+    margin-bottom: 2vh;
+    font-weight: 900;
+    color: #f7a837;
+    -webkit-text-stroke: 1.5px #dc8c10;
+  }
+
+  .intro-card p{
+    font-size: clamp(16px, 2.5vh, 24px); 
+    line-height: 1.5;
+    color: #5D4037;
+    font-weight: 700;
+  }
+
+  .btn-jogar{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 4vh auto 0 auto;
+    background: linear-gradient(180deg, #f6a93d, #e69419);
+    color: #fff;
+    font-size: clamp(20px, 3vh, 28px);
+    padding: 2vh 6vw;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: 800;
+    box-shadow: 0 0.8vh 0 #df5307;
+    animation: pulse 1.5s infinite;
+    text-transform: uppercase;
+    transition: transform 0.1s;
+  }
+  .btn-jogar:hover{ transform: scale(1.05); }
+  .btn-jogar:active{ transform: translateY(4px); box-shadow: 0 0.4vh 0 #E65100; }
+
+
+  #container{
+    width: 100%;
+    max-width: 900px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2vh;
+  }
+
+  .bloco-imagem {
+    background: white;
+    padding: 2vh;
+    border-radius: 30px;
+    box-shadow: 0 1.5vh 3vh rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    max-width: 500px;
+    border: 4px solid #FFE0B2;
+  }
+
+  .label-progresso{
+    margin-bottom: 1vh;
+    background: #FFF3E0;
+    padding: 0.5vh 1.5vw;
+    border-radius: 15px;
+    font-size: clamp(14px, 2vh, 16px);
+    font-weight: 700;
+    color: #E65100;
+  }
+
+  #imagemPergunta{
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 25vh;
+    display: block;
+    border-radius: 20px;
+    object-fit: contain;
+    border: 2px solid #FFF8E1;
+  }
+
+  #nomeAlimento {
+    margin-top: 1.5vh;
+    font-size: clamp(22px, 3vh, 32px);
+    color: #E65100; 
+    font-weight: 900;
+    text-align: center;
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+  }
+
+  #pergunta{
+    width: 90%;
+    max-width: 600px;
+    font-size: clamp(16px, 2.5vh, 22px);
+    font-weight: 800;
+    text-align: center;
+    color: #5D4037;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.7);
+    padding: 1.5vh 2vw;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+
+  .opcoes{
+    display: flex;
+    gap: 2vw;
+    justify-content: center;
+    width: 100%;
+    flex-wrap: wrap;
+    margin-top: 1vh;
+  }
+
+  .opcao{
+    background: linear-gradient(180deg, #ffffff, #FFF8E1);
+    border: 3px solid #F57C00;
+    border-radius: 25px;
+    padding: 1.5vh 2vw;
+    cursor: pointer;
+    min-width: 120px;
+    width: 30%;
+    max-width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    box-shadow: 0 0.7vh 0 #F57C00;
+    transition: transform 0.1s, background 0.2s;
+  }
+
+  .opcao:hover{
+    transform: translateY(-2px);
+  }
+
+  .opcao:active {
+    transform: translateY(0.4vh);
+    box-shadow: 0 0.2vh 0 #F57C00;
+  }
+
+  .opcao img{
+    width: 45px;
+    height: auto;
+    margin-bottom: 0.5vh;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+  }
+
+  .opcao p{
+    font-size: clamp(13px, 1.8vh, 18px);
+    font-weight: 800;
+    margin: 0;
+    color: #E65100;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  #resultado{
+    margin: 0.5vh auto;
+    padding: 0;
+    width: 90%;
+    max-width: 500px;
+    font-size: clamp(16px, 2.5vh, 22px);
+    font-weight: 800;
+    text-align: center;
+    border-radius: 20px;
+    min-height: 3vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #score{
+    font-size: clamp(14px, 2vh, 18px);
+    font-weight: 700;
+    color: #5D4037;
+    background: rgba(255,255,255,0.6);
+    padding: 0.8vh 2.5vw;
+    border-radius: 50px;
+    margin-top: 1vh;
+  }
+
+  #painelFinal{
+    display: none;
+    max-width: 90%;
+    width: 600px;
+    padding: 5vh 4vw;
+    
+    background-color: #faecd4;
+    border-radius: 40px;
+    border: 6px solid #FFB74D;
+    text-align: center;
+    box-shadow: 0 2vh 5vh rgba(0,0,0,0.2);
+    animation: fadeUp .6s ease;
+  }
+
+  #painelFinal h2{
+    font-size: clamp(32px, 5vh, 48px);
+    margin-bottom: 1vh;
+    color: #E65100;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  #resumoFinal {
+      font-size: clamp(18px, 2.5vh, 22px);
+      color: #5D4037;
+      margin-bottom: 3vh;
+  }
+
+  .totais {
+    display: flex;
+    justify-content: center;
+    gap: 5vw;
+    margin: 3vh 0 4vh 0;
+    background: rgba(255,255,255,0.6);
+    padding: 2vh;
+    border-radius: 25px;
+  }
+  
+  .acertos, .erros {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: clamp(16px, 2.2vh, 20px);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .acertos { color: #2E7D32; }
+  .erros { color: #C62828; }
+
+  .totais b {
+    font-size: clamp(40px, 6vh, 52px);
+    line-height: 1.1;
+    margin-top: 0.5vh;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+  }
+
+  #mensagemFinal {
+    font-size: clamp(18px, 2.5vh, 24px);
+    font-weight: bold;
+    color: #E65100;
+    margin-bottom: 4vh;
+  }
+
+  .botoes-finais{
+    display: flex;
+    justify-content: center;
+    gap: 2vw;
+    flex-wrap: wrap;
+  }
+
+  .btn-reiniciar, .btn-sair{
+    padding: 1.5vh 3vw;
+    font-size: clamp(16px, 2.2vh, 20px);
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-weight: 800;
+    color: white;
+    text-transform: uppercase;
+    transition: all 0.1s ease;
+    min-width: 150px;
+  }
+
+  .btn-reiniciar{ 
+    background: linear-gradient(180deg, #42A5F5, #1976D2); 
+    box-shadow: 0 0.6vh 0 #0D47A1; 
+  }
+  .btn-reiniciar:active{ 
+    transform: translateY(0.4vh); 
+    box-shadow: 0 0.2vh 0 #0D47A1; 
+  }
+
+  .btn-sair{ 
+    background: linear-gradient(180deg, #FFA726, #F57C00); 
+    box-shadow: 0 0.6vh 0 #E65100;
+  }
+  .btn-sair:active{ 
+    transform: translateY(0.4vh); 
+    box-shadow: 0 0.2vh 0 #E65100; 
+  }
+
+  @keyframes pulse{ 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(3vh)} to{opacity:1; transform:translateY(0)} }
+  
+  @media (max-width: 600px) {
+      .opcao { width: 45%; }
+      .botoes-finais { flex-direction: column; align-items: center; gap: 1.5vh; }
+      .btn-reiniciar, .btn-sair { width: 80%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="game-wrapper">
+  <h1>CULINÁRIA MUNDIAL</h1>
+  
+  <div id="intro">
+    <div class="intro-card">
+      <h2>CULINÁRIA MUNDIAL</h2>
+      <p>
+        Você conhece as comidas dos países?<br>
+        Veja a comida e clique na bandeira do país correto.<br><br>
+        São 15 pratos para testar seu conhecimento.
+      </p>
+      <button class="btn-jogar" onclick="iniciarJogo()">▶ Jogar</button>
+    </div>
+  </div>
+
+  <div id="container" style="display:none;">
+    
+    <div class="bloco-imagem">
+        <div id="progresso" class="label-progresso">Pergunta 1 de 15</div>
+        <img id="imagemPergunta" src="" alt="Imagem da comida">
+        <div id="nomeAlimento">NOME DO PRATO</div>
+    </div>
+    
+    <div id="pergunta">DE QUAL PAÍS É ESTE PRATO?</div>
+    
+    <div class="opcoes" id="opcoes">
+       </div>
+
+    <div id="resultado"></div>
+    <div id="score">Pontuação: 0</div>
+  </div>
+
+  <div id="painelFinal">
+    <h2>Fim de jogo!</h2>
+    <p id="resumoFinal"></p>
+
+    <div class="totais">
+      <span class="acertos">✔ Acertos: <b id="totalAcertos"></b></span>
+      <span class="erros">✘ Erros: <b id="totalErros"></b></span>
+    </div>
+
+    <p id="mensagemFinal"></p>
+
+    <div class="botoes-finais">
+      <button class="btn-reiniciar" onclick="voltarIntroducao()">🔁 Jogar Novamente</button>
+      <button class="btn-sair" onclick="fecharJogo()">🚪 Sair do Jogo</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const perguntas = [
+  { img:"img/arepas.png", nome:"AREPAS", correta:"COLÔMBIA", 
+    opcoes:[ 
+    {nome:"COLÔMBIA", img:"img/bandeiracolombia.png"}, 
+    {nome:"BRASIL", img:"img/bandeirabrasil.png"}, 
+    {nome:"MÉXICO", img:"img/bandeiramexico.png"} ] },
+  { img:"img/bibimbap.png", nome:"BIBIMBAP", correta:"COREIA DO SUL", 
+    opcoes:[ 
+    {nome:"CHINA", img:"img/bandeirachina.png"}, 
+    {nome:"COREIA DO SUL", img:"img/bandeiracoreiadosul.png"}, 
+    {nome:"JAPÃO", img:"img/bandeirajapao.png"} ] },
+  { img:"img/choripan.png", nome:"CHORIPAN", correta:"ARGENTINA", 
+    opcoes:[ 
+    {nome:"ARGENTINA", img:"img/bandeiraargentina.png"}, 
+    {nome:"BRASIL", img:"img/bandeirabrasil.png"}, 
+    {nome:"CHILE", img:"img/bandeirachile.png"} ] },
+  { img:"img/churros.png", nome:"CHURROS", correta:"ESPANHA", 
+    opcoes:[ 
+    {nome:"PORTUGAL", img:"img/bandeiraportugal.png"}, 
+    {nome:"ESPANHA", img:"img/bandeiraespanha.png"}, 
+    {nome:"MÉXICO", img:"img/bandeiramexico.png"} ] },
+  { img:"img/croissant.png", nome:"CROISSANT", correta:"FRANÇA", 
+    opcoes:[ 
+    {nome:"FRANÇA", img:"img/bandeirafranca.png"}, 
+    {nome:"ITÁLIA", img:"img/bandeiraitalia.png"}, 
+    {nome:"PORTUGAL", img:"img/bandeiraportugal.png"} ] },
+  { img:"img/cuscuzmarroquino.png", nome:"CUSCUZ MARROQUINO", correta:"MARROCOS", 
+    opcoes:[ 
+    {nome:"EGITO", img:"img/bandeiraegito.png"}, 
+    {nome:"MARROCOS", img:"img/bandeiramarrocos.png"}, 
+    {nome:"GRÉCIA", img:"img/bandeiragrecia.png"} ] },
+  { img:"img/falafel.png", nome:"FALAFEL", correta:"EGITO", 
+    opcoes:[
+    {nome:"EGITO", img:"img/bandeiraegito.png"}, 
+    {nome:"MARROCOS", img:"img/bandeiramarrocos.png"}, 
+    {nome:"ETIÓPIA", img:"img/bandeiraetiopia.png"} ] },
+  { img:"img/feijoada.png", nome:"FEIJOADA", correta:"BRASIL", 
+    opcoes:[ 
+    {nome:"PORTUGAL", img:"img/bandeiraportugal.png"}, 
+    {nome:"BRASIL", img:"img/bandeirabrasil.png"}, 
+    {nome:"ARGENTINA", img:"img/bandeiraargentina.png"} ] },
+  { img:"img/lamington.png", nome:"LAMINGTON", correta:"AUSTRÁLIA", 
+    opcoes:[ 
+    {nome:"REINO UNIDO", img:"img/bandeirareinounido.png"}, 
+    {nome:"AUSTRÁLIA", img:"img/bandeiraaustralia.png"}, 
+    {nome:"NOVA ZELÂNDIA", img:"img/bandeiranovazelandia.png"} ] },
+  { img:"img/moussaka.png", nome:"MOUSSAKA", correta:"GRÉCIA", 
+    opcoes:[ 
+    {nome:"ITÁLIA", img:"img/bandeiraitalia.png"}, 
+    {nome:"GRÉCIA", img:"img/bandeiragrecia.png"}, 
+    {nome:"JAPÃO", img:"img/bandeirajapao.png"} ] },
+  { img:"img/naan.png", nome:"NAAN", correta:"ÍNDIA", 
+    opcoes:[ 
+    {nome:"ÍNDIA", img:"img/bandeiraindia.png"}, 
+    {nome:"CHINA", img:"img/bandeirachina.png"}, 
+    {nome:"INDONÉSIA", img:"img/bandeiraindonesia.png"} ] },
+  { img:"img/pasteldenata.png", nome:"PASTEL DE NATA", correta:"PORTUGAL", 
+    opcoes:[ 
+    {nome:"PORTUGAL", img:"img/bandeiraportugal.png"}, 
+    {nome:"ESPANHA", img:"img/bandeiraespanha.png"}, 
+    {nome:"FRANÇA", img:"img/bandeirafranca.png"} ] },
+  { img:"img/pizza.png", nome:"PIZZA", correta:"ITÁLIA", 
+    opcoes:[ 
+    {nome:"ITÁLIA", img:"img/bandeiraitalia.png"}, 
+    {nome:"CANADÁ", img:"img/bandeiracanada.png"}, 
+    {nome:"FRANÇA", img:"img/bandeirafranca.png"} ] },
+  { img:"img/rolinhoprimavera.png", nome:"ROLINHO PRIMAVERA", correta:"CHINA", 
+    opcoes:[ 
+    {nome:"SÉRVIA", img:"img/bandeiraservia.png"}, 
+    {nome:"CHINA", img:"img/bandeirachina.png"}, 
+    {nome:"ÍNDIA", img:"img/bandeiraindia.png"} ] },
+  { img:"img/sushi.png", nome:"SUSHI", correta:"JAPÃO", 
+    opcoes:[ 
+    {nome:"TAILÂNDIA", img:"img/bandeiratailandia.png"}, 
+    {nome:"COREIA DO SUL", img:"img/bandeiracoreiadosul.png"}, 
+    {nome:"JAPÃO", img:"img/bandeirajapao.png"} ] }
+  ];
+
+let atual = 0;
+let score = 0;
+let respondido = false; 
+
+function iniciarJogo(){
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('painelFinal').style.display = 'none';
+  
+  const container = document.getElementById('container');
+  container.style.display = 'flex'; 
+  
+  document.querySelector('h1').style.display = 'block';
+
+  atual = 0;
+  score = 0;
+  respondido = false;
+
+  document.getElementById('score').innerText = 'Pontuação: 0';
+  mostrar();
+}
+
+function mostrar(){
+  const p = perguntas[atual];
+  
+  document.getElementById('progresso').innerText = `Pergunta ${atual+1} de ${perguntas.length}`;
+  document.getElementById('imagemPergunta').src = p.img;
+  document.getElementById('nomeAlimento').innerText = p.nome;
+
+  const r = document.getElementById('resultado');
+  r.innerHTML = '';
+  r.style.padding = '0'; 
+  r.style.border = 'none';
+  r.style.background = 'transparent';
+
+  const divOpcoes = document.getElementById('opcoes');
+  divOpcoes.innerHTML = ''; 
+  
+  p.opcoes.forEach(opcao => {
+      const btn = document.createElement('div');
+      btn.className = 'opcao';
+      btn.innerHTML = `<img src="${opcao.img}"><p>${opcao.nome}</p>`;
+      
+      btn.onclick = () => verificar(opcao.nome, btn);
+      
+      divOpcoes.appendChild(btn);
+  });
+  
+  respondido = false;
+}
+
+function verificar(resposta, elementoClicado){
+  if(respondido) return; 
+  respondido = true;
+
+  const p = perguntas[atual];
+  const r = document.getElementById('resultado');
+  r.style.padding = '1.5vh 1vw';
+  
+  if(resposta === p.correta){
+    r.innerText = "✔ CORRETO! O PAÍS É " + p.correta + "!";
+    
+    r.style.color = "#1B5E20";
+    r.style.background = "#C8E6C9";
+    r.style.border = "3px solid #43A047";
+    
+    elementoClicado.style.background = "#C8E6C9";
+    elementoClicado.style.borderColor = "#43A047";
+    score++;
+  } else {
+    r.innerText = "✘ INCORRETO! O PAÍS É " + p.correta + "!";
+
+    r.style.color = "#B71C1C";
+    r.style.background = "#FFCDD2";
+    r.style.border = "3px solid #E53935";
+    
+    elementoClicado.style.background = "#FFCDD2";
+    elementoClicado.style.borderColor = "#E53935";
+  }
+
+  document.getElementById('score').innerText = 'Pontuação: ' + score;
+
+  setTimeout(() => {
+      atual++;
+      if(atual < perguntas.length){
+          mostrar();
+      } else {
+          fim();
+      }
+  }, 2500);
+}
+
+function fim(){
+  document.getElementById('container').style.display = 'none';
+  document.querySelector('h1').style.display = 'none';
+
+  const painel = document.getElementById('painelFinal');
+  painel.style.display = 'block';
+
+  const erros = perguntas.length - score;
+  document.getElementById('totalAcertos').innerText = score;
+  document.getElementById('totalErros').innerText = erros;
+  document.getElementById('resumoFinal').innerText = `Você completou todas as ${perguntas.length} perguntas!`;
+
+  let msg = '';
+  if(score === perguntas.length) msg = "🏆 UAU! Você é um Mestre da Culinária!";
+  else if(score > perguntas.length * 0.7) msg = "👏 Muito bem! Conhece muitos sabores.";
+  else msg = "🍽 Continue explorando a cozinha mundial!";
+  
+  document.getElementById('mensagemFinal').innerText = msg;
+}
+
+function voltarIntroducao(){
+  document.getElementById('painelFinal').style.display = 'none';
+  document.getElementById('intro').style.display = 'flex';
+  document.querySelector('h1').style.display = 'none';
+}
+
+function fecharJogo(){
+  // 1. Tenta fechar a janela (funciona em alguns contextos específicos)
+  window.close();
+
+  // 2. Se o navegador bloquear (o que acontece em 99% das vezes),
+  // mudamos o conteúdo da página para uma tela de despedida.
+  document.body.innerHTML = `
+    <div style="
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        align-items: center; 
+        height: 100vh; 
+        background: linear-gradient(135deg, #FFF8E1, #FFECB3); 
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+        text-align: center;
+    ">
+        <h1 style="color: #E65100; font-size: 40px; margin-bottom: 20px;">Jogo Encerrado!</h1>
+        <p style="color: #5D4037; font-size: 24px;">Obrigado por jogar.</p>
+        <p style="color: #5D4037; font-size: 18px;">Você pode fechar esta aba agora.</p>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
